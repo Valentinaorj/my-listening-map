@@ -3,7 +3,7 @@
   <head>
     <title>my music world</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Tahoma&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -13,15 +13,11 @@
   </head>
   <body>
 
-    <!-- DESKTOP BACKGROUND -->
     <div id="desktop">
 
       <!-- TASKBAR -->
       <div id="taskbar">
-        <button class="start-btn">
-          <img src="https://win98icons.alexmeub.com/icons/png/windows_icon-0.png" width="16" height="16" alt="start" onerror="this.style.display='none'"/>
-          Start
-        </button>
+        <button class="start-btn">⊞ Start</button>
         <div class="taskbar-divider"></div>
         <div class="taskbar-items">
           <span class="taskbar-item active">🎵 my music world</span>
@@ -31,31 +27,17 @@
 
       <!-- DESKTOP ICONS -->
       <div id="desktop-icons">
-        <div class="desktop-icon">
-          <div class="icon-img">📁</div>
-          <span>my_playlists</span>
-        </div>
-        <div class="desktop-icon">
-          <div class="icon-img">💿</div>
-          <span>liked_songs.csv</span>
-        </div>
-        <div class="desktop-icon">
-          <div class="icon-img">🌍</div>
-          <span>world_map</span>
-        </div>
-        <div class="desktop-icon">
-          <div class="icon-img">📊</div>
-          <span>stats</span>
-        </div>
+        <div class="desktop-icon"><div class="icon-img">📁</div><span>playlists</span></div>
+        <div class="desktop-icon"><div class="icon-img">💿</div><span>liked_songs</span></div>
+        <div class="desktop-icon"><div class="icon-img">🌍</div><span>world_map</span></div>
+        <div class="desktop-icon"><div class="icon-img">📊</div><span>stats</span></div>
       </div>
 
       <!-- MAIN WINDOW -->
       <div class="window" id="main-window">
+
         <div class="title-bar">
-          <div class="title-bar-text">
-            <img src="https://win98icons.alexmeub.com/icons/png/cd_audio_cd_a-0.png" width="16" height="16" alt="" onerror="this.style.display='none'"/>
-            my music world — listening history dashboard
-          </div>
+          <div class="title-bar-text">🎵 my music world — listening history dashboard</div>
           <div class="title-bar-controls">
             <button class="win-btn minimize">_</button>
             <button class="win-btn maximize">□</button>
@@ -63,7 +45,6 @@
           </div>
         </div>
 
-        <!-- MENU BAR -->
         <div class="menu-bar">
           <span class="menu-item">File</span>
           <span class="menu-item">Edit</span>
@@ -72,7 +53,6 @@
           <span class="menu-item">Help</span>
         </div>
 
-        <!-- TOOLBAR -->
         <div class="toolbar">
           <button class="toolbar-btn">◀◀</button>
           <button class="toolbar-btn">▶</button>
@@ -86,10 +66,9 @@
           <span class="toolbar-label">2,202 tracks loaded</span>
         </div>
 
-        <!-- WINDOW CONTENT -->
         <div class="window-content">
 
-          <!-- INTRO PANEL -->
+          <!-- INTRO -->
           <div class="panel" id="intro-panel">
             <div class="panel-title-bar">
               <span>📋 about this dashboard</span>
@@ -108,118 +87,105 @@
             </div>
           </div>
 
-          <!-- TWO COLUMN LAYOUT -->
-          <div class="two-col">
+          <!-- CHAOS GRID -->
+          <div class="chaos-grid">
 
-            <!-- LEFT COLUMN -->
-            <div class="col-left">
-
-              <!-- DECADES WINDOW -->
-              <div class="panel">
-                <div class="panel-title-bar">
-                  <span>📅 tracks by decade</span>
-                  <span class="panel-controls">
-                    <button class="mini-btn">_</button>
-                    <button class="mini-btn">✕</button>
-                  </span>
-                </div>
-                <div class="panel-content">
-                  <canvas id="decades-chart"></canvas>
-                </div>
-                <div class="status-bar">
-                  <span class="status-item">chart type: bar</span>
-                  <span class="status-divider">|</span>
-                  <span class="status-item">values: % of total</span>
-                </div>
+            <!-- MAP — top left, wide -->
+            <div class="panel" id="map-panel">
+              <div class="panel-title-bar">
+                <span>🌍 where is my music from?</span>
+                <span class="panel-controls">
+                  <button class="mini-btn">_</button>
+                  <button class="mini-btn">✕</button>
+                </span>
               </div>
-
-              <!-- AUDIO PROFILE WINDOW -->
-              <div class="panel">
-                <div class="panel-title-bar">
-                  <span>🎛️ sonic profile</span>
-                  <span class="panel-controls">
-                    <button class="mini-btn">_</button>
-                    <button class="mini-btn">✕</button>
-                  </span>
-                </div>
-                <div class="panel-content radar-content">
-                  <canvas id="audio-chart"></canvas>
-                </div>
-                <div class="status-bar">
-                  <span class="status-item">averages across all tracks</span>
-                  <span class="status-divider">|</span>
-                  <span class="status-item">scale: 0–1</span>
-                  <span class="status-divider">|</span>
-                  <span class="status-item">⚠ valence = musical mood, not lyrical</span>
-                </div>
+              <div class="panel-content map-content">
+                <div id="map"></div>
               </div>
-
-              <!-- LANGUAGES WINDOW -->
-              <div class="panel">
-                <div class="panel-title-bar">
-                  <span>🗣️ languages</span>
-                  <span class="panel-controls">
-                    <button class="mini-btn">_</button>
-                    <button class="mini-btn">✕</button>
-                  </span>
-                </div>
-                <div class="panel-content donut-content">
-                  <canvas id="languages-chart"></canvas>
-                </div>
-                <div class="status-bar">
-                  <span class="status-item">estimated from artist country</span>
-                  <span class="status-divider">|</span>
-                  <span class="status-item">16 languages detected</span>
-                </div>
+              <div class="status-bar">
+                <span class="status-item">bubble size = song count</span>
+                <span class="status-divider">|</span>
+                <span class="status-item">click bubbles for details</span>
+                <span class="status-divider">|</span>
+                <span class="status-item">~356 artists unidentified</span>
               </div>
-
             </div>
 
-            <!-- RIGHT COLUMN -->
-            <div class="col-right">
-
-              <!-- MAP WINDOW -->
-              <div class="panel" id="map-panel">
-                <div class="panel-title-bar">
-                  <span>🌍 where is my music from?</span>
-                  <span class="panel-controls">
-                    <button class="mini-btn">_</button>
-                    <button class="mini-btn">✕</button>
-                  </span>
-                </div>
-                <div class="panel-content map-content">
-                  <div id="map"></div>
-                </div>
-                <div class="status-bar">
-                  <span class="status-item">bubble size = song count</span>
-                  <span class="status-divider">|</span>
-                  <span class="status-item">click bubbles for details</span>
-                  <span class="status-divider">|</span>
-                  <span class="status-item">~356 artists unidentified</span>
-                </div>
+            <!-- DECADES — top right -->
+            <div class="panel" id="decades-panel">
+              <div class="panel-title-bar">
+                <span>📅 tracks by decade</span>
+                <span class="panel-controls">
+                  <button class="mini-btn">_</button>
+                  <button class="mini-btn">✕</button>
+                </span>
               </div>
-
-              <!-- GENRES WINDOW -->
-              <div class="panel">
-                <div class="panel-title-bar">
-                  <span>🎸 top genres</span>
-                  <span class="panel-controls">
-                    <button class="mini-btn">_</button>
-                    <button class="mini-btn">✕</button>
-                  </span>
-                </div>
-                <div class="panel-content">
-                  <canvas id="genres-chart"></canvas>
-                </div>
-                <div class="status-bar">
-                  <span class="status-item">top 30 genres shown</span>
-                  <span class="status-divider">|</span>
-                  <span class="status-item">⚠ genre map coming soon</span>
-                </div>
+              <div class="panel-content">
+                <canvas id="decades-chart"></canvas>
               </div>
-
+              <div class="status-bar">
+                <span class="status-item">values: % of total</span>
+              </div>
             </div>
-          </div>
+
+            <!-- AUDIO PROFILE — mid right -->
+            <div class="panel" id="audio-panel">
+              <div class="panel-title-bar">
+                <span>🎛️ sonic profile</span>
+                <span class="panel-controls">
+                  <button class="mini-btn">_</button>
+                  <button class="mini-btn">✕</button>
+                </span>
+              </div>
+              <div class="panel-content radar-content">
+                <canvas id="audio-chart"></canvas>
+              </div>
+              <div class="status-bar">
+                <span class="status-item">averages across all tracks</span>
+                <span class="status-divider">|</span>
+                <span class="status-item">⚠ valence = musical mood, not lyrical</span>
+              </div>
+            </div>
+
+            <!-- GENRES — bottom left -->
+            <div class="panel" id="genres-panel">
+              <div class="panel-title-bar">
+                <span>🎸 top genres</span>
+                <span class="panel-controls">
+                  <button class="mini-btn">_</button>
+                  <button class="mini-btn">✕</button>
+                </span>
+              </div>
+              <div class="panel-content">
+                <canvas id="genres-chart"></canvas>
+              </div>
+              <div class="status-bar">
+                <span class="status-item">top 30 shown</span>
+                <span class="status-divider">|</span>
+                <span class="status-item">⚠ genre network coming in v2</span>
+              </div>
+            </div>
+
+            <!-- LANGUAGES — bottom right -->
+            <div class="panel" id="languages-panel">
+              <div class="panel-title-bar">
+                <span>🗣️ languages</span>
+                <span class="panel-controls">
+                  <button class="mini-btn">_</button>
+                  <button class="mini-btn">✕</button>
+                </span>
+              </div>
+              <div class="panel-content donut-content">
+                <canvas id="languages-chart"></canvas>
+              </div>
+              <div class="status-bar">
+                <span class="status-item">estimated from artist country</span>
+                <span class="status-divider">|</span>
+                <span class="status-item">16 languages detected</span>
+              </div>
+            </div>
+
+          </div><!-- end chaos-grid -->
 
           <!-- CONNECTIONS PLACEHOLDER -->
           <div class="panel" id="connections-panel">
@@ -236,14 +202,13 @@
                 <span> loading genre network graph... </span>
                 <span class="blink">█</span>
                 <p class="small-text">cumbia → african percussion → latin jazz → bossa nova → tropicália</p>
-                <p class="small-text">an interactive D3.js force graph of genre families and their roots. coming in v2.</p>
+                <p class="small-text">interactive D3.js force graph of genre families and their roots — v2</p>
               </div>
             </div>
           </div>
 
         </div><!-- end window-content -->
       </div><!-- end main-window -->
-
     </div><!-- end desktop -->
 
     <script src="app.js"></script>

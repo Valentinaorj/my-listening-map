@@ -239,9 +239,9 @@ Papa.parse("data/master_playlist_enriched.csv", {
     // initialize map with dark tiles
     let map = L.map("map").setView([20, 0], 2)
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_matter/{z}/{x}/{y}{r}.png", {
-      attribution: "© OpenStreetMap © CARTO",
-      subdomains: "abcd"
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", {
+    attribution: "© OpenStreetMap © CARTO",
+    subdomains: "abcd"
     }).addTo(map)
 
     let maxCount = Math.max(...Object.values(countries))
@@ -255,8 +255,8 @@ Papa.parse("data/master_playlist_enriched.csv", {
 
       L.circleMarker(countryCoordinates[country], {
         radius: radius,
-        fillColor: "#00ff88",
-        color: "#008040",
+        fillColor: "#63AEE0",
+        color: "#63AEE0",
         weight: 1,
         fillOpacity: 0.6
       })
