@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>genre editor — by artist</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js"></script>
+  <style>
+    :root {
+      --bg: #f0ece4;
+      --card: #faf8f4;
+      --border: #c8c0b0;
+      --text: #1a1814;
+      --muted: #7a7060;
+      --accent: #9e9cce;
+      --accent-dark: #6b69a0;
+      --accent-light: #e8e7f5;
+      --mint: #bde8d0;
+      --mint-dark: #7abe9c;
+      --mint-light: #dff4eb;
+      --yellow: #eece93;
+      --yellow-dark: #c4a050;
+      --yellow-light: #f8edd4;
+      --green: #d1e7a1;
+      --green-dark: #7aa830;
+      --danger: #e07070;
+      --danger-light: #fdeaea;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 80px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    h1 {
+      font-family: 'DM Mono', monospace;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+    }
+
+    h1 span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 400;
+      margin-top: 3px;
+    }
+
+    .counter {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .counter strong {
+      font-size: 26px;
+      color: var(--accent-dark);
+      display: block;
+      line-height: 1;
+    }
+
+    /* ── PROGRESS ── */
+    .progress-track {
+      width: 100%;
+      max-width: 800px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--accent), var(--mint-dark));
+      border-radius: 2px;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    /* ── MAIN CARD ── */
+    .card {
+      width: 100%;
+      max-width: 800px;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    }
+
+    /* ── ARTIST HEADER ── */
+    .artist-header {
+      padding: 24px 28px 20px;
+      border-bottom: 1.5px solid var(--border);
+      background: var(--accent-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .artist-name {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .artist-meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .artist-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    /* ── BULK GENRE EDITOR ── */
+    .bulk-section {
+      padding: 20px 28px;
+      border-bottom: 1.5px solid var(--border);
+      background: white;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .bulk-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      font-style: italic;
+    }
+
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 14px;
+      min-height: 32px;
+    }
+
+    .tag {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      border: 1.5px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .tag.original { background: var(--yellow); border-color: var(--yellow-dark); color: #2a1800; }
+    .tag.added    { background: var(--mint);   border-color: var(--mint-dark);   color: #082818; }
+
+    .tag .remove-tag {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      color: inherit;
+      opacity: 0.5;
+      padding: 0;
+    }
+    .tag .remove-tag:hover { opacity: 1; }
+
+    .add-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .add-input {
+      flex: 1;
+      padding: 7px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      background: white;
+      color: var(--text);
+      outline: none;
+    }
+    .add-input:focus { border-color: var(--accent); }
+    .add-input::placeholder { color: var(--muted); }
+
+    .add-btn {
+      padding: 7px 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .add-btn:hover { background: var(--accent-dark); }
+
+    /* ── SONGS LIST ── */
+    .songs-section {
+      padding: 0;
+    }
+
+    .songs-header {
+      padding: 14px 28px 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .song-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 28px;
+      border-bottom: 1px solid #ece8e0;
+      transition: background 0.1s;
+    }
+    .song-row:last-child { border-bottom: none; }
+    .song-row:hover { background: #f5f2ec; }
+
+    .song-info { flex: 1; min-width: 0; }
+
+    .song-title-small {
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .song-year {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .song-tags-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .mini-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--yellow-light);
+      border: 1px solid var(--yellow-dark);
+      color: #2a1800;
+    }
+
+    .mini-tag.custom {
+      background: var(--mint-light);
+      border-color: var(--mint-dark);
+      color: #082818;
+    }
+
+    .mini-tag.override {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent-dark);
+    }
+
+    .btn-override {
+      flex-shrink: 0;
+      padding: 4px 10px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+      margin-top: 2px;
+      transition: all 0.15s;
+    }
+    .btn-override:hover { border-color: var(--accent); color: var(--accent-dark); }
+    .btn-override.active { background: var(--accent-light); border-color: var(--accent); color: var(--accent-dark); }
+
+    /* ── INDIVIDUAL OVERRIDE EDITOR ── */
+    .override-editor {
+      display: none;
+      padding: 10px 28px 14px 28px;
+      background: var(--accent-light);
+      border-top: 1px solid var(--accent);
+      border-bottom: 1px solid var(--accent);
+    }
+
+    .override-editor.visible { display: block; }
+
+    .override-editor .section-label { margin-bottom: 8px; color: var(--accent-dark); }
+
+    .override-tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+      min-height: 28px;
+    }
+
+    .override-add-row { display: flex; gap: 6px; }
+
+    /* ── ACTIONS ── */
+    .actions {
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1.5px solid var(--border);
+      background: var(--bg);
+    }
+
+    .btn-download {
+      padding: 9px 18px;
+      background: transparent;
+      border: 1.5px solid var(--green-dark);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--green-dark);
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .btn-download:hover { background: var(--green); }
+
+    .right-actions { display: flex; gap: 8px; }
+
+    .btn-skip {
+      padding: 9px 18px;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .btn-skip:hover { border-color: var(--muted); color: var(--text); }
+
+    .btn-save {
+      padding: 9px 22px;
+      background: var(--accent-dark);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-save:hover { background: #4a4880; }
+
+    /* ── DONE ── */
+    .done-card {
+      width: 100%;
+      max-width: 800px;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 48px 32px;
+      text-align: center;
+      display: none;
+    }
+    .done-card.visible { display: block; }
+    .done-card h2 { font-size: 28px; margin-bottom: 12px; }
+    .done-card p { color: var(--muted); font-size: 15px; line-height: 1.6; margin-bottom: 24px; }
+
+    .btn-export-big {
+      padding: 12px 28px;
+      background: var(--green-dark);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    #loading {
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 60px;
+    }
+
+    .keyboard-hint {
+      width: 100%;
+      max-width: 800px;
+      margin-top: 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+    }
+    kbd { background: var(--border); padding: 1px 5px; border-radius: 3px; font-family: 'DM Mono', monospace; }
+  </style>
+</head>
+<body>
+
+<p id="loading">loading your songs...</p>
+
+<header id="header" style="display:none">
+  <div>
+    <h1>genre editor
+      <span>reviewing artists tagged "indie" or "latin"</span>
+    </h1>
+  </div>
+  <div class="counter">
+    <strong id="count-current">0</strong>
+    of <span id="count-total">0</span> artists
+  </div>
+</header>
+
+<div class="progress-track" id="progress-track" style="display:none">
+  <div class="progress-fill" id="progress-fill"></div>
+</div>
+
+<div class="card" id="main-card" style="display:none">
+
+  <!-- artist header -->
+  <div class="artist-header">
+    <div>
+      <div class="artist-name" id="artist-name">—</div>
+      <div class="artist-meta" id="artist-meta">—</div>
+    </div>
+    <div class="artist-num" id="artist-num"></div>
+  </div>
+
+  <!-- bulk genre editor -->
+  <div class="bulk-section">
+    <div class="section-label">genres for all songs by this artist</div>
+    <p class="bulk-note">Changes here apply to all songs below. Use "edit separately" on individual songs for exceptions.</p>
+    <div class="tags-row" id="bulk-tags-row"></div>
+    <div class="add-row">
+      <input type="text" class="add-input" id="bulk-add-input" placeholder="add a genre tag...">
+      <button class="add-btn" id="bulk-add-btn">+ add</button>
+    </div>
+  </div>
+
+  <!-- songs list -->
+  <div class="songs-section">
+    <div class="songs-header">
+      <span>songs</span>
+      <span id="songs-count-label"></span>
+    </div>
+    <div id="songs-list"></div>
+  </div>
+
+  <!-- actions -->
+  <div class="actions">
+    <button class="btn-download" id="download-btn">⬇ save progress</button>
+    <div class="right-actions">
+      <button class="btn-skip" id="skip-btn">skip artist →</button>
+      <button class="btn-save" id="save-btn">apply & next →</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="keyboard-hint" id="keyboard-hint" style="display:none">
+  <kbd>Enter</kbd> apply &amp; next &nbsp; <kbd>Tab</kbd> skip artist
+</div>
+
+<div class="done-card" id="done-card">
+  <h2>🎉 all done!</h2>
+  <p>You've reviewed all <strong id="done-total">0</strong> artists.<br>
+  Download your updated CSV and replace <code>data/master_playlist_enriched.csv</code> with it.</p>
+  <button class="btn-export-big" id="export-final-btn">⬇ download updated CSV</button>
+</div>
+
+<script>
+  let allSongs = []
+  let artistGroups = []   // [{artist, indexes, bulkTags, overrides: {index: [tags]}}]
+  let currentArtist = 0
+
+  // ── LOAD ──
+  Papa.parse("data/master_playlist_enriched.csv", {
+    header: true,
+    download: true,
+    complete: function(results) {
+      allSongs = results.data
+
+// group songs by artist, only those with indie or latin tags
+      const artistMap = {}
+      allSongs.forEach(function(song, i) {
+        if (!song["Genres"]) return
+        const genreList = song["Genres"].split(",").map(function(g) { return g.trim().toLowerCase() })
+        const hasIndie = genreList.includes("indie")
+        const hasLatin = genreList.includes("latin")
+        if (!hasIndie && !hasLatin) return
+        const artist = song["Artist Name(s)"] || "Unknown"
+        if (!artistMap[artist]) artistMap[artist] = []
+        artistMap[artist].push(i)
+      })
+
+      // sort artists by song count descending
+      artistGroups = Object.keys(artistMap)
+        .sort(function(a, b) { return artistMap[b].length - artistMap[a].length })
+        .map(function(artist) {
+          const indexes = artistMap[artist]
+          // derive shared tags from first song
+          const firstSong = allSongs[indexes[0]]
+          const tags = firstSong["Genres"]
+            ? firstSong["Genres"].split(",").map(function(g) { return g.trim() }).filter(Boolean)
+            : []
+          return { artist, indexes, bulkTags: [...tags], overrides: {} }
+        })
+
+      document.getElementById("loading").style.display = "none"
+      document.getElementById("count-total").textContent = artistGroups.length
+      document.getElementById("done-total").textContent = artistGroups.length
+
+      if (artistGroups.length === 0) {
+        document.getElementById("done-card").classList.add("visible")
+        return
+      }
+
+      document.getElementById("header").style.display = "flex"
+      document.getElementById("progress-track").style.display = "block"
+      document.getElementById("main-card").style.display = "block"
+      document.getElementById("keyboard-hint").style.display = "block"
+
+      showArtist(0)
+    }
+  })
+
+  // ── SHOW ARTIST ──
+  function showArtist(pos) {
+    if (pos >= artistGroups.length) {
+      document.getElementById("main-card").style.display = "none"
+      document.getElementById("keyboard-hint").style.display = "none"
+      document.getElementById("done-card").classList.add("visible")
+      return
+    }
+
+    currentArtist = pos
+    const group = artistGroups[pos]
+    const pct = (pos / artistGroups.length) * 100
+
+    document.getElementById("progress-fill").style.width = pct + "%"
+    document.getElementById("count-current").textContent = pos + 1
+    document.getElementById("artist-name").textContent = group.artist
+    document.getElementById("artist-num").textContent = "artist " + (pos + 1) + " of " + artistGroups.length
+
+    // artist meta from first song
+    const first = allSongs[group.indexes[0]]
+    const country = first["Artist Country"] || "unknown country"
+    const continent = first["Artist Continent"] || ""
+    document.getElementById("artist-meta").textContent = country + (continent ? " · " + continent : "") + " · " + group.indexes.length + " songs"
+    document.getElementById("songs-count-label").textContent = group.indexes.length + " songs"
+
+    renderBulkTags()
+    renderSongsList()
+    document.getElementById("bulk-add-input").value = ""
+  }
+
+  // ── BULK TAGS ──
+  function renderBulkTags() {
+    const group = artistGroups[currentArtist]
+    const row = document.getElementById("bulk-tags-row")
+    row.innerHTML = ""
+    group.bulkTags.forEach(function(tag, i) {
+      const el = document.createElement("span")
+      el.className = "tag " + (tag === "latin alternative" ? "original" : "added")
+      el.innerHTML = tag + ' <button class="remove-tag">×</button>'
+      el.querySelector(".remove-tag").addEventListener("click", function() {
+        group.bulkTags.splice(i, 1)
+        renderBulkTags()
+        renderSongsList()
+      })
+      row.appendChild(el)
+    })
+  }
+
+  document.getElementById("bulk-add-btn").addEventListener("click", bulkAddTag)
+  document.getElementById("bulk-add-input").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") { e.preventDefault(); bulkAddTag() }
+  })
+
+  function bulkAddTag() {
+    const input = document.getElementById("bulk-add-input")
+    const val = input.value.trim().toLowerCase()
+    if (!val) return
+    const group = artistGroups[currentArtist]
+    if (!group.bulkTags.includes(val)) {
+      group.bulkTags.push(val)
+      renderBulkTags()
+      renderSongsList()
+    }
+    input.value = ""
+  }
+
+  // ── SONGS LIST ──
+  function renderSongsList() {
+    const group = artistGroups[currentArtist]
+    const list = document.getElementById("songs-list")
+    list.innerHTML = ""
+
+    group.indexes.forEach(function(songIdx) {
+      const song = allSongs[songIdx]
+      const hasOverride = group.overrides[songIdx] !== undefined
+      const displayTags = hasOverride ? group.overrides[songIdx] : group.bulkTags
+
+      const row = document.createElement("div")
+      row.className = "song-row"
+      row.dataset.idx = songIdx
+
+      // song info
+      const info = document.createElement("div")
+      info.className = "song-info"
+
+      const title = document.createElement("div")
+      title.className = "song-title-small"
+      title.textContent = song["Track Name"] || "Unknown"
+
+      const year = document.createElement("div")
+      year.className = "song-year"
+      year.textContent = song["Release Date"] ? song["Release Date"].substring(0, 4) : "?"
+
+      const tagsPreview = document.createElement("div")
+      tagsPreview.className = "song-tags-preview"
+      displayTags.forEach(function(tag) {
+        const t = document.createElement("span")
+        t.className = "mini-tag" + (hasOverride ? " override" : (tag === "latin alternative" ? "" : " custom"))
+        t.textContent = tag
+        tagsPreview.appendChild(t)
+      })
+
+      info.appendChild(title)
+      info.appendChild(year)
+      info.appendChild(tagsPreview)
+
+      // override button
+      const overrideBtn = document.createElement("button")
+      overrideBtn.className = "btn-override" + (hasOverride ? " active" : "")
+      overrideBtn.textContent = hasOverride ? "✎ individual" : "edit separately"
+      overrideBtn.addEventListener("click", function() {
+        toggleOverrideEditor(songIdx, row, overrideBtn)
+      })
+
+      row.appendChild(info)
+      row.appendChild(overrideBtn)
+      list.appendChild(row)
+
+      // override editor (hidden by default)
+      const overrideEditor = buildOverrideEditor(songIdx, group)
+      list.appendChild(overrideEditor)
+    })
+  }
+
+  // ── OVERRIDE EDITOR ──
+  function buildOverrideEditor(songIdx, group) {
+    const editor = document.createElement("div")
+    editor.className = "override-editor"
+    editor.dataset.editorFor = songIdx
+
+    const label = document.createElement("div")
+    label.className = "section-label"
+    label.textContent = "individual tags for this song only"
+
+    const tagsRow = document.createElement("div")
+    tagsRow.className = "override-tags-row"
+    tagsRow.id = "override-tags-" + songIdx
+
+    const addRow = document.createElement("div")
+    addRow.className = "override-add-row"
+
+    const input = document.createElement("input")
+    input.type = "text"
+    input.className = "add-input"
+    input.placeholder = "add tag..."
+    input.style.fontSize = "12px"
+
+    const addBtn = document.createElement("button")
+    addBtn.className = "add-btn"
+    addBtn.textContent = "+ add"
+    addBtn.style.fontSize = "12px"
+
+    const clearBtn = document.createElement("button")
+    clearBtn.className = "btn-skip"
+    clearBtn.textContent = "remove override"
+    clearBtn.style.fontSize = "11px"
+    clearBtn.style.padding = "6px 12px"
+
+    addBtn.addEventListener("click", function() {
+      addOverrideTag(songIdx, input.value.trim().toLowerCase())
+      input.value = ""
+    })
+    input.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") { e.preventDefault(); addOverrideTag(songIdx, input.value.trim().toLowerCase()); input.value = "" }
+    })
+    clearBtn.addEventListener("click", function() {
+      delete group.overrides[songIdx]
+      renderSongsList()
+    })
+
+    addRow.appendChild(input)
+    addRow.appendChild(addBtn)
+    addRow.appendChild(clearBtn)
+
+    editor.appendChild(label)
+    editor.appendChild(tagsRow)
+    editor.appendChild(addRow)
+
+    // pre-populate if override exists
+    renderOverrideTags(songIdx, group)
+
+    return editor
+  }
+
+  function toggleOverrideEditor(songIdx, row, btn) {
+    const group = artistGroups[currentArtist]
+    const editor = document.querySelector("[data-editor-for='" + songIdx + "']")
+    if (!editor) return
+
+    const isVisible = editor.classList.contains("visible")
+    if (isVisible) {
+      editor.classList.remove("visible")
+      btn.classList.remove("active")
+      btn.textContent = group.overrides[songIdx] !== undefined ? "✎ individual" : "edit separately"
+    } else {
+      // init override with current bulk tags if not set
+      if (group.overrides[songIdx] === undefined) {
+        group.overrides[songIdx] = [...group.bulkTags]
+        renderOverrideTags(songIdx, group)
+      }
+      editor.classList.add("visible")
+      btn.classList.add("active")
+      btn.textContent = "✎ individual"
+    }
+  }
+
+  function addOverrideTag(songIdx, val) {
+    if (!val) return
+    const group = artistGroups[currentArtist]
+    if (!group.overrides[songIdx]) group.overrides[songIdx] = [...group.bulkTags]
+    if (!group.overrides[songIdx].includes(val)) {
+      group.overrides[songIdx].push(val)
+      renderOverrideTags(songIdx, group)
+      renderSongsList()
+    }
+  }
+
+  function renderOverrideTags(songIdx, group) {
+    const row = document.getElementById("override-tags-" + songIdx)
+    if (!row) return
+    row.innerHTML = ""
+    const tags = group.overrides[songIdx] || []
+    tags.forEach(function(tag, i) {
+      const el = document.createElement("span")
+      el.className = "tag added"
+      el.style.fontSize = "11px"
+      el.style.padding = "3px 8px"
+      el.innerHTML = tag + ' <button class="remove-tag">×</button>'
+      el.querySelector(".remove-tag").addEventListener("click", function() {
+        group.overrides[songIdx].splice(i, 1)
+        renderOverrideTags(songIdx, group)
+        renderSongsList()
+      })
+      row.appendChild(el)
+    })
+  }
+
+  // ── SAVE & NEXT ──
+  document.getElementById("save-btn").addEventListener("click", saveAndNext)
+  document.getElementById("skip-btn").addEventListener("click", function() { showArtist(currentArtist + 1) })
+
+  function saveAndNext() {
+    const group = artistGroups[currentArtist]
+    group.indexes.forEach(function(songIdx) {
+      const tags = group.overrides[songIdx] !== undefined
+        ? group.overrides[songIdx]
+        : group.bulkTags
+      allSongs[songIdx]["Genres"] = tags.join(",")
+    })
+    showArtist(currentArtist + 1)
+  }
+
+  // ── KEYBOARD ──
+  document.addEventListener("keydown", function(e) {
+    if (e.target.tagName === "INPUT") return
+    if (e.key === "Enter") saveAndNext()
+    if (e.key === "Tab") { e.preventDefault(); showArtist(currentArtist + 1) }
+  })
+
+  // ── EXPORT ──
+  function exportCSV() {
+    const csv = Papa.unparse(allSongs)
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "master_playlist_enriched.csv"
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  document.getElementById("download-btn").addEventListener("click", exportCSV)
+  document.getElementById("export-final-btn").addEventListener("click", exportCSV)
+</script>
+</body>
+</html>

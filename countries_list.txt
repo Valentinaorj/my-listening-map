@@ -1,0 +1,235 @@
+ 407  United States
+ 394  United Kingdom
+ 148  Colombia
+ 135  Argentina
+  90  France
+  75  Spain
+  65  Germany
+  60  Mexico
+  57  Unknown
+  53  Italy
+  42  Canada
+  37  Japan
+  37  Uruguay
+  36  Chile
+  27  Australia
+  19  Puerto Rico
+  17  Peru
+  17  Brazil
+  17  Cuba
+  16  United States; United States
+  14  Sweden
+  13  Austria
+  13  Colombia; Colombia
+  12  Belgium
+  12  Jamaica
+  10  Unknown; Unknown
+   9  Netherlands
+   9  Ecuador
+   8  United States; United States; United States
+   8  Mali
+   8  France; France
+   8  Switzerland
+   8  Ukraine
+   7  Argentina; Argentina
+   6  Mexico; Mexico
+   6  Norway
+   5  XE
+   5  Panama
+   5  Ireland
+   5  United Kingdom; United States
+   5  Portugal
+   4  Israel
+   4  France; United States
+   4  Denmark
+   4  Senegal
+   4  United States; United Kingdom
+   4  Algeria
+   4  Ethiopia
+   3  Venezuela
+   3  Poland
+   3  Latvia
+   3  Germany; United States
+   3  Russia
+   3  New Zealand
+   3  Mexico; United States
+   3  Spain; Colombia
+   3  United Kingdom; United Kingdom
+   3  South Africa
+   3  Germany; United Kingdom
+   3  Unknown; Unknown; Unknown
+   3  Greece
+   3  Lebanon
+   3  Colombia; Unknown
+   3  Cabo Verde
+   3  Mali; United States
+   3  Iceland
+   3  Niger
+   2  United States; Puerto Rico
+   2  India
+   2  Spain; Argentina
+   2  Czech Republic
+   2  Switzerland; Sweden; Switzerland
+   2  Argentina; Spain
+   2  Colombia; United Kingdom
+   2  Colombia; Argentina
+   2  Spain; United Kingdom
+   2  Italy; Italy
+   2  Palestine
+   2  Zambia
+   2  United States; United States; United States; Mexico; Mexico
+   2  Unknown; United States
+   2  United Kingdom; Unknown
+   2  Russian Federation
+   2  Spain; Spain
+   2  Bolivia
+   2  Puerto Rico; United States
+   2  Colombia; Unknown; Colombia
+   2  Mexico; Unknown
+   2  United States; india
+   2  Mexico; Colombia
+   2  Chile; Chile
+   2  Colombia; United States
+   2  Nigeria
+   1  United States; Japan
+   1  Israel; United Kingdom; India
+   1  Togo
+   1  Angola
+   1  Congo; France
+   1  Zimbabwe
+   1  Timor-Leste
+   1  Estonia
+   1  Romania
+   1  Germany; Germany
+   1  Sweden; Finland; Germany
+   1  United Kingdom; United Kingdom; United Kingdom
+   1  Belarus
+   1  Türkiye
+   1  Canada; Colombia
+   1  Argentina; United States
+   1  Colombia; Canada
+   1  Portugal; Brazil
+   1  Mexico; Mexico; Colombia
+   1  Argentina; Ecuador
+   1  Puerto Rico; Colombia; Peru; Germany
+   1  Uruguay; Uruguay
+   1  Colombia; Colombia; Colombia
+   1  Nigeria; United Kingdom
+   1  Colombia; Mexico
+   1  France; France; France
+   1  Russian Federation; United States; United States
+   1  France; United Kingdom
+   1  France; Netherlands; Netherlands
+   1  Poland; United States
+   1  Puerto Rico; United Kingdom; Puerto Rico
+   1  United States; Panama
+   1  Hungary; Estonia; United Kingdom
+   1  Hungary; Hungary
+   1  Hungary; United Kingdom; United States
+   1  Russian Federation; United States; United Kingdom
+   1  Spain; United States
+   1  Hungary
+   1  Germany; Austria; Germany
+   1  Italy; United Kingdom
+   1  United States; Germany
+   1  Australia; United States
+   1  Unknown; Mexico; Mexico
+   1  Unknown; Norway
+   1  Mexico; Puerto Rico
+   1  Unknown; Italy; Argentina
+   1  Chile; Uruguay
+   1  Mali; Gambia
+   1  Western Sahara
+   1  Guatemala
+   1  Ghana
+   1  Sweden; Sweden
+   1  Egypt
+   1  Côte d'Ivoire
+   1  Morocco
+   1  Unknown; Unknown; Brazil
+   1  Spain; France
+   1  State of
+   1  Argentina; Colombia
+   1  Saudi Arabia
+   1  Tunisia; United Kingdom; United Kingdom
+   1  Hungary; France
+   1  United States; United States; United States; United States
+   1  United Kingdom; Denmark
+   1  Côte d'Ivoire; Jamaica
+   1  United States; Ireland; United Kingdom
+   1  Georgia
+   1  Germany; Slovakia
+   1  Belgium; Senegal
+   1  Pakistan
+   1  Bosnia and Herzegovina; Israel
+   1  Argentina; Mexico
+   1  Guinea
+   1  Slovenia
+   1  Greece; Greece; Greece
+   1  Austria; France
+   1  Austria; United States
+   1  Jamaica; Jamaica
+   1  Unknown; Brazil
+   1  Unknown; Unknown; Unknown; France; France
+   1  Mongolia
+   1  United Kingdom; Mexico
+   1  Spain; Argentina; Spain
+   1  Chile; Unknown
+   1  France; Japan
+   1  Bolivarian Republic of
+   1  Argentina; Argentina; Unknown
+   1  Argentina; Puerto Rico
+   1  Puerto Rico; Colombia
+   1  United Kingdom; Colombia
+   1  Unknown; Brazil; Brazil
+   1  United States; Mexico; United Kingdom; United States; United States; United States
+   1  Japan; United Kingdom; New Zealand
+   1  United States; Unknown; Canada
+   1  Unknown; Canada
+   1  United Kingdom; Switzerland; United Kingdom
+   1  Unknown; Italy
+   1  Unknown; Unknown; Colombia
+   1  Uruguay; Mexico
+   1  Spain; Unknown
+   1  Switzerland; United States
+   1  Australia; Australia
+   1  Colombia; Unknown; Unknown
+   1  Iceland; Iceland; Iceland; Iceland
+   1  Spain; Uruguay
+   1  Cuba; Cuba
+   1  Nigeria; Russian Federation
+   1  France; Brazil; France
+   1  Cuba; Switzerland
+   1  United States; United States; Austria
+   1  Sweden; Norway
+   1  France; France; United States; France
+   1  France; United States; France
+   1  France; United States; United States
+   1  Dominican Republic
+   1  Austria; United Kingdom; Slovenia
+   1  France; Netherlands
+   1  United States; France
+   1  Italy; Brazil
+   1  Puerto Rico; France
+   1  Puerto Rico; Panama; Argentina
+   1  Puerto Rico; Mexico
+   1  Puerto Rico; Cuba
+   1  Mexico; Chile
+   1  Mexico; Guatemala
+   1  United Kingdom; Unknown; Unknown; South Africa; South Africa
+   1  Benin
+   1  Colombia; France
+   1  Unknown; Mexico; Unknown; Unknown
+   1  France; Spain
+   1  Mali; Lebanon
+   1  Unknown; Unknown; Germany; Unknown
+   1  United States; Mexico
+   1  Ethiopia; United Kingdom
+   1  Taiwan
+   1  Province of China
+   1  Japan; Japan
+   1  XW
+   1  Sweden; Unknown
+   1  Finland
+   1  Mexico; Unknown; Unknown
+   1  United States; Canada

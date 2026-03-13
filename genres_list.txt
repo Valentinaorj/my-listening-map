@@ -1,0 +1,292 @@
+ 117  folk latino
+  81  rock latino
+  60  electrocumbia
+  57  rock
+  50  singer-songwriter
+  49  alternative rock
+  44  hip hop latino
+  25  neo-psychedelic
+  24  mexican ska
+  23  rock and roll
+  22  indie rock
+  22  psychedelic rock
+  21  jangle pop
+  20  german pop
+  20  pop latino
+  19  garage rock
+  18  cumbia
+  17  neo-soul
+  16  hip hop
+  16  downtempo
+  16  proto-punk
+  16  nu jazz
+  15  ska
+  15  hard rock
+  15  trova
+  14  baroque pop
+  13  bolero
+  13  art rock
+  12  classical piano
+  12  italo dance
+  12  bolero influence
+  12  reggaeton
+  11  darkwave
+  11  german indie
+  11  glam rock
+  11  gnawa
+  10  son cubano
+  10  folclor andino
+  10  classical
+  10  synthpop
+  10  french indie pop
+  10  mexican rock
+   9  trip hop
+   9  madchester
+   9  jazz
+   9  cold wave
+   9  jazz latino
+   9  opera
+   9  retro soul
+   9  candombe
+   8  classic rock
+   8  electro
+   8  new wave
+   8  murga
+   8  mexican indie
+   8  acid rock
+   8  french jazz
+   7  chicha
+   7  fado
+   7  punk
+   7  jazz blues
+   7  vocal jazz
+   7  soft rock
+   7  motown
+   7  dancehall
+   7  cumbia sonidera
+   7  french house
+   7  japanese indie
+   7  ambient folk
+   6  merengue
+   6  afropop
+   6  german hip hop
+   6  disco
+   6  ethiopian jazz
+   6  indie soul
+   6  lounge
+   6  nueva trova
+   6  big band
+   6  adult standards
+   6  italian singer-songwriter
+   6  orchestra
+   6  bedroom pop
+   6  rap
+   6  folk
+   6  lo-fi indie
+   6  flamenco influence
+   6  afrobeat
+   6  swing music
+   5  dub
+   5  dream pop
+   5  east coast hip hop
+   5  post-punk
+   5  rumba flamenca
+   5  chamber music
+   5  blues rock
+   5  traditional music
+   5  jazz fusion
+   5  avant-garde
+   5  afrobeats latino
+   4  folk rock
+   4  old school hip hop
+   4  colombian experimental
+   4  blues
+   4  cool jazz
+   4  tropical music
+   4  lo-fi
+   4  tango
+   4  choral
+   4  alternative r&b
+   4  roots reggae
+   4  brazilian jazz
+   4  pop acustico
+   4  alternative dance
+   4  hip hop italiano
+   3  shibuya-kei
+   3  j-pop
+   3  surf rock
+   3  indie folk
+   3  nu disco
+   3  hi-nrg
+   3  tribal house
+   3  candombe influence
+   3  argentine rock
+   3  psychedelic pop
+   3  tropical bass
+   3  vallenato
+   3  son jarocho
+   3  native american music
+   3  city pop
+   3  colombian pop
+   3  pop
+   3  ska latino
+   3  northern soul
+   3  aor
+   3  jazz funk
+   3  electro swing
+   3  chanson
+   3  ranchera
+   3  soul
+   3  soul blues
+   3  cumbia influence
+   3  ragtime
+   3  salsa
+   3  doo-wop
+   2  drone metal
+   2  folk punk
+   2  alt country
+   2  acid jazz
+   2  exotica
+   2  mpb
+   2  neoclassical
+   2  japanese classical
+   2  anime
+   2  schlager
+   2  classic soul
+   2  bossa nova
+   2  space rock
+   2  uk funky
+   2  art pop
+   2  electronica
+   2  deathrock
+   2  slowcore
+   2  electronica latina
+   2  cancion protesta
+   2  christmas
+   2  southern gothic
+   2  minimalism
+   2  funk
+   2  modern blues
+   2  ska punk
+   2  mambo
+   2  jazz rap
+   2  anti-folk
+   2  requiem
+   2  samba
+   2  indie jazz
+   2  r&b
+   2  popular colombian music
+   2  reggae
+   2  dreamy pop
+   2  quiet storm
+   2  variété française
+   2  post-rock
+   2  britpop
+   2  americana
+   2  ragga
+   2  egyptian pop
+   2  flamenco
+   2  nederpop
+   2  funk rock
+   2  hardcore punk
+   2  country rock
+   2  electropop
+   2  guaracha
+   2  nova mpb
+   2  free jazz
+   2  synth pop
+   2  musicals
+   2  hardcore hip hop
+   2  pop rock
+   2  j-r&b
+   2  canzone napoletana
+   2  devotional
+   1  eurodance
+   1  qawwali
+   1  jam band
+   1  new age
+   1  egg punk
+   1  gothic rock
+   1  post-punk influence
+   1  ebm
+   1  bacardi
+   1  house latino
+   1  cumbia pop
+   1  acousmatic
+   1  indie latino
+   1  acoustic pop
+   1  indie dance
+   1  glam metal
+   1  shoegaze
+   1  grunge
+   1  flamenco pop
+   1  cuarteto
+   1  jazz house
+   1  alternative hip hop
+   1  jungle
+   1  afro soul
+   1  pop soul
+   1  villancicos
+   1  space music
+   1  pop urbaine
+   1  math rock
+   1  electroclash
+   1  arabic hip hop
+   1  experimental hip hop
+   1  reggaeton chileno
+   1  balkan influence
+   1  flamenco urbano
+   1  calypso
+   1  house
+   1  smooth jazz
+   1  boom bap
+   1  lo-fi beats
+   1  lovers rock
+   1  forró
+   1  roots rock
+   1  traditional folk
+   1  swedish pop
+   1  tropical dub
+   1  brazilian hip hop
+   1  jazz beats
+   1  french pop
+   1  organic house
+   1  melodic house
+   1  lo-fi house
+   1  cumbia influenced
+   1  christian country
+   1  uk r&b
+   1  progressive rock
+   1  riot grrrl
+   1  sludge metal
+   1  future bass
+   1  breakbeat
+   1  chillwave
+   1  new rave
+   1  indie pop
+   1  champeta
+   1  r&b latino
+   1  industrial
+   1  cajun
+   1  rocksteady
+   1  soft pop
+   1  power pop
+   1  gangster rap
+   1  new jack swing
+   1  classic country
+   1  southern rock
+   1  enka
+   1  kayokyoku
+   1  bachata
+   1  gqom
+   1  soca
+   1  punta
+   1  spanish-language reggae
+   1  mizrahi
+   1  j-rock
+   1  c-pop
+   1  celtic
+   1  medieval
+   1  latin alternative
+   1  west coast hip hop
+   1  comedy

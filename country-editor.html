@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>country editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js"></script>
+  <style>
+    :root {
+      --bg: #f0ece4;
+      --card: #faf8f4;
+      --border: #c8c0b0;
+      --text: #1a1814;
+      --muted: #7a7060;
+      --accent: #9e9cce;
+      --accent-dark: #6b69a0;
+      --accent-light: #e8e7f5;
+      --mint: #bde8d0;
+      --mint-dark: #7abe9c;
+      --mint-light: #dff4eb;
+      --yellow: #eece93;
+      --yellow-dark: #c4a050;
+      --green: #d1e7a1;
+      --green-dark: #7aa830;
+      --danger: #e07070;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 80px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 700px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    h1 { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; }
+    h1 span { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 3px; }
+    .counter { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); text-align: right; }
+    .counter strong { font-size: 26px; color: var(--accent-dark); display: block; line-height: 1; }
+
+    .progress-track { width: 100%; max-width: 700px; height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 24px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(to right, var(--accent), var(--mint-dark)); border-radius: 2px; transition: width 0.3s ease; width: 0%; }
+
+    .card { width: 100%; max-width: 700px; background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 16px rgba(0,0,0,0.06); }
+
+    /* artist header */
+    .artist-header {
+      padding: 24px 28px 20px;
+      border-bottom: 1.5px solid var(--border);
+      background: var(--accent-light);
+    }
+    .artist-name { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+    .artist-meta { font-size: 13px; color: var(--muted); margin-top: 4px; font-family: 'DM Mono', monospace; }
+
+    /* current country display */
+    .current-section {
+      padding: 16px 28px;
+      border-bottom: 1.5px solid var(--border);
+      background: white;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .current-label { font-family: 'DM Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); white-space: nowrap; }
+    .current-value { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--danger); font-weight: 500; }
+
+    /* input section */
+    .input-section { padding: 20px 28px; border-bottom: 1.5px solid var(--border); }
+    .input-label { font-family: 'DM Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px; }
+    .input-note { font-size: 12px; color: var(--muted); margin-bottom: 14px; font-style: italic; }
+
+    .country-input-wrap { position: relative; margin-bottom: 12px; }
+    .country-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      background: white;
+      color: var(--text);
+      outline: none;
+    }
+    .country-input:focus { border-color: var(--accent); }
+    .country-input::placeholder { color: var(--muted); }
+
+    .suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0; right: 0;
+      background: white;
+      border: 1.5px solid var(--accent);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      z-index: 10;
+      max-height: 180px;
+      overflow-y: auto;
+      display: none;
+    }
+    .suggestions.visible { display: block; }
+    .suggestion-item {
+      padding: 8px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .suggestion-item:hover, .suggestion-item.active { background: var(--accent-light); }
+
+    .continent-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .continent-btn {
+      padding: 5px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      background: white;
+      color: var(--muted);
+      transition: all 0.15s;
+      font-family: 'DM Mono', monospace;
+    }
+    .continent-btn:hover { border-color: var(--accent); color: var(--accent-dark); }
+    .continent-btn.selected { background: var(--accent); border-color: var(--accent-dark); color: white; }
+
+    /* songs list */
+    .songs-section { padding: 0; }
+    .songs-header {
+      padding: 12px 28px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .song-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 28px;
+      border-bottom: 1px solid #ece8e0;
+    }
+    .song-row:last-child { border-bottom: none; }
+    .song-title { font-size: 13px; font-weight: 500; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .song-year { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); flex-shrink: 0; }
+    .song-genre { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); flex-shrink: 0; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* actions */
+    .actions {
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1.5px solid var(--border);
+      background: var(--bg);
+    }
+    .btn-download { padding: 9px 18px; background: transparent; border: 1.5px solid var(--green-dark); border-radius: 8px; font-size: 13px; color: var(--green-dark); cursor: pointer; font-weight: 500; }
+    .btn-download:hover { background: var(--green); }
+    .right-actions { display: flex; gap: 8px; }
+    .btn-skip { padding: 9px 18px; background: transparent; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--muted); cursor: pointer; }
+    .btn-skip:hover { border-color: var(--muted); color: var(--text); }
+    .btn-save { padding: 9px 22px; background: var(--accent-dark); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
+    .btn-save:hover { background: #4a4880; }
+    .btn-save:disabled { background: var(--border); cursor: not-allowed; }
+
+    /* done */
+    .done-card { width: 100%; max-width: 700px; background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; padding: 48px 32px; text-align: center; display: none; }
+    .done-card.visible { display: block; }
+    .done-card h2 { font-size: 28px; margin-bottom: 12px; }
+    .done-card p { color: var(--muted); font-size: 15px; line-height: 1.6; margin-bottom: 24px; }
+    .btn-export-big { padding: 12px 28px; background: var(--green-dark); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; }
+
+    .keyboard-hint { width: 100%; max-width: 700px; margin-top: 10px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); text-align: right; }
+    kbd { background: var(--border); padding: 1px 5px; border-radius: 3px; font-family: 'DM Mono', monospace; }
+
+    #loading { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--muted); margin-top: 60px; }
+  </style>
+</head>
+<body>
+
+<p id="loading">loading your songs...</p>
+
+<header id="header" style="display:none">
+  <div>
+    <h1>country editor
+      <span>artists with unknown country of origin</span>
+    </h1>
+  </div>
+  <div class="counter">
+    <strong id="count-current">0</strong>
+    of <span id="count-total">0</span> artists
+  </div>
+</header>
+
+<div class="progress-track" id="progress-track" style="display:none">
+  <div class="progress-fill" id="progress-fill"></div>
+</div>
+
+<div class="card" id="main-card" style="display:none">
+
+  <div class="artist-header">
+    <div class="artist-name" id="artist-name">—</div>
+    <div class="artist-meta" id="artist-meta">—</div>
+  </div>
+
+  <div class="current-section">
+    <span class="current-label">current country</span>
+    <span class="current-value" id="current-country">Unknown</span>
+  </div>
+
+  <div class="input-section">
+    <div class="input-label">assign country</div>
+    <p class="input-note">For collaborations from different countries, separate with " ; " — e.g. "Colombia; France"</p>
+    <div class="country-input-wrap">
+      <input type="text" class="country-input" id="country-input" placeholder="type a country..." autocomplete="off">
+      <div class="suggestions" id="suggestions"></div>
+    </div>
+    <div class="input-label" style="margin-top:14px; margin-bottom:8px;">continent</div>
+    <div class="continent-row" id="continent-row">
+      <button class="continent-btn" data-continent="Africa">Africa</button>
+      <button class="continent-btn" data-continent="America">America</button>
+      <button class="continent-btn" data-continent="Asia">Asia</button>
+      <button class="continent-btn" data-continent="Europe">Europe</button>
+      <button class="continent-btn" data-continent="Oceania">Oceania</button>
+    </div>
+  </div>
+
+  <div class="songs-section">
+    <div class="songs-header">songs by this artist</div>
+    <div id="songs-list"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-download" id="download-btn">⬇ save progress</button>
+    <div class="right-actions">
+      <button class="btn-skip" id="skip-btn">skip →</button>
+      <button class="btn-save" id="save-btn">apply & next →</button>
+    </div>
+  </div>
+</div>
+
+<div class="keyboard-hint" id="keyboard-hint" style="display:none">
+  <kbd>Enter</kbd> apply &amp; next &nbsp; <kbd>Tab</kbd> skip
+</div>
+
+<div class="done-card" id="done-card">
+  <h2>🌍 all done!</h2>
+  <p>You've reviewed all unknown artists.<br>
+  Download your updated CSV and replace <code>data/master_playlist_enriched.csv</code> with it.</p>
+  <button class="btn-export-big" id="export-final-btn">⬇ download updated CSV</button>
+</div>
+
+<script>
+  // country → continent map for auto-fill
+  const countryContinent = {
+    "Afghanistan":"Asia","Albania":"Europe","Algeria":"Africa","Angola":"Africa",
+    "Argentina":"America","Armenia":"Asia","Australia":"Oceania","Austria":"Europe",
+    "Azerbaijan":"Asia","Bangladesh":"Asia","Belarus":"Europe","Belgium":"Europe",
+    "Bolivia":"America","Bosnia":"Europe","Brazil":"America","Bulgaria":"Europe",
+    "Cambodia":"Asia","Cameroon":"Africa","Canada":"America","Chile":"America",
+    "China":"Asia","Colombia":"America","Congo":"Africa","Costa Rica":"America",
+    "Croatia":"Europe","Cuba":"America","Czech Republic":"Europe","Denmark":"Europe",
+    "Dominican Republic":"America","Ecuador":"America","Egypt":"Africa",
+    "El Salvador":"America","Estonia":"Europe","Ethiopia":"Africa","Finland":"Europe",
+    "France":"Europe","Gambia":"Africa","Georgia":"Asia","Germany":"Europe",
+    "Ghana":"Africa","Greece":"Europe","Guatemala":"America","Guinea":"Africa",
+    "Haiti":"America","Honduras":"America","Hungary":"Europe","Iceland":"Europe",
+    "India":"Asia","Indonesia":"Asia","Iran":"Asia","Iraq":"Asia","Ireland":"Europe",
+    "Israel":"Asia","Italy":"Europe","Jamaica":"America","Japan":"Asia","Jordan":"Asia",
+    "Kazakhstan":"Asia","Kenya":"Africa","Latvia":"Europe","Lebanon":"Asia",
+    "Lithuania":"Europe","Luxembourg":"Europe","Madagascar":"Africa","Malaysia":"Asia",
+    "Mali":"Africa","Mexico":"America","Moldova":"Europe","Mongolia":"Asia",
+    "Morocco":"Africa","Mozambique":"Africa","Myanmar":"Asia","Nepal":"Asia",
+    "Netherlands":"Europe","New Zealand":"Oceania","Nicaragua":"America","Niger":"Africa",
+    "Nigeria":"Africa","Norway":"Europe","Pakistan":"Asia","Palestine":"Asia",
+    "Panama":"America","Paraguay":"America","Peru":"America","Philippines":"Asia",
+    "Poland":"Europe","Portugal":"Europe","Puerto Rico":"America","Romania":"Europe",
+    "Russia":"Europe","Rwanda":"Africa","Saudi Arabia":"Asia","Senegal":"Africa",
+    "Serbia":"Europe","Slovakia":"Europe","Slovenia":"Europe","Somalia":"Africa",
+    "South Africa":"Africa","South Korea":"Asia","Spain":"Europe","Sudan":"Africa",
+    "Sweden":"Europe","Switzerland":"Europe","Syria":"Asia","Taiwan":"Asia",
+    "Tanzania":"Africa","Thailand":"Asia","Togo":"Africa","Tunisia":"Africa",
+    "Turkey":"Asia","Uganda":"Africa","Ukraine":"Europe","United Kingdom":"Europe",
+    "United States":"America","Uruguay":"America","Venezuela":"America",
+    "Vietnam":"Asia","Zambia":"Africa","Zimbabwe":"Africa","Bolivia":"America",
+    "Ivory Coast":"Africa","Democratic Republic of Congo":"Africa"
+  }
+
+  const allCountries = Object.keys(countryContinent).sort()
+
+  let allSongs = []
+  let artistGroups = []
+  let currentIdx = 0
+  let selectedContinent = ""
+
+  Papa.parse("data/master_playlist_enriched.csv", {
+    header: true,
+    download: true,
+    complete: function(results) {
+      allSongs = results.data
+
+      const artistMap = {}
+      allSongs.forEach(function(song, i) {
+        const country = song["Artist Country"]
+        const isUnknown = !country || country === "Unknown" || country.includes("Unknown")
+        if (!isUnknown) return
+        const artist = song["Artist Name(s)"]
+        if (!artist || typeof artist !== "string") return
+        if (!artistMap[artist]) artistMap[artist] = []
+        artistMap[artist].push(i)
+      })
+
+      artistGroups = Object.keys(artistMap)
+        .sort(function(a, b) { return artistMap[b].length - artistMap[a].length })
+        .map(function(artist) {
+          return { artist, indexes: artistMap[artist] }
+        })
+
+      document.getElementById("loading").style.display = "none"
+      document.getElementById("count-total").textContent = artistGroups.length
+
+      if (artistGroups.length === 0) {
+        document.getElementById("done-card").classList.add("visible")
+        return
+      }
+
+      document.getElementById("header").style.display = "flex"
+      document.getElementById("progress-track").style.display = "block"
+      document.getElementById("main-card").style.display = "block"
+      document.getElementById("keyboard-hint").style.display = "block"
+
+      showArtist(0)
+    }
+  })
+
+  function showArtist(pos) {
+    if (pos >= artistGroups.length) {
+      document.getElementById("main-card").style.display = "none"
+      document.getElementById("keyboard-hint").style.display = "none"
+      document.getElementById("done-card").classList.add("visible")
+      return
+    }
+
+    currentIdx = pos
+    selectedContinent = ""
+    const group = artistGroups[pos]
+    const pct = (pos / artistGroups.length) * 100
+
+    document.getElementById("progress-fill").style.width = pct + "%"
+    document.getElementById("count-current").textContent = pos + 1
+    document.getElementById("artist-name").textContent = group.artist
+    document.getElementById("current-country").textContent = allSongs[group.indexes[0]]["Artist Country"] || "Unknown"
+
+    // meta: genres from first song
+    const first = allSongs[group.indexes[0]]
+    const genres = first["Genres"] ? first["Genres"].split(",").slice(0, 3).join(", ") : "no genres"
+    document.getElementById("artist-meta").textContent = group.indexes.length + " song" + (group.indexes.length > 1 ? "s" : "") + " · " + genres
+
+    // clear inputs
+    document.getElementById("country-input").value = ""
+    document.getElementById("suggestions").classList.remove("visible")
+    document.querySelectorAll(".continent-btn").forEach(function(b) { b.classList.remove("selected") })
+
+    renderSongs(group)
+    document.getElementById("country-input").focus()
+  }
+
+  function renderSongs(group) {
+    const list = document.getElementById("songs-list")
+    list.innerHTML = ""
+    group.indexes.forEach(function(i) {
+      const song = allSongs[i]
+      const row = document.createElement("div")
+      row.className = "song-row"
+
+      const title = document.createElement("div")
+      title.className = "song-title"
+      title.textContent = song["Track Name"] || "Unknown"
+
+      const year = document.createElement("div")
+      year.className = "song-year"
+      year.textContent = song["Release Date"] ? song["Release Date"].substring(0, 4) : "?"
+
+      const genre = document.createElement("div")
+      genre.className = "song-genre"
+      genre.textContent = song["Genres"] ? song["Genres"].split(",").slice(0, 2).join(", ") : ""
+
+      row.appendChild(title)
+      row.appendChild(year)
+      row.appendChild(genre)
+      list.appendChild(row)
+    })
+  }
+
+  // ── AUTOCOMPLETE ──
+  const input = document.getElementById("country-input")
+  const suggestionsEl = document.getElementById("suggestions")
+  let activeSuggestion = -1
+
+  input.addEventListener("input", function() {
+    const val = input.value.trim().toLowerCase()
+    if (!val) { suggestionsEl.classList.remove("visible"); return }
+
+    const matches = allCountries.filter(function(c) { return c.toLowerCase().startsWith(val) }).slice(0, 8)
+    if (!matches.length) { suggestionsEl.classList.remove("visible"); return }
+
+    suggestionsEl.innerHTML = ""
+    activeSuggestion = -1
+    matches.forEach(function(country, i) {
+      const item = document.createElement("div")
+      item.className = "suggestion-item"
+      item.textContent = country
+      item.addEventListener("mousedown", function(e) {
+        e.preventDefault()
+        selectCountry(country)
+      })
+      suggestionsEl.appendChild(item)
+    })
+    suggestionsEl.classList.add("visible")
+  })
+
+  input.addEventListener("keydown", function(e) {
+    const items = suggestionsEl.querySelectorAll(".suggestion-item")
+    if (e.key === "ArrowDown") {
+      e.preventDefault()
+      activeSuggestion = Math.min(activeSuggestion + 1, items.length - 1)
+      items.forEach(function(el, i) { el.classList.toggle("active", i === activeSuggestion) })
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault()
+      activeSuggestion = Math.max(activeSuggestion - 1, -1)
+      items.forEach(function(el, i) { el.classList.toggle("active", i === activeSuggestion) })
+    } else if (e.key === "Escape") {
+      suggestionsEl.classList.remove("visible")
+    }
+  })
+
+  input.addEventListener("blur", function() {
+    setTimeout(function() { suggestionsEl.classList.remove("visible") }, 150)
+  })
+
+  function selectCountry(country) {
+    input.value = country
+    suggestionsEl.classList.remove("visible")
+    // auto-select continent
+    if (countryContinent[country]) {
+      selectContinent(countryContinent[country])
+    }
+    input.focus()
+  }
+
+  // ── CONTINENT BUTTONS ──
+  document.querySelectorAll(".continent-btn").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      selectContinent(btn.dataset.continent)
+    })
+  })
+
+  function selectContinent(continent) {
+    selectedContinent = continent
+    document.querySelectorAll(".continent-btn").forEach(function(b) {
+      b.classList.toggle("selected", b.dataset.continent === continent)
+    })
+  }
+
+  // ── SAVE ──
+  document.getElementById("save-btn").addEventListener("click", saveAndNext)
+  document.getElementById("skip-btn").addEventListener("click", function() { showArtist(currentIdx + 1) })
+
+  function saveAndNext() {
+    const country = document.getElementById("country-input").value.trim()
+    if (!country) { document.getElementById("country-input").focus(); return }
+
+    const continent = selectedContinent || inferContinent(country)
+    const group = artistGroups[currentIdx]
+
+    group.indexes.forEach(function(i) {
+      allSongs[i]["Artist Country"] = country
+      allSongs[i]["Artist Continent"] = continent
+    })
+
+    showArtist(currentIdx + 1)
+  }
+
+  function inferContinent(countryStr) {
+    // handle multi-country like "Colombia; France"
+    const parts = countryStr.split(";").map(function(c) { return c.trim() })
+    const continents = parts.map(function(c) { return countryContinent[c] || "Unknown" })
+    return continents.join("; ")
+  }
+
+  // ── KEYBOARD ──
+  document.addEventListener("keydown", function(e) {
+    if (e.target === input) {
+      if (e.key === "Enter") {
+        const items = suggestionsEl.querySelectorAll(".suggestion-item")
+        if (activeSuggestion >= 0 && items[activeSuggestion]) {
+          e.preventDefault()
+          selectCountry(items[activeSuggestion].textContent)
+        } else if (!suggestionsEl.classList.contains("visible")) {
+          e.preventDefault()
+          saveAndNext()
+        }
+      }
+      return
+    }
+    if (e.key === "Enter") saveAndNext()
+    if (e.key === "Tab") { e.preventDefault(); showArtist(currentIdx + 1) }
+  })
+
+  // ── EXPORT ──
+  function exportCSV() {
+    const csv = Papa.unparse(allSongs)
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "master_playlist_enriched.csv"
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  document.getElementById("download-btn").addEventListener("click", exportCSV)
+  document.getElementById("export-final-btn").addEventListener("click", exportCSV)
+</script>
+</body>
+</html>

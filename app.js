@@ -122,6 +122,7 @@ const countryCoordinates = {
   "Romania": [45.94, 24.97],
   "Turkey": [38.96, 35.24],
   "Israel": [31.05, 34.85],
+  "Palestine": [31.95, 35.20],
   "Lebanon": [33.85, 35.86],
   "Egypt": [26.82, 30.80],
   "Morocco": [31.79, -7.09],
