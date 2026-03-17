@@ -433,16 +433,109 @@
       text-align: right;
     }
     kbd { background: var(--border); padding: 1px 5px; border-radius: 3px; font-family: 'DM Mono', monospace; }
+
+    /* ── MODE TOGGLE ── */
+    .mode-toggle {
+      width: 100%; max-width: 800px;
+      display: flex; gap: 0;
+      margin-bottom: 20px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+    }
+    .mode-btn {
+      flex: 1; padding: 10px 0;
+      background: white; border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500;
+      color: var(--muted); cursor: pointer;
+      transition: all 0.15s;
+    }
+    .mode-btn:first-child { border-right: 1.5px solid var(--border); }
+    .mode-btn.active { background: var(--accent-dark); color: white; }
+    .mode-btn:hover:not(.active) { background: var(--bg); color: var(--text); }
+
+    /* ── SEARCH PANEL ── */
+    #search-panel {
+      width: 100%; max-width: 800px;
+      display: none; flex-direction: column; gap: 12px;
+    }
+    #search-panel.active { display: flex; }
+
+    #song-search-input {
+      width: 100%; padding: 10px 14px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'DM Mono', monospace; font-size: 13px;
+      background: white; color: var(--text); outline: none;
+    }
+    #song-search-input:focus { border-color: var(--accent); }
+    #song-search-input::placeholder { color: var(--muted); }
+
+    .search-results-count {
+      font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); padding: 0 4px;
+    }
+    .search-results {
+      background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden;
+    }
+    .search-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 20px; border-bottom: 1px solid #ece8e0; transition: background 0.1s;
+    }
+    .search-row:last-child { border-bottom: none; }
+    .search-row:hover { background: #f5f2ec; }
+    .search-song-info { flex: 1; min-width: 0; }
+    .search-song-title { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .search-song-artist { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .search-genre-editor { display: flex; flex-direction: column; gap: 6px; min-width: 220px; max-width: 280px; }
+    .search-tags-row { display: flex; flex-wrap: wrap; gap: 4px; min-height: 24px; }
+    .search-tag {
+      display: flex; align-items: center; gap: 4px;
+      padding: 2px 7px; border-radius: 4px;
+      font-size: 11px; font-family: 'DM Mono', monospace;
+      background: var(--mint-light); border: 1px solid var(--mint-dark); color: #082818;
+    }
+    .search-tag .remove-tag { background: none; border: none; cursor: pointer; font-size: 12px; line-height: 1; color: inherit; opacity: 0.5; padding: 0; }
+    .search-tag .remove-tag:hover { opacity: 1; }
+    .search-add-row { display: flex; gap: 5px; }
+    .search-add-input {
+      flex: 1; padding: 4px 8px;
+      border: 1.5px solid var(--border); border-radius: 6px;
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      background: white; outline: none; min-width: 0;
+    }
+    .search-add-input:focus { border-color: var(--accent); }
+    .search-add-btn { padding: 4px 10px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 11px; cursor: pointer; white-space: nowrap; }
+    .search-add-btn:hover { background: var(--accent-dark); }
+    .search-save-indicator { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--mint-dark); opacity: 0; transition: opacity 0.3s; }
+    .search-save-indicator.show { opacity: 1; }
+    .search-empty { padding: 32px; text-align: center; font-family: 'DM Mono', monospace; font-size: 13px; color: var(--muted); }
+    .search-download-bar { display: flex; justify-content: flex-end; }
+
   </style>
 </head>
 <body>
+
+<div class="mode-toggle" id="mode-toggle" style="display:none">
+  <button class="mode-btn active" id="mode-artist-btn" onclick="setMode('artist')">by artist</button>
+  <button class="mode-btn" id="mode-search-btn" onclick="setMode('search')">search songs</button>
+</div>
+
+<div id="search-panel">
+  <input type="text" id="song-search-input" placeholder="search by song title or artist...">
+  <div class="search-results-count" id="search-results-count"></div>
+  <div class="search-results" id="search-results">
+    <div class="search-empty">type to search your songs</div>
+  </div>
+  <div class="search-download-bar">
+    <button class="btn-download" id="search-download-btn">⬇ save progress</button>
+  </div>
+</div>
 
 <p id="loading">loading your songs...</p>
 
 <header id="header" style="display:none">
   <div>
     <h1>genre editor
-      <span>reviewing artists tagged "indie" or "latin"</span>
+      <span>reviewing artists with no genre</span>
     </h1>
   </div>
   <div class="counter">
@@ -520,14 +613,11 @@
     complete: function(results) {
       allSongs = results.data
 
-// group songs by artist, only those with indie or latin tags
+// group songs by artist, only those with no genre
       const artistMap = {}
       allSongs.forEach(function(song, i) {
-        if (!song["Genres"]) return
-        const genreList = song["Genres"].split(",").map(function(g) { return g.trim().toLowerCase() })
-        const hasIndie = genreList.includes("indie")
-        const hasLatin = genreList.includes("latin")
-        if (!hasIndie && !hasLatin) return
+        const hasNoGenre = !song["Genres"] || song["Genres"].trim() === ""
+        if (!hasNoGenre) return
         const artist = song["Artist Name(s)"] || "Unknown"
         if (!artistMap[artist]) artistMap[artist] = []
         artistMap[artist].push(i)
@@ -550,8 +640,11 @@
       document.getElementById("count-total").textContent = artistGroups.length
       document.getElementById("done-total").textContent = artistGroups.length
 
+      // always show mode toggle
+      document.getElementById("mode-toggle").style.display = "flex"
+
       if (artistGroups.length === 0) {
-        document.getElementById("done-card").classList.add("visible")
+        setMode('search')
         return
       }
 
@@ -822,6 +915,144 @@
     if (e.key === "Enter") saveAndNext()
     if (e.key === "Tab") { e.preventDefault(); showArtist(currentArtist + 1) }
   })
+
+
+  // ── MODE TOGGLE ──
+  function setMode(mode) {
+    document.getElementById('mode-artist-btn').classList.toggle('active', mode === 'artist')
+    document.getElementById('mode-search-btn').classList.toggle('active', mode === 'search')
+    const artistEls = ['header', 'progress-track', 'main-card', 'keyboard-hint', 'done-card']
+    artistEls.forEach(function(id) {
+      const el = document.getElementById(id)
+      if (!el) return
+      el.style.display = mode === 'artist' ? (id === 'header' ? 'flex' : 'block') : 'none'
+    })
+    const sp = document.getElementById('search-panel')
+    sp.classList.toggle('active', mode === 'search')
+    if (mode === 'search') document.getElementById('song-search-input').focus()
+  }
+
+  // ── SEARCH ──
+  let searchDebounce = null
+  document.getElementById('song-search-input').addEventListener('input', function() {
+    clearTimeout(searchDebounce)
+    searchDebounce = setTimeout(runSearch, 180)
+  })
+
+  function runSearch() {
+    const q = document.getElementById('song-search-input').value.trim().toLowerCase()
+    const resultsEl = document.getElementById('search-results')
+    const countEl   = document.getElementById('search-results-count')
+    if (!q || q.length < 2) {
+      resultsEl.innerHTML = '<div class="search-empty">type to search your songs</div>'
+      countEl.textContent = ''
+      return
+    }
+    const matches = []
+    allSongs.forEach(function(song, i) {
+      const title  = (song['Track Name']     || '').toLowerCase()
+      const artist = (song['Artist Name(s)'] || '').toLowerCase()
+      if (title.includes(q) || artist.includes(q)) matches.push(i)
+    })
+    countEl.textContent = matches.length + ' results'
+    if (matches.length === 0) {
+      resultsEl.innerHTML = '<div class="search-empty">no songs found</div>'
+      return
+    }
+    resultsEl.innerHTML = ''
+    matches.slice(0, 80).forEach(function(idx) { resultsEl.appendChild(buildSearchRow(idx)) })
+    if (matches.length > 80) {
+      const more = document.createElement('div')
+      more.className = 'search-empty'
+      more.style.fontSize = '11px'
+      more.textContent = '+ ' + (matches.length - 80) + ' more — refine your search'
+      resultsEl.appendChild(more)
+    }
+  }
+
+  function buildSearchRow(idx) {
+    const song = allSongs[idx]
+    const row  = document.createElement('div')
+    row.className = 'search-row'
+    const info = document.createElement('div')
+    info.className = 'search-song-info'
+    const title = document.createElement('div')
+    title.className = 'search-song-title'
+    title.textContent = song['Track Name'] || '—'
+    const artist = document.createElement('div')
+    artist.className = 'search-song-artist'
+    artist.textContent = (song['Artist Name(s)'] || '—') + (song['Release Date'] ? '  ·  ' + song['Release Date'].slice(0,4) : '')
+    info.appendChild(title)
+    info.appendChild(artist)
+    const editor = document.createElement('div')
+    editor.className = 'search-genre-editor'
+    const tagsRow = document.createElement('div')
+    tagsRow.className = 'search-tags-row'
+    tagsRow.id = 'search-tags-' + idx
+    const addRow = document.createElement('div')
+    addRow.className = 'search-add-row'
+    const input = document.createElement('input')
+    input.type = 'text'
+    input.className = 'search-add-input'
+    input.placeholder = 'add genre...'
+    const addBtn = document.createElement('button')
+    addBtn.className = 'search-add-btn'
+    addBtn.textContent = '+ add'
+    const saved = document.createElement('span')
+    saved.className = 'search-save-indicator'
+    saved.id = 'saved-' + idx
+    saved.textContent = '✓ saved'
+    function addTag(val) {
+      val = val.trim().toLowerCase()
+      if (!val) return
+      const current = getCurrentTags(idx)
+      if (!current.includes(val)) {
+        current.push(val)
+        saveSearchTags(idx, current, saved)
+        renderSearchTags(idx, tagsRow, saved)
+      }
+      input.value = ''
+    }
+    addBtn.addEventListener('click', function() { addTag(input.value) })
+    input.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); addTag(input.value) } })
+    addRow.appendChild(input)
+    addRow.appendChild(addBtn)
+    editor.appendChild(tagsRow)
+    editor.appendChild(addRow)
+    editor.appendChild(saved)
+    row.appendChild(info)
+    row.appendChild(editor)
+    renderSearchTags(idx, tagsRow, saved)
+    return row
+  }
+
+  function getCurrentTags(idx) {
+    const raw = allSongs[idx]['Genres'] || ''
+    return raw.split(',').map(function(g) { return g.trim() }).filter(Boolean)
+  }
+
+  function saveSearchTags(idx, tags, savedEl) {
+    allSongs[idx]['Genres'] = tags.join(',')
+    if (savedEl) { savedEl.classList.add('show'); setTimeout(function() { savedEl.classList.remove('show') }, 1500) }
+  }
+
+  function renderSearchTags(idx, tagsRow, savedEl) {
+    tagsRow.innerHTML = ''
+    getCurrentTags(idx).forEach(function(tag) {
+      const el = document.createElement('span')
+      el.className = 'search-tag'
+      el.innerHTML = tag + ' <button class="remove-tag">×</button>'
+      el.querySelector('.remove-tag').addEventListener('click', function() {
+        const current = getCurrentTags(idx)
+        current.splice(current.indexOf(tag), 1)
+        saveSearchTags(idx, current, savedEl)
+        renderSearchTags(idx, tagsRow, savedEl)
+      })
+      tagsRow.appendChild(el)
+    })
+  }
+
+  document.getElementById('search-download-btn').addEventListener('click', exportCSV)
 
   // ── EXPORT ──
   function exportCSV() {

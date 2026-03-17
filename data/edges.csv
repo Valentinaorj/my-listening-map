@@ -6,34 +6,20 @@ cumbia,cumbia pop,subgenre,0.8
 cumbia,electrocumbia,fusion,0.9
 cumbia,chicha,subgenre,0.8
 psychedelic rock,chicha,fusion,0.7
-cumbia,champeta,influence,0.6
 african percussion,champeta,origin,0.8
-cumbia,vallenato,influence,0.5
 indigenous colombian music,vallenato,origin,0.7
 son cubano,salsa,origin,0.9
 jazz,salsa,fusion,0.7
 african percussion,salsa,origin,0.8
 salsa,mambo,subgenre,0.9
-mambo,cha cha cha,subgenre,0.8
-salsa,guaracha,influence,0.7
-son cubano,guaracha,origin,0.8
-salsa,timba,subgenre,0.9
 african percussion,merengue,origin,0.8
-indigenous caribbean music,merengue,origin,0.7
+indigenous colombian music,merengue,origin,0.7
 merengue,bachata,influence,0.6
 reggae,reggaeton,origin,0.9
 dancehall,reggaeton,origin,0.9
 hip hop,reggaeton,fusion,0.7
 reggaeton,reggaeton chileno,subgenre,0.9
-reggaeton,neoperreo,subgenre,0.8
-reggaeton,trap latino,fusion,0.7
-reggaeton,urbano latino,subgenre,0.8
-cumbia,tropical bass,fusion,0.8
-electronic,tropical bass,fusion,0.8
-dub,tropical dub,fusion,0.8
-cumbia,tropical dub,fusion,0.6
 afrobeat,afrobeats latino,fusion,0.8
-reggaeton,afrobeats latino,fusion,0.7
 champeta,currulao,influence,0.5
 african percussion,currulao,origin,1.0
 african percussion,candombe,origin,1.0
@@ -44,9 +30,7 @@ samba,bossa nova,origin,0.9
 jazz,bossa nova,fusion,0.8
 bossa nova,mpb,origin,0.8
 folk,mpb,fusion,0.6
-rock,mpb,fusion,0.5
 mpb,nova mpb,subgenre,0.9
-samba,pagode,subgenre,0.8
 african percussion,son cubano,origin,0.8
 indigenous cuban music,son cubano,origin,0.8
 son cubano,son jarocho,subgenre,0.7
@@ -56,29 +40,17 @@ folk,nueva trova,fusion,0.7
 nueva trova,trova,subgenre,0.9
 trova,cancion protesta,influence,0.8
 folk latino,cancion protesta,influence,0.7
-rock,rock en español,fusion,0.9
-punk,rock en español,influence,0.7
-rock en español,argentine rock,subgenre,0.9
-rock en español,mexican rock,subgenre,0.9
-rock en español,rock latino,subgenre,0.9
 ska,mexican ska,subgenre,0.9
 punk,mexican ska,influence,0.7
-rock latino,latin alternative,influence,0.7
-indie rock,latin alternative,influence,0.7
 reggae,ska,origin,0.9
 ska,rocksteady,subgenre,0.8
 rocksteady,reggae,subgenre,0.9
 reggae,dub,subgenre,0.8
 reggae,roots reggae,subgenre,0.9
 reggae,lovers rock,subgenre,0.8
-reggae,dancehall,subgenre,0.9
-dancehall,ragga,subgenre,0.8
 afrobeat,afropop,subgenre,0.8
-afrobeat,afro house,fusion,0.7
-house,afro house,fusion,0.7
 blues,rock and roll,origin,1.0
 rock and roll,classic rock,subgenre,0.9
-rock and roll,rockabilly,subgenre,0.9
 classic rock,hard rock,subgenre,0.8
 classic rock,psychedelic rock,subgenre,0.8
 classic rock,progressive rock,subgenre,0.8
@@ -91,30 +63,24 @@ soul,classic soul,subgenre,0.9
 classic soul,neo-soul,influence,0.8
 funk,disco,origin,0.7
 disco,house,origin,0.9
-house,chicago house,subgenre,0.9
 house,french house,subgenre,0.8
 house,lo-fi house,fusion,0.6
 house,organic house,subgenre,0.7
 house,tribal house,fusion,0.7
 house,jazz house,fusion,0.7
 house,techno,influence,0.7
-techno,dub techno,fusion,0.8
 hip hop,east coast hip hop,subgenre,0.9
 hip hop,west coast hip hop,subgenre,0.9
 hip hop,boom bap,subgenre,0.9
 hip hop,gangster rap,subgenre,0.8
-west coast hip hop,g-funk,subgenre,0.9
 hip hop,old school hip hop,subgenre,0.9
-hip hop,underground hip hop,subgenre,0.8
 hip hop,experimental hip hop,subgenre,0.7
 hip hop,alternative hip hop,subgenre,0.8
 hip hop,jazz rap,fusion,0.8
 jazz,jazz rap,fusion,0.8
-hip hop,lo-fi hip hop,fusion,0.7
 hip hop,hip hop latino,fusion,0.8
 hip hop,hip hop italiano,fusion,0.8
 hip hop,german hip hop,fusion,0.8
-hip hop,french rap,fusion,0.8
 punk,proto-punk,origin,0.9
 proto-punk,garage rock,origin,0.8
 proto-punk,punk,origin,0.9
@@ -155,5 +121,198 @@ flamenco,flamenco pop,fusion,0.8
 flamenco,flamenco urbano,fusion,0.7
 folk,fado,influence,0.5
 african percussion,fado,origin,0.6
-gnawa,sufi,influence,0.5
 gnawa,afrobeat,influence,0.4
+blues,blues rock,origin,0.9
+blues rock,rock and roll,influence,0.7
+rock and roll,surf rock,subgenre,0.8
+rock and roll,roots rock,subgenre,0.7
+classic rock,blues rock,subgenre,0.8
+classic rock,art rock,subgenre,0.8
+classic rock,glam rock,subgenre,0.7
+classic rock,folk rock,subgenre,0.8
+classic rock,country rock,subgenre,0.7
+classic rock,southern rock,subgenre,0.7
+classic rock,acid rock,subgenre,0.8
+art rock,progressive rock,subgenre,0.8
+art rock,glam rock,influence,0.6
+progressive rock,art rock,subgenre,0.7
+progressive rock,space rock,subgenre,0.7
+psychedelic rock,acid rock,subgenre,0.9
+psychedelic rock,space rock,subgenre,0.7
+psychedelic rock,art rock,influence,0.6
+psychedelic rock,shoegaze,influence,0.5
+psychedelic rock,dream pop,influence,0.5
+garage rock,surf rock,influence,0.6
+garage rock,punk,influence,0.8
+garage rock,proto-punk,subgenre,0.8
+garage rock,jangle pop,influence,0.6
+punk,glam rock,influence,0.5
+punk,folk punk,subgenre,0.8
+punk,egg punk,subgenre,0.7
+punk,riot grrrl,subgenre,0.8
+punk,ska punk,fusion,0.8
+punk,reggae rock,fusion,0.7
+post-punk,cold wave,subgenre,0.8
+post-punk,ebm,influence,0.6
+post-punk,math rock,influence,0.5
+post-punk,jangle pop,influence,0.6
+post-punk,post-punk influence,subgenre,0.9
+post-punk,britpop,influence,0.6
+post-punk,madchester,influence,0.7
+new wave,britpop,influence,0.6
+new wave,madchester,influence,0.6
+new wave,electropop,subgenre,0.8
+new wave,electroclash,influence,0.6
+alternative rock,britpop,subgenre,0.8
+alternative rock,madchester,subgenre,0.8
+alternative rock,dream pop,subgenre,0.7
+alternative rock,art rock,influence,0.6
+alternative rock,post-rock,subgenre,0.7
+alternative rock,math rock,subgenre,0.7
+alternative rock,jangle pop,subgenre,0.7
+alternative rock,electronic rock,fusion,0.6
+indie rock,jangle pop,subgenre,0.8
+indie rock,britpop,subgenre,0.7
+indie rock,madchester,subgenre,0.7
+grunge,alternative rock,subgenre,0.9
+grunge,sludge metal,influence,0.5
+heavy metal,hard rock,origin,0.8
+heavy metal,sludge metal,subgenre,0.7
+heavy metal,drone metal,subgenre,0.7
+heavy metal,glam metal,subgenre,0.8
+hard rock,heavy metal,subgenre,0.8
+gothic rock,darkwave,subgenre,0.8
+gothic rock,deathrock,subgenre,0.9
+industrial,ebm,subgenre,0.8
+post-rock,math rock,influence,0.6
+post-rock,slowcore,influence,0.6
+post-rock,space rock,influence,0.5
+reggae rock,roots rock,influence,0.5
+anatolian rock influence,psychedelic rock,influence,0.7
+j-rock,alternative rock,influence,0.6
+new rave,new wave,influence,0.6
+new rave,alternative dance,fusion,0.7
+power pop,jangle pop,influence,0.6
+power pop,britpop,influence,0.5
+jam band,progressive rock,influence,0.5
+jam band,roots rock,influence,0.5
+folk rock,roots rock,subgenre,0.8
+folk rock,country rock,influence,0.6
+folk rock,americana,influence,0.6
+country rock,roots rock,subgenre,0.8
+southern rock,roots rock,subgenre,0.8
+southern rock,blues rock,influence,0.6
+punk influence,punk,subgenre,0.9
+house,hi-nrg,origin,0.8
+house,melodic house,subgenre,0.8
+house,stutter house,subgenre,0.7
+house,indie dance,fusion,0.7
+house,uk garage,influence,0.6
+techno,ebm,influence,0.6
+techno,industrial,influence,0.5
+disco,italo dance,influence,0.7
+disco,hi-nrg,subgenre,0.8
+disco,eurodance,influence,0.7
+disco,nu disco,subgenre,0.9
+hi-nrg,eurodance,influence,0.7
+eurodance,italo dance,influence,0.6
+eurodance,europop,influence,0.7
+synthpop,electropop,subgenre,0.8
+synthpop,synth pop,subgenre,1.0
+synthpop,electronic pop,subgenre,0.8
+synthpop,chillwave,influence,0.5
+electropop,electronic pop,subgenre,0.9
+electropop,indie dance,fusion,0.6
+alternative dance,indie dance,subgenre,0.9
+alternative dance,new rave,subgenre,0.8
+trip hop,downtempo,subgenre,0.8
+trip hop,ambient,influence,0.6
+trip hop,breakbeat,origin,0.7
+trip hop,chillwave,influence,0.5
+downtempo,ambient,influence,0.7
+downtempo,chillwave,subgenre,0.7
+downtempo,lo-fi,influence,0.6
+breakbeat,jungle,subgenre,0.9
+ambient,ambient folk,fusion,0.7
+ambient,lo-fi,influence,0.5
+lo-fi,lo-fi beats,subgenre,0.9
+lo-fi,lo-fi house,fusion,0.7
+lo-fi,lo-fi indie,subgenre,0.8
+electronica,idm,subgenre,0.8
+electronica,ambient,influence,0.6
+electronica,electronica latina,subgenre,0.8
+dreamy electronic,ambient,influence,0.6
+dreamy electronic,downtempo,influence,0.6
+future bass,electronic pop,influence,0.6
+future bass,alternative dance,influence,0.5
+uk garage,uk funky,subgenre,0.8
+uk funky,gqom,influence,0.5
+gqom,house,influence,0.5
+electro,breakbeat,origin,0.7
+electro,synthpop,influence,0.6
+electro,electroclash,subgenre,0.7
+jazz,jazz funk,subgenre,0.8
+jazz,jazz blues,subgenre,0.8
+jazz,city pop,influence,0.6
+jazz,lounge,influence,0.7
+jazz,exotica,influence,0.6
+jazz,smooth jazz,subgenre,0.8
+jazz,indie jazz,subgenre,0.7
+jazz,jazz beats,influence,0.7
+jazz,soul jazz,subgenre,0.8
+bebop,free jazz,influence,0.7
+bebop,jazz fusion,influence,0.7
+hard bop,soul jazz,influence,0.7
+hard bop,jazz fusion,influence,0.6
+cool jazz,bossa nova,influence,0.7
+cool jazz,lounge,influence,0.6
+cool jazz,exotica,influence,0.5
+free jazz,avant garde,influence,0.7
+jazz fusion,jazz funk,subgenre,0.8
+jazz fusion,acid jazz,influence,0.7
+jazz fusion,nu jazz,influence,0.7
+nu jazz,indie jazz,subgenre,0.7
+nu jazz,jazz beats,subgenre,0.7
+nu jazz,jazz house,fusion,0.7
+acid jazz,nu jazz,subgenre,0.7
+acid jazz,jazz rap,fusion,0.8
+soul jazz,jazz funk,subgenre,0.8
+swing music,jazz,origin,0.8
+ragtime,jazz,origin,0.8
+ragtime,blues,origin,0.7
+lounge,exotica,subgenre,0.8
+city pop,lounge,influence,0.6
+city pop,jazz,influence,0.6
+ethiopian jazz,jazz,fusion,0.8
+ethiopian jazz,afrobeat,influence,0.6
+french jazz,jazz,subgenre,0.8
+brazilian jazz,bossa nova,subgenre,0.8
+brazilian jazz,jazz,fusion,0.8
+latin jazz,jazz latino,subgenre,0.9
+jazz latino,latin jazz,subgenre,0.9
+jazz house,house,fusion,0.7
+electro swing,swing music,fusion,0.8
+electro swing,electronic,fusion,0.7
+avant garde,free jazz,influence,0.6
+avant garde,experimental,subgenre,0.6
+indie jazz,nu jazz,subgenre,0.7
+smooth jazz,jazz fusion,subgenre,0.7
+soukous influence,champeta,origin,0.9
+porro,champeta,influence,0.6
+african percussion,vallenato,origin,0.8
+electronica latina,tropical bass,fusion,0.8
+reggaeton,tropical bass,fusion,0.7
+electrocumbia,tropical bass,fusion,0.8
+champeta,tropical bass,fusion,0.6
+cumbia,afrobeats latino,fusion,0.8
+roots reggae,dancehall,origin,0.9
+dancehall,hip hop,influence,0.6
+roots reggae,ragga,subgenre,0.8
+heavy metal,alternative metal,subgenre,0.8
+classic rock,rock latino,influence,0.8
+punk,rock latino,influence,0.7
+alternative rock,rock latino,influence,0.7
+classic rock,rock español,influence,0.8
+new wave,rock español,influence,0.6
+punk,punk latino,subgenre,0.8
+proto-punk,punk latino,influence,0.7

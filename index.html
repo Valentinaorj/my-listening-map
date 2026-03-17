@@ -105,8 +105,8 @@
 
       <!-- tab bar -->
       <div id="tab-bar">
-        <button class="tab-btn active" data-tab="map">mapa</button>
-        <button class="tab-btn" data-tab="network">genre network</button>
+        <button class="tab-btn active" data-tab="network">genre network</button>
+        <button class="tab-btn" data-tab="map">mapa</button>
         <button class="tab-btn" data-tab="decades">decadas</button>
         <button class="tab-btn" data-tab="stats">otros stats</button>
         <div class="tab-spacer"></div>
@@ -116,21 +116,75 @@
       <div id="tab-contents">
 
         <!-- NETWORK -->
-        <div class="tab-pane" id="tab-network">
+        <div class="tab-pane active" id="tab-network">
           <div id="network-container">
             <svg id="network-svg"></svg>
             <div id="network-tooltip"></div>
-            <div id="network-hint">drag · scroll · click node to filter</div>
+            <div id="network-hint">drag · scroll · click node to explore · click edge for details</div>
+
+            <!-- GENRE SEARCH (top left) -->
+            <div id="genre-search-wrap">
+              <input type="text" id="genre-search-input" placeholder="search genres..." autocomplete="off">
+              <div id="genre-search-results"></div>
+            </div>
+
+            <!-- LEGEND (top right, collapsible) -->
+            <div id="network-legend">
+              <div id="network-legend-titlebar">
+                <span id="network-legend-title">legend</span>
+                <button class="net-legend-btn" id="legend-toggle">−</button>
+              </div>
+              <div id="network-legend-body">
+                <div class="legend-section-label">clusters</div>
+                <div id="legend-clusters"></div>
+                <div class="legend-section-label" style="margin-top:8px;">edge types</div>
+                <div class="legend-edges">
+                  <div class="legend-edge-item"><span class="legend-line origin-line"></span>origin</div>
+                  <div class="legend-edge-item"><span class="legend-line subgenre-line"></span>subgenre</div>
+                  <div class="legend-edge-item"><span class="legend-line fusion-line"></span>fusion</div>
+                  <div class="legend-edge-item"><span class="legend-line influence-line"></span>influence</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EDGE TOOLTIP -->
+            <div id="edge-tooltip"></div>
+
+            <!-- GENRE OVERLAY (slides up from bottom) -->
+            <div id="genre-overlay" class="genre-overlay collapsed">
+              <div id="genre-overlay-header">
+                <div id="genre-overlay-nav">
+                  <button id="overlay-back-btn" class="overlay-nav-btn" disabled>← back</button>
+                  <div id="genre-overlay-title-wrap">
+                    <span id="genre-overlay-dot"></span>
+                    <span id="genre-overlay-name"></span>
+                    <span id="genre-overlay-meta"></span>
+                  </div>
+                </div>
+                <button id="overlay-close-btn" class="overlay-nav-btn">✕</button>
+              </div>
+              <div id="genre-overlay-body">
+                <div class="overlay-section">
+                  <div class="overlay-section-title" id="overlay-parents-title">comes from</div>
+                  <div class="overlay-cards" id="overlay-parents"></div>
+                </div>
+                <div class="overlay-section">
+                  <div class="overlay-section-title" id="overlay-children-title">leads to</div>
+                  <div class="overlay-cards" id="overlay-children"></div>
+                </div>
+              </div>
+            </div>
+
           </div>
           <div class="tab-statusbar">
             <span id="network-status">loading network...</span>
             <span class="sb-div">|</span>
-            <span>click node = filter canciones</span>
+            <span>click node = explore · click edge = details</span>
           </div>
         </div>
 
         <!-- MAP -->
-        <div class="tab-pane active" id="tab-map">
+        <div class="tab-pane" id="tab-map">
           <div id="map"></div>
           <div class="tab-statusbar">
             <span>bubble size = song count</span>

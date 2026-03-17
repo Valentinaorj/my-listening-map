@@ -62,7 +62,7 @@ function getVisibleColumns(filterType) {
   return {
     showArtist:  true,
     showYear:    filterType !== 'decade',
-    showGenre:   filterType !== 'genre',
+    showGenre:   true,
     showCountry: filterType !== 'country' && filterType !== 'language'
   }
 }
@@ -103,7 +103,7 @@ function renderSongsTable(label, songs, filterType) {
     var title   = esc(s['Track Name']     || '—')
     var artist  = esc(s['Artist Name(s)'] || '—')
     var year    = (s['Release Date'] || '').slice(0, 4) || '—'
-    var genre   = esc((s['Genres'] || '').split(/[,;]/)[0].trim() || '—')
+    var genre = esc((s['Genres'] || '').split(';').map(function(g) { return g.trim() }).filter(Boolean).join(', ') || '—')
     var country = esc((s['Artist Country'] || '—').split(';')[0].trim())
 
     return '<tr>' +
