@@ -73,11 +73,8 @@ function renderSongsTable(label, songs, filterType) {
   var titleEl  = document.getElementById('songs-title')
   var theadRow = document.getElementById('songs-thead-row')
   var emptyEl  = document.getElementById('songs-empty')
-  document.getElementById('songs-table').style.display = 'table'
+  var tableEl  = document.getElementById('songs-table-container')
   if (!tbody) return
-
-  // always hide empty msg when rendering
-  if (emptyEl) emptyEl.style.display = 'none'
 
   // update title
   if (titleEl) titleEl.textContent = label ? 'canciones · ' + label : 'canciones'
@@ -93,11 +90,13 @@ function renderSongsTable(label, songs, filterType) {
 
   if (!songs || songs.length === 0) {
     tbody.innerHTML = ''
-    document.getElementById('songs-table').style.display = 'none'
     if (emptyEl) { emptyEl.textContent = 'sin resultados para "' + label + '"'; emptyEl.style.display = 'flex' }
     if (footer) footer.textContent = ''
     return
   }
+
+  if (tableEl) tableEl.style.display = ''
+  if (emptyEl) emptyEl.style.display = 'none'
 
   tbody.innerHTML = songs.map(function(s) {
     var title   = esc(s['Track Name']     || '—')
@@ -133,14 +132,13 @@ function clearSongs() {
   var titleEl  = document.getElementById('songs-title')
   var theadRow = document.getElementById('songs-thead-row')
   var emptyEl  = document.getElementById('songs-empty')
+  var tableEl2 = document.getElementById('songs-table-container')
 
   if (titleEl)  titleEl.textContent = 'canciones'
   if (footer)   footer.textContent = ''
-  if (theadRow) theadRow.querySelectorAll('th').forEach(function(th) { th.style.display = '' })
   if (tbody)    tbody.innerHTML = ''
   if (emptyEl)  { emptyEl.textContent = 'haz clic en cualquier gráfico para filtrar'; emptyEl.style.display = 'flex' }
-
-  document.getElementById('songs-table').style.display = 'none'
+  if (tableEl2) tableEl2.style.display = 'none'
 }
 
 // ── GLOBAL FILTER (called by network.js and charts) ──
@@ -436,6 +434,7 @@ function buildLanguagesChart(tracks) {
 document.addEventListener('DOMContentLoaded', function() {
 
   initTabs()
+  clearSongs()
 
   // clear filter button
   var clearBtn = document.getElementById('songs-clear')

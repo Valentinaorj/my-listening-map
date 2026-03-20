@@ -991,3 +991,23 @@ canvas { display: block; width: 100% !important; }
 .overlay-card-count { font-size: 12px; opacity: 0.4; white-space: nowrap; }
 .overlay-card-type { font-size: 11px; padding: 1px 6px; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); }
 .overlay-empty { font-size: 14px; opacity: 0.3; padding: 6px 0; font-style: italic; }
+
+/* ── SONGS EMPTY STATE ── */
+.songs-scroll-wrap { position: relative; }
+
+#songs-empty {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font);
+  font-size: var(--font-size-lg);
+  color: var(--grey);
+  text-align: center;
+  line-height: 1.8;
+  pointer-events: none;
+  background: var(--bg);
+  z-index: 1;
+}
