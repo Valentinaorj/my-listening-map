@@ -18,7 +18,6 @@ merengue,bachata,influence,0.6
 reggae,reggaeton,origin,0.9
 dancehall,reggaeton,origin,0.9
 hip hop,reggaeton,fusion,0.7
-reggaeton,reggaeton chileno,subgenre,0.9
 afrobeat,afrobeats latino,fusion,0.8
 champeta,currulao,influence,0.5
 african percussion,currulao,origin,1.0
@@ -237,7 +236,6 @@ ambient,ambient folk,fusion,0.7
 ambient,lo-fi,influence,0.5
 lo-fi,lo-fi beats,subgenre,0.9
 lo-fi,lo-fi house,fusion,0.7
-lo-fi,lo-fi indie,subgenre,0.8
 electronica,idm,subgenre,0.8
 electronica,ambient,influence,0.6
 electronica,electronica latina,subgenre,0.8
@@ -316,3 +314,58 @@ classic rock,rock español,influence,0.8
 new wave,rock español,influence,0.6
 punk,punk latino,subgenre,0.8
 proto-punk,punk latino,influence,0.7
+son jarocho,ranchera,origin,0.7
+african percussion,son jarocho,origin,0.8
+spanish music,son jarocho,origin,0.8
+indigenous colombian music,son jarocho,origin,0.7
+reggae,reggae influence,subgenre,0.9
+pop,city pop,subgenre,0.7
+pop,indie pop,subgenre,0.8
+pop,c-pop,subgenre,0.7
+pop,psychedelic pop,subgenre,0.7
+pop,art pop,subgenre,0.7
+pop,bedroom pop,subgenre,0.8
+pop,dreamy pop,subgenre,0.7
+pop,alternative pop,subgenre,0.8
+swing music,rock latino,influence,0.6
+pop,pop rock,subgenre,0.8
+classic rock,pop rock,subgenre,0.7
+psychedelic pop,electrocumbia,influence,0.6
+bossa nova,bossanova influence,influence,0.8
+dreamy pop,bossanova influence,fusion,0.7
+folk,chanson,influence,0.6
+jazz,chanson,influence,0.6
+pop,acoustic pop,subgenre,0.8
+folk,cajun inspired,influence,0.7
+jazz,cajun inspired,influence,0.6
+americana,psychedelic folk,influence,0.7
+folk,folk punk,fusion,0.8
+folk,galician folk,subgenre,0.8
+folk-singer-songwriter,galician folk,influence,0.6
+electronica,galician folk,fusion,0.6
+folk,americana,subgenre,0.8
+blues,americana,influence,0.7
+soul,americana,influence,0.6
+country,americana,subgenre,0.8
+flamenco,flamenco influence,subgenre,0.9
+folk,flamenco,origin,0.7
+african percussion,flamenco,origin,0.7
+folk,singer-songwriter,influence,0.8
+folk,acid-folk,subgenre,0.8
+blues,doo-wop,influence,0.7
+soul,doo-wop,influence,0.6
+folk,progressive folk,subgenre,0.8
+folk,tuvan,influence,0.6
+balkan influence,cumbia sonidera,influence,0.6
+folk,balkan influence,influence,0.6
+folk,alternative folk,subgenre,0.8
+alternative rock,alternative folk,influence,0.6
+devotional,qawwali,subgenre,0.8
+gnawa,qawwali,influence,0.5
+flamenco influence,canzone napoletana,influence,0.5
+folk,canzone napoletana,influence,0.6
+folk,folk español,subgenre,0.8
+blues,folk,influence,0.7
+folk,country,origin,0.8
+country,alternative country,subgenre,0.8
+alternative rock,alternative country,influence,0.6

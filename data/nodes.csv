@@ -4,34 +4,31 @@ acid rock,8,rock
 acid-folk,5,folk-singer-songwriter
 acousmatic,1,classical-experimental
 acoustic pop,1,pop-indie
-adult standards,6,folk-singer-songwriter
-african folk,0,african-global-roots
+african folk,1,african-global-roots
 african percussion,0,ancestor
-afro folk,0,african-global-roots
-afro funk,0,soul-rnb-funk
+afro folk,1,african-global-roots
+afro funk,1,soul-rnb-funk
 afro soul,1,soul-rnb-funk
-afrobeat,6,african-global-roots
+afrobeat,11,african-global-roots
 afrobeats latino,2,caribe
 afropop,6,african-global-roots
-alt country,2,folk-singer-songwriter
+alternative country,3,folk-singer-songwriter
 alternative dance,4,electronic
+alternative folk,3,folk-singer-songwriter
 alternative hip hop,1,hip-hop
 alternative metal,2,rock
-alternative pop,2,pop-indie
+alternative pop,35,pop-indie
 alternative r&b,6,soul-rnb-funk
-alternative rock,74,rock
+alternative rock,89,rock
 ambient,0,ancestor
 ambient folk,7,electronic
 americana,2,folk-singer-songwriter
 anatolian rock influence,2,rock
-anime,2,pop-indie
-anti-folk,2,folk-singer-songwriter
-aor,3,folk-singer-songwriter
 arabic hip hop,1,hip-hop
 art pop,4,pop-indie
 art rock,13,rock
-avant garde,0,jazz
-avant-garde,5,classical-experimental
+avant garde,4,jazz
+avant-garde,11,classical-experimental
 bacardi,1,caribe
 bachata,1,caribe
 balkan influence,1,folk-singer-songwriter
@@ -40,48 +37,41 @@ bebop,0,ancestor
 bedroom pop,6,pop-indie
 big band,6,jazz
 blues,4,soul-rnb-funk
-blues influence,0,soul-rnb-funk
+blues influence,1,soul-rnb-funk
 blues rock,7,rock
 bolero,13,cancion
 bolero influence,12,cancion
 boom bap,1,hip-hop
 bossa nova,2,brasileira
-bossanova influence,0,pop-indie
+bossanova influence,1,pop-indie
 brazilian hip hop,1,brasileira
 brazilian jazz,4,brasileira
 breakbeat,1,electronic
 britpop,2,rock
 c-pop,1,pop-indie
-cajun,1,folk-singer-songwriter
+cajun inspired,1,folk-singer-songwriter
 calypso,1,caribe
-cancion protesta,1,cancion
+cancion protesta,8,cancion
 candombe,9,afro-sudamericano
 candombe influence,3,afro-sudamericano
 canzone napoletana,2,folk-singer-songwriter
-celtic,1,folk-singer-songwriter
 chamber music,5,classical-experimental
-chamber pop,0,folk-singer-songwriter
 champeta,1,caribe
-chanson,3,folk-singer-songwriter
-chicha,11,caribe
+chanson,4,folk-singer-songwriter
+chicha,13,caribe
 chillwave,1,electronic
 choral,4,classical-experimental
-christian country,1,folk-singer-songwriter
-christmas,2,pop-indie
-city pop,3,jazz
-classic country,1,folk-singer-songwriter
-classic rock,15,rock
+city pop,15,jazz
+classic rock,20,rock
 classic soul,2,soul-rnb-funk
-classical,14,classical-experimental
+classical,16,classical-experimental
 classical piano,12,classical-experimental
 cold wave,9,rock
 colombian experimental,4,caribe
 colombian pop,3,caribe
-comedy,1,pop-indie
 contemporary classic,1,classical-experimental
 contemporary classical,23,classical-experimental
 cool jazz,4,jazz
-country pop,2,folk-singer-songwriter
 country rock,2,rock
 cuarteto,1,andina
 cumbia,12,caribe
@@ -89,17 +79,17 @@ cumbia influence,3,caribe
 cumbia influenced,1,caribe
 cumbia pop,1,caribe
 cumbia sonidera,6,caribe
-currulao,4,afro-sudamericano
+currulao,5,afro-sudamericano
 dancehall,7,caribe
 darkwave,11,rock
 deathrock,2,rock
 devotional,2,folk-singer-songwriter
-disco,6,soul-rnb-funk
-doo-wop,3,folk-singer-songwriter
+disco,8,soul-rnb-funk
+doo-wop,3,soul-rnb-funk
 downtempo,16,electronic
 dream pop,5,rock
-dreamy electronic,2,electronic
-dreamy pop,6,pop-indie
+dreamy electronic,8,electronic
+dreamy pop,14,pop-indie
 drone metal,2,rock
 dub,5,african-global-roots
 east coast hip hop,5,hip-hop
@@ -109,40 +99,37 @@ egyptian pop,2,african-global-roots
 electro,8,electronic
 electro swing,3,jazz
 electroclash,1,electronic
-electrocumbia,62,caribe
+electrocumbia,64,caribe
 electronic,3,electronic
 electronic pop,3,electronic
 electronic rock,4,rock
 electronica,2,electronic
 electronica latina,2,electronic
 electropop,2,electronic
-enka,1,pop-indie
 ethiopian jazz,6,jazz
-ethnic caos,0,african-global-roots
+ethnic caos,8,african-global-roots
 eurodance,1,electronic
 european immigrant music,0,ancestor
-europop,0,electronic
+europop,2,electronic
 exotica,2,jazz
-experimental,0,classical-experimental
+experimental,8,classical-experimental
 experimental hip hop,1,hip-hop
 fado,7,folk-singer-songwriter
 flamenco,2,folk-singer-songwriter
 flamenco influence,6,folk-singer-songwriter
 flamenco pop,1,folk-singer-songwriter
 flamenco urbano,1,folk-singer-songwriter
-folclor andino,10,andina
-folk,7,folk-singer-songwriter
+folclor andino,11,andina
+folk,30,folk-singer-songwriter
 folk electronico,2,cancion
-folk español,0,folk-singer-songwriter
-folk latino,118,cancion
-folk punk,2,rock
-folk rock,4,rock
+folk español,4,folk-singer-songwriter
+folk latino,142,cancion
+folk punk,3,rock
+folk rock,6,rock
 forró,1,brasileira
 free jazz,2,jazz
 french house,7,electronic
-french indie pop,10,pop-indie
 french jazz,8,jazz
-french pop,1,pop-indie
 funk,2,soul-rnb-funk
 funk rock,2,soul-rnb-funk
 future bass,1,electronic
@@ -150,8 +137,6 @@ galician folk,2,folk-singer-songwriter
 gangster rap,1,hip-hop
 garage rock,18,rock
 german hip hop,6,hip-hop
-german indie,11,pop-indie
-german pop,20,pop-indie
 glam metal,1,rock
 glam rock,11,rock
 gnawa,11,african-global-roots
@@ -164,14 +149,13 @@ hardcore hip hop,2,hip-hop
 hardcore punk,2,rock
 heavy metal,0,ancestor
 hi-nrg,3,electronic
-hip hop,22,hip-hop
+hip hop,35,hip-hop
 hip hop italiano,4,hip-hop
-hip hop latino,44,hip-hop-latino
+hip hop latino,58,hip-hop-latino
 house,1,electronic
 house latino,1,caribe
 idm,0,ancestor
 indie dance,1,electronic
-indie folk,3,folk-singer-songwriter
 indie jazz,2,jazz
 indie latino,1,rock-latino-espanol
 indie pop,1,pop-indie
@@ -180,17 +164,13 @@ indie soul,6,soul-rnb-funk
 indigenous colombian music,0,ancestor
 indigenous cuban music,0,ancestor
 industrial,1,rock
-instrumental,0,folk-singer-songwriter
-italian singer-songwriter,6,folk-singer-songwriter
 italo dance,12,electronic
-j-pop,3,pop-indie
 j-r&b,2,soul-rnb-funk
 j-rock,1,rock
 jam band,1,rock
 jangle pop,21,rock
-japanese classical,2,classical-experimental
-japanese indie,7,pop-indie
-jazz,9,jazz
+japanese classical,4,classical-experimental
+jazz,19,jazz
 jazz beats,1,jazz
 jazz blues,7,jazz
 jazz funk,3,jazz
@@ -204,48 +184,46 @@ latin jazz,0,ancestor
 lo-fi,4,electronic
 lo-fi beats,1,electronic
 lo-fi house,1,electronic
-lo-fi indie,6,pop-indie
 lounge,6,jazz
 lovers rock,1,african-global-roots
 madchester,9,rock
-maghreb pop,0,african-global-roots
+maghreb pop,2,african-global-roots
 mambo,2,caribe
 math rock,1,rock
-medieval,1,classical-experimental
+medieval,2,classical-experimental
 melodic house,1,electronic
 merengue,6,caribe
 mexican indie,8,rock-latino-espanol
-mexican ska,24,rock-latino-espanol
+mexican ska,4,rock-latino-espanol
 minimalism,2,classical-experimental
 mizrahi,1,african-global-roots
 modern blues,2,soul-rnb-funk
 motown,7,soul-rnb-funk
 mpb,2,brasileira
 murga,8,afro-sudamericano
-musicals,2,pop-indie
 native american music,3,andina
-nederpop,2,pop-indie
-neo soul,0,soul-rnb-funk
-neo-psychedelic,25,pop-indie
-neo-soul,17,soul-rnb-funk
+nederpop,1,pop-indie
+neo soul,2,soul-rnb-funk
+neo-psychedelic,26,pop-indie
+neo-soul,24,soul-rnb-funk
 neoclassical,2,classical-experimental
 new age,1,classical-experimental
 new jack swing,1,soul-rnb-funk
 new rave,1,rock
-new wave,12,rock
+new wave,13,rock
 northern soul,3,soul-rnb-funk
 nova mpb,2,brasileira
 nu disco,3,soul-rnb-funk
 nu jazz,16,jazz
 nueva trova,6,cancion
-old school hip hop,4,hip-hop
+old school hip hop,5,hip-hop
 opera,9,classical-experimental
 orchestra,6,classical-experimental
 organic house,1,electronic
 pop,3,pop-indie
-pop acustico,4,rock-latino-espanol
+pop acustico,5,rock-latino-espanol
 pop latino,20,rock-latino-espanol
-pop rock,7,pop-indie
+pop rock,9,pop-indie
 pop soul,1,soul-rnb-funk
 pop urbaine,1,soul-rnb-funk
 popular colombian music,2,caribe
@@ -255,36 +233,34 @@ post-punk influence,1,rock
 post-rock,2,rock
 power pop,1,rock
 progressive folk,2,folk-singer-songwriter
-progressive rock,33,rock
+progressive rock,35,rock
 proto-punk,16,rock
-psychedelic folk,2,folk-singer-songwriter
+psychedelic folk,5,folk-singer-songwriter
 psychedelic pop,3,pop-indie
-psychedelic rock,24,rock
-psychedelic soul,0,soul-rnb-funk
-psychodelic folk,0,folk-singer-songwriter
+psychedelic rock,25,rock
+psychedelic soul,7,soul-rnb-funk
 punk,9,rock
 punk influence,2,rock
 punk latino,1,rock-latino-espanol
 punta,1,caribe
 qawwali,1,folk-singer-songwriter
 quiet storm,2,soul-rnb-funk
-r&b,2,soul-rnb-funk
+r&b,20,soul-rnb-funk
 r&b latino,1,hip-hop-latino
 ragga,2,african-global-roots
 ragtime,3,jazz
 ranchera,3,andina
 rap,6,hip-hop
 reggae,2,african-global-roots
-reggae insfluence,0,pop-indie
+reggae influence,5,african-global-roots
 reggae rock,5,rock
 reggaeton,12,caribe
-reggaeton chileno,1,hip-hop-latino
 requiem,2,classical-experimental
 retro soul,9,soul-rnb-funk
 riot grrrl,1,rock
 rock and roll,23,rock
 rock español,4,rock-latino-espanol
-rock latino,86,rock-latino-espanol
+rock latino,105,rock-latino-espanol
 rocksteady,1,african-global-roots
 roots reggae,4,african-global-roots
 roots rock,1,rock
@@ -294,9 +270,8 @@ samba,2,brasileira
 schlager,2,pop-indie
 shibuya-kei,3,pop-indie
 shoegaze,1,rock
-shona mbira influence,0,african-global-roots
-singer-songwriter,51,folk-singer-songwriter
-singer-songwritter,0,folk-singer-songwriter
+shona mbira influence,1,african-global-roots
+singer-songwriter,96,folk-singer-songwriter
 ska,15,african-global-roots
 ska latino,3,rock-latino-espanol
 ska punk,2,african-global-roots
@@ -304,41 +279,35 @@ slowcore,2,rock
 sludge metal,1,rock
 smooth jazz,1,jazz
 soca,1,caribe
-soft pop,1,folk-singer-songwriter
-soft rock,7,folk-singer-songwriter
 son cubano,10,caribe
 son jarocho,3,cancion
-soukous influence,0,african-global-roots
-soul,7,soul-rnb-funk
+soukous influence,1,african-global-roots
+soul,18,soul-rnb-funk
 soul blues,3,soul-rnb-funk
-soul inspired,0,soul-rnb-funk
+soul inspired,2,soul-rnb-funk
 soul jazz,0,ancestor
-southern gothic,2,folk-singer-songwriter
 southern rock,1,rock
 space music,1,classical-experimental
 space rock,2,rock
+spanish music,0,ancestor
 spanish-language reggae,1,hip-hop-latino
 stutter house,0,ancestor
 surf rock,3,rock
-swedish pop,1,pop-indie
-swing influence,0,pop-indie
 swing music,6,jazz
 synth pop,2,electronic
 synthpop,10,electronic
 tango,4,afro-sudamericano
 techno,0,ancestor
-traditional folk,1,folk-singer-songwriter
-traditional music,5,folk-singer-songwriter
 tribal house,3,electronic
 trip hop,9,electronic
 tropical bass,3,caribe
 tropical music,4,caribe
 trova,15,cancion
+tuvan,1,folk-singer-songwriter
 uk funky,2,electronic
 uk garage,0,ancestor
 uk r&b,1,soul-rnb-funk
 vallenato,3,caribe
-variété française,2,folk-singer-songwriter
 villancicos,1,andina
-vocal jazz,7,jazz
+vocal jazz,8,jazz
 west coast hip hop,1,hip-hop
