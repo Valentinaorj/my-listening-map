@@ -156,9 +156,8 @@ window.filterSongs = function(type, value) {
 
   if (type === 'genre') {
     songs = allTracks.filter(function(s) {
-      if (!s['Genres']) return false
-      return s['Genres'].split(/[,;]/).map(function(g) { return g.trim().toLowerCase() })
-        .indexOf(value.toLowerCase()) !== -1
+      var main = (s['Main Genre'] || s['Genres'] || '').trim().toLowerCase()
+      return main === value.toLowerCase()
     })
   }
 
@@ -180,6 +179,13 @@ window.filterSongs = function(type, value) {
   }
 
   renderSongsTable(value, songs, type)
+}
+
+// ── RAW FILTER (called by influence edge panel in network.js) ──
+// Accepts a pre-filtered song array directly instead of re-filtering
+window.filterSongsRaw = function(label, songs, filterType) {
+  activeFilter = { type: filterType, value: label }
+  renderSongsTable(label, songs, filterType)
 }
 
 // ── STATUS ──

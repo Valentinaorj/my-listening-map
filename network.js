@@ -1,7 +1,8 @@
 // ============================================
 //  network.js — D3 force-directed genre graph
 //  features: cluster filter, genre search,
-//            node overlay, edge tooltip, legend
+//            node overlay, edge tooltip,
+//            influence edge song list, legend
 // ============================================
 
 ;(function() {
@@ -46,34 +47,47 @@
     'ancestor':                'root / ancestor',
   }
 
+  // origin  = solid line
+  // subgenre = dashed
+  // influence = dotted
   var EDGE_STYLES = {
-    'origin':    { color: 'rgba(255,255,255,0.5)',  dash: null,  width: 1.5 },
-    'subgenre':  { color: 'rgba(255,255,255,0.25)', dash: '5,4', width: 1   },
-    'fusion':    { color: 'rgba(255,255,255,0.35)', dash: '2,5', width: 1   },
-    'influence': { color: 'rgba(255,255,255,0.35)', dash: '2,5', width: 1   },
+    'origin':    { color: 'rgba(255,255,255,0.55)', dash: null,    width: 1.5 },
+    'subgenre':  { color: 'rgba(255,255,255,0.30)', dash: '6,4',   width: 1   },
+    'influence': { color: 'rgba(255,255,255,0.25)', dash: '2,3',   width: 1   },
   }
 
   // ── STATE ──
-  var nodeById    = {}
-  var adjParents  = {}
-  var adjChildren = {}
+  var nodeById       = {}
+  var adjParents     = {}
+  var adjChildren    = {}
   var overlayHistory = []
-  var allNodes    = []
-  var allEdges    = []
+  var allNodes       = []
+  var allEdges       = []
+  var allTracks      = []   // full track rows, used for influence edge song lists
   var hiddenClusters = new Set()
 
   // D3 selections — needed for filter updates
-  var nodeSelection     = null
-  var linkHitSelection  = null
-  var linkVisSelection  = null
+  var nodeSelection    = null
+  var linkHitSelection = null
+  var linkVisSelection = null
 
   function parseCSV(text) {
-    var lines = text.trim().split('\n')
-    var headers = lines[0].split(',').map(function(h) { return h.trim().replace(/\r/g,'') })
+    var lines   = text.trim().split('\n')
+    var headers = lines[0].split(',').map(function(h) { return h.trim().replace(/\r/g, '').replace(/^"|"$/g, '') })
     return lines.slice(1).map(function(line) {
-      var vals = line.split(',').map(function(v) { return v.trim().replace(/\r/g,'') })
+      // handle quoted fields
+      var vals = []
+      var cur  = ''
+      var inQ  = false
+      for (var i = 0; i < line.length; i++) {
+        var ch = line[i]
+        if (ch === '"') { inQ = !inQ }
+        else if (ch === ',' && !inQ) { vals.push(cur.trim().replace(/\r/g, '')); cur = '' }
+        else { cur += ch }
+      }
+      vals.push(cur.trim().replace(/\r/g, ''))
       var obj = {}
-      headers.forEach(function(h,i) { obj[h] = vals[i] || '' })
+      headers.forEach(function(h, i) { obj[h] = vals[i] || '' })
       return obj
     })
   }
@@ -90,7 +104,6 @@
   }
 
   function isEdgeGhost(e) {
-    // one side hidden, one visible = ghost
     var srcHidden = hiddenClusters.has(e.source.cluster)
     var tgtHidden = hiddenClusters.has(e.target.cluster)
     return srcHidden !== tgtHidden
@@ -118,7 +131,7 @@
     })
   }
 
-  // ── LEGEND with custom checkboxes + drag-to-toggle ──
+  // ── LEGEND ──
   function initLegend() {
     var clustersEl = document.getElementById('legend-clusters')
     if (!clustersEl) return
@@ -126,15 +139,14 @@
     var entries = Object.keys(CLUSTER_COLORS).filter(function(k) { return k !== 'ancestor' })
     clustersEl.innerHTML = ''
 
-    var isDragging    = false
-    var dragTargetState = true  // what state we're setting during drag
+    var isDragging      = false
+    var dragTargetState = true
 
     entries.forEach(function(k) {
       var item = document.createElement('div')
       item.className = 'legend-cluster-item'
       item.dataset.cluster = k
 
-      // custom checkbox
       var cb = document.createElement('div')
       cb.className = 'cluster-checkbox checked'
       cb.dataset.cluster = k
@@ -171,10 +183,9 @@
       var isChecked = !hiddenClusters.has(k)
       setCluster(k, !isChecked)
       applyVisibility()
-      return !isChecked  // return new state
+      return !isChecked
     }
 
-    // mousedown on item = start drag, toggle that cluster
     clustersEl.addEventListener('mousedown', function(e) {
       var item = e.target.closest('.legend-cluster-item')
       if (!item) return
@@ -184,7 +195,6 @@
       dragTargetState = toggleCluster(k)
     })
 
-    // mouseover during drag = apply same state to hovered clusters
     clustersEl.addEventListener('mouseover', function(e) {
       if (!isDragging) return
       var item = e.target.closest('.legend-cluster-item')
@@ -277,27 +287,23 @@
     var n = nodeById[id]
     if (!n) return
 
-    // dim everything else, highlight this node
     nodeSelection.style('opacity', function(d) { return d.id === id ? 1 : 0.1 })
     linkVisSelection.style('opacity', function(l) {
       return (l.source.id === id || l.target.id === id) ? 1 : 0.03
     })
 
-    // zoom to node
     var svg  = d3.select('#network-svg')
     var W    = document.getElementById('network-container').offsetWidth  || 800
     var H    = document.getElementById('network-container').offsetHeight || 500
     var zoom = d3.zoom().scaleExtent([0.05, 8])
     svg.transition().duration(600).call(
       zoom.transform,
-      d3.zoomIdentity.translate(W/2, H/2).scale(2).translate(-n.x, -n.y)
+      d3.zoomIdentity.translate(W / 2, H / 2).scale(2).translate(-n.x, -n.y)
     )
 
-    // open overlay
     overlayHistory = []
     openOverlay(id)
 
-    // restore after delay if no further interaction
     setTimeout(function() {
       nodeSelection.style('opacity', null)
       linkVisSelection.style('opacity', null)
@@ -316,9 +322,9 @@
     var backBtn = document.getElementById('overlay-back-btn')
 
     dot.style.background = n.color
-    nameEl.textContent = n.id
-    metaEl.textContent = n.cluster + ' · ' + (n.song_count > 0 ? n.song_count + ' songs' : 'root node')
-    backBtn.disabled = overlayHistory.length === 0
+    nameEl.textContent   = n.id
+    metaEl.textContent   = n.cluster + ' · ' + (n.song_count > 0 ? n.song_count + ' songs' : 'root node')
+    backBtn.disabled     = overlayHistory.length === 0
 
     var parents  = adjParents[genreId]  || []
     var children = adjChildren[genreId] || []
@@ -371,12 +377,26 @@
   }
 
   // ── EDGE TOOLTIP ──
+  // For origin/subgenre: small floating label
+  // For influence: pinned panel with song list
+  var pinnedEdgePanel = null
+
   function showEdgeTooltip(e, edge, container) {
+    hideEdgeTooltip()
+
+    if (edge.type === 'influence') {
+      showInfluencePanel(edge, container)
+      return
+    }
+
     var tooltip = document.getElementById('edge-tooltip')
     if (!tooltip) return
     var rect = container.getBoundingClientRect()
-    tooltip.innerHTML = edge.source.id + ' → ' + edge.target.id +
-      ' <span style="opacity:0.5;margin-left:6px">· ' + edge.type + '</span>'
+    tooltip.innerHTML =
+      '<span style="opacity:0.7">' + edge.source.id + '</span>' +
+      ' <span style="opacity:0.35">→</span> ' +
+      '<span style="opacity:0.7">' + edge.target.id + '</span>' +
+      ' <span style="opacity:0.4;margin-left:6px">· ' + edge.type + '</span>'
     tooltip.style.left    = (e.clientX - rect.left + 10) + 'px'
     tooltip.style.top     = (e.clientY - rect.top  - 34) + 'px'
     tooltip.style.opacity = '1'
@@ -385,6 +405,91 @@
   function hideEdgeTooltip() {
     var t = document.getElementById('edge-tooltip')
     if (t) t.style.opacity = '0'
+    if (pinnedEdgePanel) {
+      pinnedEdgePanel.remove()
+      pinnedEdgePanel = null
+    }
+  }
+
+  function showInfluencePanel(edge, container) {
+    // Find songs where Main Genre = source AND Influence Genre = target
+    var srcId = edge.source.id
+    var tgtId = edge.target.id
+
+    var songs = allTracks.filter(function(t) {
+      return (t['Main Genre'] || '').trim().toLowerCase() === srcId.toLowerCase() &&
+             (t['Influence Genre'] || '').trim().toLowerCase() === tgtId.toLowerCase()
+    })
+
+    var srcNode = nodeById[srcId]
+    var tgtNode = nodeById[tgtId]
+    var srcColor = srcNode ? srcNode.color : '#e2e8f0'
+    var tgtColor = tgtNode ? tgtNode.color : '#e2e8f0'
+
+    var panel = document.createElement('div')
+    panel.id = 'influence-panel'
+    panel.style.cssText = [
+      'position:absolute',
+      'bottom:0', 'left:0', 'right:0',
+      'background:rgba(7,11,20,0.97)',
+      'border-top:2px solid rgba(255,255,255,0.15)',
+      'z-index:35',
+      'font-family:\'VT323\',monospace',
+      'max-height:50%',
+      'display:flex',
+      'flex-direction:column',
+      'transform:translateY(0)',
+      'transition:transform 0.25s ease'
+    ].join(';')
+
+    // header
+    var header = document.createElement('div')
+    header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0;'
+
+    var title = document.createElement('div')
+    title.style.cssText = 'display:flex;align-items:center;gap:10px;'
+    title.innerHTML =
+      '<span style="color:' + srcColor + ';font-size:18px">' + srcId + '</span>' +
+      '<span style="opacity:0.35;font-size:14px">influences</span>' +
+      '<span style="color:' + tgtColor + ';font-size:18px">' + tgtId + '</span>' +
+      '<span style="opacity:0.4;font-size:13px;margin-left:6px">· ' + songs.length + ' ' + (songs.length === 1 ? 'canción' : 'canciones') + '</span>'
+
+    var closeBtn = document.createElement('button')
+    closeBtn.textContent = '✕'
+    closeBtn.style.cssText = 'background:transparent;border:1px solid rgba(255,255,255,0.2);color:#e2e8f0;font-family:\'VT323\',monospace;font-size:14px;padding:2px 8px;cursor:pointer;'
+    closeBtn.addEventListener('click', function() { hideEdgeTooltip() })
+
+    header.appendChild(title)
+    header.appendChild(closeBtn)
+    panel.appendChild(header)
+
+    // song list
+    var body = document.createElement('div')
+    body.style.cssText = 'flex:1;overflow-y:auto;padding:6px 14px 10px;'
+
+    if (!songs.length) {
+      body.innerHTML = '<div style="opacity:0.3;font-size:14px;padding:8px 0;font-style:italic;">no songs found for this connection</div>'
+    } else {
+      // also push to songs panel on the left
+      if (typeof window.filterSongsRaw === 'function') {
+        window.filterSongsRaw(srcId + ' · ' + tgtId, songs, 'influence')
+      }
+
+      body.innerHTML = songs.map(function(s) {
+        var title  = s['Track Name']  || '—'
+        var artist = s['Artist Name(s)'] || '—'
+        var year   = (s['Release Date'] || '').slice(0, 4) || '—'
+        return '<div style="display:flex;align-items:baseline;gap:10px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);">' +
+          '<span style="font-size:15px;color:#e2e8f0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + title + '">' + title + '</span>' +
+          '<span style="font-size:13px;opacity:0.5;white-space:nowrap;">' + artist + '</span>' +
+          '<span style="font-size:12px;opacity:0.35;white-space:nowrap;">' + year + '</span>' +
+          '</div>'
+      }).join('')
+    }
+
+    panel.appendChild(body)
+    container.appendChild(panel)
+    pinnedEdgePanel = panel
   }
 
   // ── MAIN ──
@@ -411,17 +516,15 @@
       fetch('data/master_playlist_enriched.csv').then(function(r) { if (!r.ok) throw new Error('master csv not found'); return r.text() })
     ]).then(function(files) {
 
-      allNodes = parseCSV(files[0])
-      allEdges = parseCSV(files[1])
+      allNodes  = parseCSV(files[0])
+      allEdges  = parseCSV(files[1])
+      allTracks = parseCSV(files[2]).filter(function(r) { return r['Track Name'] && r['Track Name'].trim() })
 
-      // live song counts
-      var trackRows = parseCSV(files[2])
+      // live song counts from Main Genre column
       var liveCounts = {}
-      trackRows.forEach(function(row) {
-        ;(row['Genres'] || '').split(';').forEach(function(g) {
-          g = g.trim()
-          if (g) liveCounts[g] = (liveCounts[g] || 0) + 1
-        })
+      allTracks.forEach(function(row) {
+        var g = (row['Main Genre'] || row['Genres'] || '').trim()
+        if (g) liveCounts[g] = (liveCounts[g] || 0) + 1
       })
 
       allNodes.forEach(function(n) {
@@ -454,9 +557,9 @@
       var W = container.offsetWidth  || 800
       var H = container.offsetHeight || 500
 
-      var svg   = d3.select('#network-svg')
-      var defs  = svg.append('defs')
-      var filt  = defs.append('filter').attr('id', 'net-glow')
+      var svg  = d3.select('#network-svg')
+      var defs = svg.append('defs')
+      var filt = defs.append('filter').attr('id', 'net-glow')
       filt.append('feGaussianBlur').attr('stdDeviation', '3').attr('result', 'blur')
       var merge = filt.append('feMerge')
       merge.append('feMergeNode').attr('in', 'blur')
@@ -494,13 +597,15 @@
         .force('link', d3.forceLink(validEdges)
           .id(function(d) { return d.id })
           .distance(function(d) {
-            if (d.type === 'origin')   return 80
-            if (d.type === 'subgenre') return 65
+            if (d.type === 'origin')    return 80
+            if (d.type === 'subgenre')  return 65
+            if (d.type === 'influence') return 140
             return 120
           })
           .strength(function(d) {
-            if (d.type === 'origin')   return 0.4
-            if (d.type === 'subgenre') return 0.3
+            if (d.type === 'origin')    return 0.4
+            if (d.type === 'subgenre')  return 0.3
+            if (d.type === 'influence') return 0.08
             return 0.15
           })
         )
@@ -535,16 +640,16 @@
           linkVisSelection.filter(function(l) {
             return l.source.id === d.source.id && l.target.id === d.target.id
           })
-          .attr('stroke', function(l) { return (EDGE_STYLES[l.type] || EDGE_STYLES.influence).color })
-          .attr('stroke-width', function(l) { return (EDGE_STYLES[l.type] || EDGE_STYLES.influence).width })
-          .attr('stroke-dasharray', function(l) { return (EDGE_STYLES[l.type] || EDGE_STYLES.influence).dash })
+          .attr('stroke',           function(l) { return (EDGE_STYLES[l.type] || EDGE_STYLES.influence).color })
+          .attr('stroke-width',     function(l) { return (EDGE_STYLES[l.type] || EDGE_STYLES.influence).width })
+          .attr('stroke-dasharray', function(l) { return (EDGE_STYLES[l.type] || EDGE_STYLES.influence).dash  })
         })
 
       linkVisSelection = g.append('g').selectAll('line')
         .data(validEdges).enter().append('line')
-        .attr('stroke', function(d) { return (EDGE_STYLES[d.type] || EDGE_STYLES.influence).color })
-        .attr('stroke-width', function(d) { return (EDGE_STYLES[d.type] || EDGE_STYLES.influence).width })
-        .attr('stroke-dasharray', function(d) { return (EDGE_STYLES[d.type] || EDGE_STYLES.influence).dash })
+        .attr('stroke',           function(d) { return (EDGE_STYLES[d.type] || EDGE_STYLES.influence).color })
+        .attr('stroke-width',     function(d) { return (EDGE_STYLES[d.type] || EDGE_STYLES.influence).width })
+        .attr('stroke-dasharray', function(d) { return (EDGE_STYLES[d.type] || EDGE_STYLES.influence).dash  })
         .style('pointer-events', 'none')
 
       var link = linkVisSelection
@@ -554,9 +659,9 @@
         .data(allNodes).enter().append('g')
         .style('cursor', 'pointer')
         .call(d3.drag()
-          .on('start', function(e, d) { if (!e.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y })
-          .on('drag',  function(e, d) { d.fx=e.x; d.fy=e.y })
-          .on('end',   function(e, d) { if (!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null })
+          .on('start', function(e, d) { if (!e.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y })
+          .on('drag',  function(e, d) { d.fx = e.x; d.fy = e.y })
+          .on('end',   function(e, d) { if (!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null })
         )
 
       nodeSelection.each(function(d) {
@@ -564,7 +669,7 @@
         if (d.isAncestor) {
           var s = d.r * 1.4
           el.append('polygon')
-            .attr('points', '0,'+(-s)+' '+s+',0 0,'+s+' '+(-s)+',0')
+            .attr('points', '0,' + (-s) + ' ' + s + ',0 0,' + s + ' ' + (-s) + ',0')
             .attr('fill', d.color).attr('stroke', '#475569').attr('stroke-width', 1).attr('opacity', 0.4)
         } else {
           el.append('circle')
@@ -594,11 +699,12 @@
             hoverTooltip.innerHTML =
               '<strong style="color:' + d.color + '">' + d.id + '</strong>' +
               '<div style="opacity:0.5;font-size:11px;margin-top:2px">' + d.cluster + '</div>' +
-              (d.song_count > 0 ? '<div style="margin-top:4px">' + d.song_count + ' canciones</div>'
-                                : '<div style="opacity:0.4;margin-top:4px">nodo raíz</div>')
+              (d.song_count > 0
+                ? '<div style="margin-top:4px">' + d.song_count + ' canciones</div>'
+                : '<div style="opacity:0.4;margin-top:4px">nodo raíz</div>')
           }
           nodeSelection.style('opacity', function(n) { return connIds.has(n.id) ? 1 : 0.12 })
-          link.style('opacity', function(l) { return (l.source.id===d.id || l.target.id===d.id) ? 1 : 0.04 })
+          link.style('opacity', function(l) { return (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.04 })
         })
         .on('mousemove', function(e) {
           if (!hoverTooltip) return
