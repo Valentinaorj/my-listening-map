@@ -826,6 +826,37 @@ canvas { display: block; width: 100% !important; }
   transform: rotate(-45deg) translate(0px, -1px);
 }
 
+/* ── LEGEND EDGE TYPE CHECKBOXES ── */
+.legend-edge-item {
+  cursor: pointer;
+  user-select: none;
+}
+.legend-edge-item.dimmed { opacity: 0.35; }
+
+.edge-checkbox {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(255,255,255,0.7);
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.edge-checkbox.checked::after {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 3px;
+  border-left: 1.5px solid white;
+  border-bottom: 1.5px solid white;
+  transform: rotate(-45deg) translate(0px, -1px);
+}
+
 /* ── NETWORK OVERLAY, LEGEND, EDGE TOOLTIP ── */
 #network-legend {
   position: absolute;

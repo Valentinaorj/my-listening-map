@@ -17,11 +17,10 @@ alternative dance,4,electronic
 alternative folk,4,folk-singer-songwriter
 alternative hip hop,1,hip-hop
 alternative metal,2,rock
-alternative pop,35,pop-indie
+alternative pop,40,pop-indie
 alternative r&b,6,soul-rnb-funk
 alternative rock,85,rock
 ambient,0,ancestor
-ambient folk,7,electronic
 americana,2,folk-singer-songwriter
 anatolian rock,0,rock
 arabic hip hop,1,hip-hop
@@ -30,7 +29,6 @@ art pop,4,pop-indie
 art rock,13,rock
 avant garde,2,jazz
 avant-garde,5,classical-experimental
-bacardi,1,caribe
 bachata,1,caribe
 balkan,1,folk-singer-songwriter
 baroque pop,14,classical-experimental
@@ -70,8 +68,7 @@ classical piano,12,classical-experimental
 cold wave,9,rock
 colombian experimental,4,caribe
 colombian pop,3,caribe
-contemporary classic,1,classical-experimental
-contemporary classical,23,classical-experimental
+contemporary classical,24,classical-experimental
 cool jazz,4,jazz
 country,4,folk-singer-songwriter
 country rock,2,rock
@@ -81,7 +78,7 @@ cumbia pop,1,caribe
 cumbia sonidera,6,caribe
 currulao,5,afro-sudamericano
 dancehall,7,caribe
-dark folk,2,folk-singer-songwriter
+dark folk,9,folk-singer-songwriter
 darkwave,11,rock
 deathrock,2,rock
 devotional,2,folk-singer-songwriter
@@ -121,8 +118,7 @@ flamenco,8,folk-singer-songwriter
 flamenco pop,1,folk-singer-songwriter
 flamenco urbano,1,folk-singer-songwriter
 folclor andino,11,andina
-folk,32,folk-singer-songwriter
-folk electronico,2,cancion
+folk,35,folk-singer-songwriter
 folk español,7,folk-singer-songwriter
 folk latino,156,cancion
 folk punk,2,rock
@@ -150,7 +146,7 @@ hardcore hip hop,2,hip-hop
 hardcore punk,2,rock
 heavy metal,0,ancestor
 hi-nrg,3,electronic
-hip hop,29,hip-hop
+hip hop,30,hip-hop
 hip hop italiano,4,hip-hop
 hip hop latino,46,hip-hop-latino
 house,1,electronic
@@ -161,7 +157,6 @@ indie jazz,2,jazz
 indie latino,1,rock-latino-espanol
 indie pop,1,pop-indie
 indie rock,22,rock
-indie soul,6,soul-rnb-funk
 indigenous colombian music,0,ancestor
 indigenous cuban music,0,ancestor
 industrial,1,rock
@@ -227,10 +222,8 @@ orchestra,6,classical-experimental
 organic house,1,electronic
 pop,4,pop-indie
 pop acustico,5,rock-latino-espanol
-pop latino,20,rock-latino-espanol
+pop latino,21,rock-latino-espanol
 pop rock,11,pop-indie
-pop soul,1,soul-rnb-funk
-pop urbaine,1,soul-rnb-funk
 popular colombian music,2,caribe
 porro,1,ancestor
 post-punk,6,rock
@@ -283,7 +276,7 @@ soca,1,caribe
 son cubano,10,caribe
 son jarocho,3,cancion
 soukous,1,african-global-roots
-soul,7,soul-rnb-funk
+soul,8,soul-rnb-funk
 soul blues,3,soul-rnb-funk
 soul inspired,0,soul-rnb-funk
 soul jazz,0,ancestor

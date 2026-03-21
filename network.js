@@ -64,7 +64,10 @@
   var allNodes       = []
   var allEdges       = []
   var allTracks      = []   // full track rows, used for influence edge song lists
-  var hiddenClusters = new Set()
+  var hiddenClusters  = new Set()
+  var hiddenEdgeTypes = new Set()
+  var activeSelection = null  // { type: 'node'|'edge', nodeId?, srcId?, tgtId? }
+  var adj             = {}    // adjacency list — populated after data loads
 
   // D3 selections — needed for filter updates
   var nodeSelection    = null
@@ -98,12 +101,14 @@
   }
 
   function isEdgeVisible(e) {
-    var srcHidden = hiddenClusters.has(e.source.cluster || (nodeById[e.source] && nodeById[e.source].cluster))
-    var tgtHidden = hiddenClusters.has(e.target.cluster || (nodeById[e.target] && nodeById[e.target].cluster))
-    return !srcHidden && !tgtHidden
+    var srcHidden  = hiddenClusters.has(e.source.cluster || (nodeById[e.source] && nodeById[e.source].cluster))
+    var tgtHidden  = hiddenClusters.has(e.target.cluster || (nodeById[e.target] && nodeById[e.target].cluster))
+    var typeHidden = hiddenEdgeTypes.has(e.type)
+    return !srcHidden && !tgtHidden && !typeHidden
   }
 
   function isEdgeGhost(e) {
+    if (hiddenEdgeTypes.has(e.type)) return false
     var srcHidden = hiddenClusters.has(e.source.cluster)
     var tgtHidden = hiddenClusters.has(e.target.cluster)
     return srcHidden !== tgtHidden
@@ -118,6 +123,7 @@
 
     linkVisSelection
       .style('display', function(d) {
+        if (hiddenEdgeTypes.has(d.type)) return 'none'
         if (isEdgeVisible(d)) return null
         if (isEdgeGhost(d))   return null
         return 'none'
@@ -127,8 +133,44 @@
       })
 
     linkHitSelection.style('display', function(d) {
+      if (hiddenEdgeTypes.has(d.type)) return 'none'
       return (isEdgeVisible(d) || isEdgeGhost(d)) ? null : 'none'
     })
+
+    // re-apply dim if something is selected
+    if (activeSelection) applyDim()
+  }
+
+  function applyDim() {
+    if (!nodeSelection || !activeSelection) return
+
+    if (activeSelection.type === 'node') {
+      var id      = activeSelection.nodeId
+      var conns   = (typeof adj !== 'undefined' && adj[id]) ? adj[id] : []
+      var connIds = new Set([id].concat(conns))
+      nodeSelection.style('opacity', function(n) { return connIds.has(n.id) ? 1 : 0.08 })
+      linkVisSelection.style('opacity', function(l) {
+        return (l.source.id === id || l.target.id === id) ? 1 : 0.03
+      })
+    }
+
+    if (activeSelection.type === 'edge') {
+      var src = activeSelection.srcId
+      var tgt = activeSelection.tgtId
+      nodeSelection.style('opacity', function(n) {
+        return (n.id === src || n.id === tgt) ? 1 : 0.08
+      })
+      linkVisSelection.style('opacity', function(l) {
+        return (l.source.id === src && l.target.id === tgt) ? 1 : 0.03
+      })
+    }
+  }
+
+  function clearDim() {
+    activeSelection = null
+    if (!nodeSelection) return
+    nodeSelection.style('opacity', null)
+    if (linkVisSelection) linkVisSelection.style('opacity', null)
   }
 
   // ── LEGEND ──
@@ -218,6 +260,72 @@
       collapsed = !collapsed
       body.classList.toggle('hidden', collapsed)
       toggleBtn.textContent = collapsed ? '+' : '−'
+    })
+
+    // ── Edge type filter (drag-to-toggle, same mechanic as clusters) ──
+    var edgesEl = document.getElementById('legend-edges')
+    if (!edgesEl) return
+
+    var edgeTypes = ['origin', 'subgenre', 'influence']
+    var edgeDragging      = false
+    var edgeDragTarget    = true
+
+    edgesEl.addEventListener('mousedown', function(e) {
+      var item = e.target.closest('.legend-edge-item')
+      if (!item) return
+      e.preventDefault()
+      var t = item.dataset.edgeType
+      if (!t) return
+      edgeDragging = true
+      edgeDragTarget = toggleEdgeType(t)
+    })
+
+    edgesEl.addEventListener('mouseover', function(e) {
+      if (!edgeDragging) return
+      var item = e.target.closest('.legend-edge-item')
+      if (!item) return
+      var t = item.dataset.edgeType
+      if (!t) return
+      var isChecked = !hiddenEdgeTypes.has(t)
+      if (isChecked !== edgeDragTarget) {
+        setEdgeType(t, edgeDragTarget)
+        applyVisibility()
+      }
+    })
+
+    document.addEventListener('mouseup', function() { edgeDragging = false })
+
+    function setEdgeType(t, checked) {
+      var item = edgesEl.querySelector('[data-edge-type="' + t + '"]')
+      if (!item) return
+      var cb = item.querySelector('.edge-checkbox')
+      if (checked) {
+        hiddenEdgeTypes.delete(t)
+        if (cb) cb.classList.add('checked')
+        item.classList.remove('dimmed')
+      } else {
+        hiddenEdgeTypes.add(t)
+        if (cb) cb.classList.remove('checked')
+        item.classList.add('dimmed')
+      }
+    }
+
+    function toggleEdgeType(t) {
+      var isChecked = !hiddenEdgeTypes.has(t)
+      setEdgeType(t, !isChecked)
+      applyVisibility()
+      return !isChecked
+    }
+
+    // Add checkboxes to existing edge legend items
+    edgeTypes.forEach(function(t) {
+      var item = edgesEl.querySelector('[data-edge-type="' + t + '"]')
+      if (!item) return
+      item.style.cursor = 'pointer'
+      item.style.userSelect = 'none'
+      var cb = document.createElement('div')
+      cb.className = 'edge-checkbox checked'
+      item.insertBefore(cb, item.firstChild)
     })
   }
 
@@ -315,6 +423,9 @@
     var n = nodeById[genreId]
     if (!n) return
 
+    // close edge panel if open
+    hideEdgeTooltip()
+
     var overlay = document.getElementById('genre-overlay')
     var dot     = document.getElementById('genre-overlay-dot')
     var nameEl  = document.getElementById('genre-overlay-name')
@@ -336,6 +447,9 @@
     renderOverlayCards('overlay-children', children)
 
     overlay.classList.remove('collapsed')
+
+    activeSelection = { type: 'node', nodeId: genreId }
+    applyDim()
 
     if (typeof window.filterSongs === 'function' && n.song_count > 0) {
       window.filterSongs('genre', n.id)
@@ -374,6 +488,7 @@
     overlayHistory = []
     var backBtn = document.getElementById('overlay-back-btn')
     if (backBtn) backBtn.disabled = true
+    clearDim()
   }
 
   // ── EDGE TOOLTIP ──
@@ -383,6 +498,12 @@
 
   function showEdgeTooltip(e, edge, container) {
     hideEdgeTooltip()
+    // close node overlay if open
+    closeOverlay()
+
+    // set edge selection and dim
+    activeSelection = { type: 'edge', srcId: edge.source.id, tgtId: edge.target.id }
+    applyDim()
 
     if (edge.type === 'influence') {
       showInfluencePanel(edge, container)
@@ -406,13 +527,15 @@
     var t = document.getElementById('edge-tooltip')
     if (t) t.style.opacity = '0'
     if (pinnedEdgePanel) {
-      pinnedEdgePanel.remove()
+      var p = pinnedEdgePanel
       pinnedEdgePanel = null
+      p.style.transform = 'translateY(100%)'
+      setTimeout(function() { if (p.parentNode) p.parentNode.removeChild(p) }, 300)
     }
+    clearDim()
   }
 
   function showInfluencePanel(edge, container) {
-    // Find songs where Main Genre = source AND Influence Genre = target
     var srcId = edge.source.id
     var tgtId = edge.target.id
 
@@ -421,11 +544,20 @@
              (t['Influence Genre'] || '').trim().toLowerCase() === tgtId.toLowerCase()
     })
 
-    var srcNode = nodeById[srcId]
-    var tgtNode = nodeById[tgtId]
+    var srcNode  = nodeById[srcId]
+    var tgtNode  = nodeById[tgtId]
     var srcColor = srcNode ? srcNode.color : '#e2e8f0'
     var tgtColor = tgtNode ? tgtNode.color : '#e2e8f0'
 
+    // If panel already in DOM — update content in place, no animation
+    var existing = document.getElementById('influence-panel')
+    if (existing) {
+      _fillInfluencePanel(existing, srcId, tgtId, srcColor, tgtColor, songs)
+      pinnedEdgePanel = existing
+      return
+    }
+
+    // First open — build panel and animate slide-in from bottom
     var panel = document.createElement('div')
     panel.id = 'influence-panel'
     panel.style.cssText = [
@@ -438,17 +570,30 @@
       'max-height:50%',
       'display:flex',
       'flex-direction:column',
-      'transform:translateY(0)',
-      'transition:transform 0.25s ease'
+      'transform:translateY(100%)',
+      'transition:transform 0.3s ease'
     ].join(';')
+
+    _fillInfluencePanel(panel, srcId, tgtId, srcColor, tgtColor, songs)
+    container.appendChild(panel)
+    pinnedEdgePanel = panel
+
+    // trigger slide-in on next frame
+    requestAnimationFrame(function() {
+      panel.style.transform = 'translateY(0)'
+    })
+  }
+
+  function _fillInfluencePanel(panel, srcId, tgtId, srcColor, tgtColor, songs) {
+    panel.innerHTML = ''
 
     // header
     var header = document.createElement('div')
     header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0;'
 
-    var title = document.createElement('div')
-    title.style.cssText = 'display:flex;align-items:center;gap:10px;'
-    title.innerHTML =
+    var titleEl = document.createElement('div')
+    titleEl.style.cssText = 'display:flex;align-items:center;gap:10px;'
+    titleEl.innerHTML =
       '<span style="color:' + srcColor + ';font-size:18px">' + srcId + '</span>' +
       '<span style="opacity:0.35;font-size:14px">influences</span>' +
       '<span style="color:' + tgtColor + ';font-size:18px">' + tgtId + '</span>' +
@@ -459,7 +604,7 @@
     closeBtn.style.cssText = 'background:transparent;border:1px solid rgba(255,255,255,0.2);color:#e2e8f0;font-family:\'VT323\',monospace;font-size:14px;padding:2px 8px;cursor:pointer;'
     closeBtn.addEventListener('click', function() { hideEdgeTooltip() })
 
-    header.appendChild(title)
+    header.appendChild(titleEl)
     header.appendChild(closeBtn)
     panel.appendChild(header)
 
@@ -470,17 +615,15 @@
     if (!songs.length) {
       body.innerHTML = '<div style="opacity:0.3;font-size:14px;padding:8px 0;font-style:italic;">no songs found for this connection</div>'
     } else {
-      // also push to songs panel on the left
       if (typeof window.filterSongsRaw === 'function') {
         window.filterSongsRaw(srcId + ' · ' + tgtId, songs, 'influence')
       }
-
       body.innerHTML = songs.map(function(s) {
-        var title  = s['Track Name']  || '—'
-        var artist = s['Artist Name(s)'] || '—'
-        var year   = (s['Release Date'] || '').slice(0, 4) || '—'
+        var t      = s['Track Name']      || '—'
+        var artist = s['Artist Name(s)']  || '—'
+        var year   = (s['Release Date']   || '').slice(0, 4) || '—'
         return '<div style="display:flex;align-items:baseline;gap:10px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);">' +
-          '<span style="font-size:15px;color:#e2e8f0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + title + '">' + title + '</span>' +
+          '<span style="font-size:15px;color:#e2e8f0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + t + '">' + t + '</span>' +
           '<span style="font-size:13px;opacity:0.5;white-space:nowrap;">' + artist + '</span>' +
           '<span style="font-size:12px;opacity:0.35;white-space:nowrap;">' + year + '</span>' +
           '</div>'
@@ -488,8 +631,6 @@
     }
 
     panel.appendChild(body)
-    container.appendChild(panel)
-    pinnedEdgePanel = panel
   }
 
   // ── MAIN ──
@@ -546,7 +687,6 @@
         return nodeById[e.source] && nodeById[e.target]
       })
 
-      var adj = {}
       validEdges.forEach(function(e) {
         if (!adj[e.source]) adj[e.source] = []
         if (!adj[e.target]) adj[e.target] = []
@@ -571,7 +711,10 @@
         .on('zoom', function(e) { g.attr('transform', e.transform) })
       svg.call(zoom)
       svg.on('click', function(e) {
-        if (e.target === svg.node()) hideEdgeTooltip()
+        if (e.target === svg.node()) {
+          hideEdgeTooltip()
+          closeOverlay()
+        }
       })
 
       // cluster gravity
@@ -643,6 +786,7 @@
           .attr('stroke',           function(l) { return (EDGE_STYLES[l.type] || EDGE_STYLES.influence).color })
           .attr('stroke-width',     function(l) { return (EDGE_STYLES[l.type] || EDGE_STYLES.influence).width })
           .attr('stroke-dasharray', function(l) { return (EDGE_STYLES[l.type] || EDGE_STYLES.influence).dash  })
+          if (activeSelection) applyDim()
         })
 
       linkVisSelection = g.append('g').selectAll('line')
@@ -703,8 +847,9 @@
                 ? '<div style="margin-top:4px">' + d.song_count + ' canciones</div>'
                 : '<div style="opacity:0.4;margin-top:4px">nodo raíz</div>')
           }
-          nodeSelection.style('opacity', function(n) { return connIds.has(n.id) ? 1 : 0.12 })
-          link.style('opacity', function(l) { return (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.04 })
+          // hover always shows immediate neighbourhood regardless of selection state
+          nodeSelection.style('opacity', function(n) { return connIds.has(n.id) ? 1 : 0.08 })
+          link.style('opacity', function(l) { return (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.03 })
         })
         .on('mousemove', function(e) {
           if (!hoverTooltip) return
@@ -714,9 +859,14 @@
         })
         .on('mouseout', function() {
           if (hoverTooltip) hoverTooltip.style.opacity = '0'
-          nodeSelection.style('opacity', null)
-          link.style('opacity', null)
-          applyVisibility()
+          // restore selection dim if active, otherwise clear entirely
+          if (activeSelection) {
+            applyDim()
+          } else {
+            nodeSelection.style('opacity', null)
+            link.style('opacity', null)
+            applyVisibility()
+          }
         })
         .on('click', function(e, d) {
           e.stopPropagation()
