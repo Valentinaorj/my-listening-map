@@ -322,3 +322,170 @@ folk,electronic,influence,0.44
 hip hop,soul,influence,0.35
 alternative pop,funk,influence,0.35
 dark folk,ambient,influence,0.63
+experimental,hip hop,influence,0.49
+gnawa,jazz,influence,0.35
+folk latino,electronic,influence,0.35
+dream pop,shoegaze,influence,0.44
+electronic,pop,influence,0.35
+soul,r&b,influence,0.39
+rock latino,blues,influence,0.35
+indie pop,folk,influence,0.35
+alternative rock,electronic,influence,0.35
+electronic,cumbia,influence,0.35
+folk,baroque pop,influence,0.35
+folk,blues,influence,0.49
+electronic,alternative pop,influence,0.35
+soul,hip hop,influence,0.35
+soul,jazz,influence,0.35
+electronic,hip hop,influence,0.35
+hip hop,jazz,influence,0.35
+jazz,electronic,influence,0.35
+alternative r&b,hip hop,influence,0.35
+electronic,soul,influence,0.35
+jazz,folk español,influence,0.35
+electronic,r&b,influence,0.35
+folk rock,soul,influence,0.35
+alternative r&b,electronic,influence,0.35
+jazz,r&b,influence,0.35
+electronic,jazz,influence,0.35
+r&b,electronic,influence,0.35
+afrobeat,jazz,influence,0.35
+country,folk,influence,0.35
+west african pentatonic,sahelian folk,origin,0.7
+west african pentatonic,blues,origin,0.7
+west african pentatonic,tuareg music,origin,0.7
+west african pentatonic,jaliya tradition,origin,0.7
+jaliya tradition,sahelian folk,subgenre,0.7
+sahelian folk,afropop,origin,0.7
+sahelian folk,gnawa,subgenre,0.7
+tuareg music,afrobeat,subgenre,0.7
+funk,moroccan funk,origin,0.7
+reggae,libyan reggae,origin,0.7
+chanson,chanson haïtienne,origin,0.7
+arabic folk,lebanese folk,subgenre,0.7
+folk,georgian polyphonic,origin,0.7
+eurasian folk,georgian polyphonic,subgenre,0.7
+contemporary maloya,african diaspora,subgenre,0.7
+african percussion,guinean ceremonial music,origin,0.7
+brasileira,jazz,influence,0.35
+alternative folk,bossa nova,influence,0.35
+cancion protesta,folk,influence,0.35
+jaliya tradition,african folk,influence,0.39
+moroccan funk,funk,influence,0.35
+lebanese folk,arabic pop,influence,0.35
+tuareg music,blues,influence,0.35
+post-punk,reggae rock,influence,0.35
+chanson haïtienne,chanson,influence,0.35
+guinean ceremonial music,african percussion,influence,0.35
+georgian polyphonic,eurasian folk,influence,0.35
+qawwali,indie jazz,influence,0.35
+jazz,bolero,influence,0.35
+flamenco,rock,influence,0.35
+folk,klezmer,origin,0.7
+jazz,klezmer,origin,0.7
+flamenco,flamenco urbano,subgenre,0.7
+folk,dreamy folk,subgenre,0.7
+dreamy folk,jazz,influence,0.35
+flamenco urbano,folk español,influence,0.35
+son cubano,jazz,influence,0.35
+folk español,dreamy pop,influence,0.35
+reggae,hip hop,influence,0.35
+klezmer,jazz,influence,0.35
+lebanese folk,electronic,influence,0.35
+dreamy electronic,folk,influence,0.35
+classical,neo-classical,origin,0.7
+classical,contemporary classical,origin,0.7
+classical,neoclassical,subgenre,0.7
+classical,minimalism,subgenre,0.7
+classical,chamber music,subgenre,0.7
+classical,choral,subgenre,0.7
+classical,opera,subgenre,0.7
+classical,orchestra,subgenre,0.7
+classical,requiem,subgenre,0.7
+classical,japanese classical,subgenre,0.7
+classical piano,neo-classical,origin,0.7
+classical piano,contemporary classical,origin,0.7
+contemporary classical,neo-classical,subgenre,0.7
+minimalism,acousmatic,origin,0.7
+classical,space music,subgenre,0.7
+classical,new age,influence,0.7
+soul,retro soul,subgenre,0.7
+soul,northern soul,subgenre,0.7
+soul,soul blues,subgenre,0.7
+soul,quiet storm,subgenre,0.7
+soul,new jack swing,subgenre,0.7
+soul,afro soul,subgenre,0.7
+psychedelic rock,psychedelic soul,origin,0.7
+soul,psychedelic soul,origin,0.7
+blues,modern blues,subgenre,0.7
+funk,funk rock,subgenre,0.7
+r&b,j-r&b,subgenre,0.7
+r&b,uk r&b,subgenre,0.7
+hip hop,german hip hop,subgenre,0.7
+hip hop,hip hop italiano,subgenre,0.7
+hip hop,hardcore hip hop,subgenre,0.7
+hip hop,arabic hip hop,subgenre,0.7
+hip hop,j-rap,subgenre,0.7
+hip hop,rap,subgenre,0.7
+hip hop,jazz rap,subgenre,0.7
+hip hop latino,r&b latino,subgenre,0.7
+hip hop latino,spanish-language reggae,subgenre,0.7
+rock latino,mexican rock,subgenre,0.7
+rock latino,mexican indie,subgenre,0.7
+rock latino,argentine rock,subgenre,0.7
+rock latino,latin alternative,subgenre,0.7
+rock latino,indie latino,subgenre,0.7
+folk español,pop acustico,subgenre,0.7
+ska,ska latino,subgenre,0.7
+jazz,ethiopian jazz,subgenre,0.7
+jazz,jazz rap,subgenre,0.7
+jazz,jazz house,subgenre,0.7
+electro swing,jazz,origin,0.7
+swing music,electro swing,origin,0.7
+rock and roll,electronic rock,origin,0.7
+alternative rock,electronic rock,origin,0.7
+psychedelic rock,j-rock,influence,0.7
+ska,ska punk,subgenre,0.7
+reggae,ska punk,influence,0.7
+afrobeat,egyptian pop,influence,0.7
+gnawa,mizrahi,influence,0.7
+house,lo-fi house,subgenre,0.7
+house,tribal house,subgenre,0.7
+house,gqom,origin,0.7
+folk,balkan,origin,0.7
+flamenco,flamenco pop,subgenre,0.7
+candombe,murga,origin,0.7
+african percussion,murga,origin,0.7
+african percussion,bullerengue,origin,0.7
+cumbia,bullerengue,influence,0.7
+folk latino,folclor andino,subgenre,0.7
+native american music,folclor andino,influence,0.7
+folk latino,native american music,origin,0.7
+samba,brazilian hip hop,origin,0.7
+hip hop,brazilian hip hop,origin,0.7
+brasileira,forró,subgenre,0.7
+j-rock,shibuya-kei,origin,0.7
+city pop,shibuya-kei,origin,0.7
+pop,schlager,subgenre,0.7
+pop,nederpop,subgenre,0.7
+pop,kayokyoku,subgenre,0.7
+rock and roll,british pop,origin,0.7
+european immigrant music,tango,origin,0.7
+folk latino,guasca,subgenre,0.7
+folk latino,carranga,subgenre,0.7
+dub,cumbia,influence,0.35
+jazz,psychedelic rock,influence,0.39
+folk latino,reggae,influence,0.35
+bambuco,guasca,origin,0.7
+bambuco,carranga,origin,0.7
+bambuco,folclor andino,origin,0.7
+reggaeton,reggaeton chileno,subgenre,0.7
+african percussion,punta,origin,0.7
+caribe,punta,subgenre,0.7
+progressive rock,jam band,origin,0.7
+blues rock,jam band,origin,0.7
+cumbia,cuarteto,origin,0.7
+tango,cuarteto,influence,0.7
+folk latino,villancicos,subgenre,0.7
+currulao,colombian experimental,origin,0.7
+electronic,colombian experimental,influence,0.7

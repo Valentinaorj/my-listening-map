@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>world music tagger</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#1a1a2e; font-family:'VT323',monospace; color:#e2e8f0; min-height:100vh; padding:20px; }
+  h1 { font-size:28px; color:#7dd4a8; letter-spacing:0.1em; margin-bottom:4px; }
+  .subtitle { font-size:15px; opacity:0.4; margin-bottom:24px; letter-spacing:0.05em; }
+  #progress-bar-wrap { width:100%; height:8px; background:rgba(255,255,255,0.1); margin-bottom:24px; border-radius:2px; overflow:hidden; }
+  #progress-bar { height:100%; background:#7dd4a8; transition:width 0.3s ease; }
+  #summary { font-size:15px; opacity:0.5; margin-bottom:16px; }
+  .card { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:4px; padding:20px 24px; margin-bottom:12px; display:grid; grid-template-columns:1fr auto; gap:16px; align-items:start; }
+  .card.done { opacity:0.4; border-color:rgba(255,255,255,0.05); }
+  .card.delete-marked { opacity:0.3; border-color:#ef4444; background:rgba(239,68,68,0.05); }
+  .card-track { font-size:20px; color:#fff; margin-bottom:2px; }
+  .card-artist { font-size:14px; opacity:0.5; margin-bottom:2px; }
+  .card-country { font-size:13px; opacity:0.3; margin-bottom:8px; }
+  .card-notes { font-size:13px; color:#7dd4a8; opacity:0.8; font-style:italic; margin-bottom:10px; }
+  .field-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
+  .field-label { font-size:13px; opacity:0.4; white-space:nowrap; letter-spacing:0.06em; }
+  .genre-input-wrap { position:relative; flex:1; min-width:160px; }
+  .genre-input { width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.2); color:#e2e8f0; font-family:'VT323',monospace; font-size:16px; padding:5px 10px; outline:none; }
+  .genre-input:focus { border-color:#7dd4a8; }
+  .autocomplete-list { position:absolute; top:100%; left:0; right:0; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-top:none; max-height:160px; overflow-y:auto; z-index:100; display:none; }
+  .autocomplete-list.visible { display:block; }
+  .ac-item { padding:5px 10px; font-size:14px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.05); }
+  .ac-item:hover,.ac-item.selected { background:rgba(125,212,168,0.15); color:#7dd4a8; }
+  .card-right { display:flex; flex-direction:column; gap:8px; min-width:120px; }
+  .btn { font-family:'VT323',monospace; font-size:16px; padding:5px 16px; border:1px solid rgba(255,255,255,0.25); background:transparent; color:#e2e8f0; cursor:pointer; letter-spacing:0.05em; transition:all 0.15s; text-align:center; }
+  .btn:hover { background:rgba(255,255,255,0.1); }
+  .btn-confirm { border-color:#7dd4a8; color:#7dd4a8; }
+  .btn-confirm:hover { background:rgba(125,212,168,0.15); }
+  .btn-delete { border-color:#ef4444; color:#ef4444; }
+  .btn-delete:hover { background:rgba(239,68,68,0.1); }
+  .btn-skip { opacity:0.4; }
+  .status-tag { font-size:12px; padding:2px 8px; border-radius:2px; display:inline-block; margin-top:4px; }
+  .status-saved { background:rgba(125,212,168,0.2); color:#7dd4a8; }
+  .status-deleted { background:rgba(239,68,68,0.2); color:#ef4444; }
+  #export-section { margin-top:32px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.1); }
+  #export-section h2 { font-size:20px; color:#7dd4a8; margin-bottom:12px; }
+  #export-btn { font-family:'VT323',monospace; font-size:18px; padding:10px 28px; background:#7dd4a8; color:#1a1a2e; border:none; cursor:pointer; letter-spacing:0.08em; margin-bottom:12px; }
+  #export-btn:hover { background:#5cb88a; }
+  #export-output { font-family:monospace; font-size:12px; background:#0f172a; border:1px solid rgba(255,255,255,0.1); padding:12px; white-space:pre-wrap; max-height:300px; overflow-y:auto; display:none; }
+</style>
+</head>
+<body>
+
+<h1>world music tagger</h1>
+<p class="subtitle">18 tracks remaining · suggestions pre-filled · export when done</p>
+<div id="progress-bar-wrap"><div id="progress-bar" style="width:0%"></div></div>
+<div id="summary"></div>
+<div id="cards"></div>
+
+<div id="export-section">
+  <h2>export decisions</h2>
+  <p style="font-size:14px;opacity:0.5;margin-bottom:12px;">click export → copy the JSON → paste it to claude</p>
+  <button id="export-btn" onclick="exportDecisions()">export JSON</button>
+  <pre id="export-output"></pre>
+</div>
+
+<script>
+const GENRES = ["acid jazz","acid rock","acid-folk","acousmatic","acoustic pop","african diaspora","african folk","african percussion","afro folk","afro funk","afro soul","afrobeat","afrobeats latino","afropop","alternative country","alternative dance","alternative folk","alternative hip hop","alternative metal","alternative pop","alternative r&b","alternative rock","ambient","americana","anatolian rock","arabic folk","arabic hip hop","arabic pop","argentine rock","art pop","art rock","avant garde","avant-garde","baroque pop","bebop","bedroom pop","big band","blues","blues rock","bolero","boom bap","bossa nova","brasileira","brazilian hip hop","brazilian jazz","breakbeat","british pop","britpop","bullerengue","c-pop","cajun inspired","calypso","candombe","cancion protesta","canzone napoletana","chamber music","chamber pop","chanson","chanson haïtienne","chicha","chillwave","choral","city pop","classic rock","classic soul","classical","classical piano","cold wave","colombian experimental","colombian pop","contemporary maloya","contemporary classical","cool jazz","country","country rock","cuarteto","cumbia","cumbia pop","cumbia sonidera","currulao","dancehall","dark folk","darkwave","deathrock","devotional","disco","doo-wop","downtempo","dream pop","dreamy electronic","dreamy folk","dreamy pop","drone metal","dub","east coast hip hop","ebm","egg punk","egyptian pop","electro","electro swing","electroclash","electrocumbia","electronic","electronic pop","electronic rock","electronica","electronica latina","electropop","ethiopian jazz","ethnic caos","eurodance","europop","eurasian folk","exotica","experimental","experimental hip hop","fado","flamenco","flamenco pop","flamenco urbano","folk","folk español","folk latino","folk punk","folk rock","forró","free jazz","french house","french jazz","funk","funk rock","future bass","galician folk","gangster rap","garage rock","georgian polyphonic","german hip hop","glam metal","glam rock","gnawa","gothic rock","gqom","grunge","guinean ceremonial music","hard bop","hard rock","hardcore hip hop","hardcore punk","heavy metal","hi-nrg","hip hop","hip hop italiano","hip hop latino","house","house latino","idm","indie dance","indie jazz","indie latino","indie pop","indie rock","jaliya tradition","jam band","jangle pop","japanese classical","jazz","jazz beats","jazz blues","jazz funk","jazz fusion","jazz house","jazz latino","jazz rap","jungle","kayokyoku","latin alternative","lebanese folk","libyan reggae","lo-fi","lo-fi beats","lo-fi house","lounge","lovers rock","madchester","maghreb pop","mambo","math rock","medieval","melodic house","merengue","mexican indie","mexican rock","minimalism","mizrahi","modern blues","moroccan funk","motown","mpb","murga","musical theater","native american music","nederpop","neo soul","neo-psychedelic","neo-soul","neoclassical","neo-classical","new age","new jack swing","new rave","new wave","northern soul","nova mpb","nu disco","nu jazz","nueva trova","old school hip hop","opera","orchestra","organic house","pop","pop acustico","pop latino","pop rock","popular colombian music","porro","post-punk","post-rock","power pop","progressive folk","progressive rock","proto-punk","psychedelic folk","psychedelic rock","psychedelic soul","punk","punk latino","punta","qawwali","quiet storm","r&b","r&b latino","ragga","ragtime","ranchera","rap","reggae","reggae rock","reggaeton","reggaeton chileno","requiem","retro soul","riot grrrl","rock and roll","rock español","rock latino","rocksteady","roots reggae","roots rock","rumba flamenca","sahelian folk","salsa","samba","schlager","shibuya-kei","shoegaze","shona mbira","ska","ska latino","ska punk","slowcore","sludge metal","smooth jazz","soca","son cubano","son jarocho","soukous","soul","soul blues","soul inspired","southern rock","space music","space rock","spanish-language reggae","surf rock","swing music","synth pop","synthpop","tango","techno","traditional folk","tribal house","trip hop","tropical bass","tropical dub","tropical music","trova","tuareg music","tuvan","uk funky","uk garage","uk r&b","villancicos","vocal jazz","west coast hip hop"]
+
+const TRACKS = [{"artist":"Los Iracundos","track":"Sunny","country":"Uruguay","suggested_main":"bolero","suggested_influence":"","notes":"Los Iracundos - uruguayan classic bolero pop"},{"artist":"Enji","track":"Taivshral","country":"Mongolia","suggested_main":"folk","suggested_influence":"","notes":"Enji - mongolian folk-pop singer"},{"artist":"Grupo Naidy","track":"Comadre Araña","country":"Colombia","suggested_main":"tropical music","suggested_influence":"","notes":"Grupo Naidy - colombian traditional"},{"artist":"Blah Blah Blah","track":"Goodbye L.A","country":"United Kingdom","suggested_main":"indie pop","suggested_influence":"","notes":"Blah Blah Blah - spanish indie pop"},{"artist":"Ketekalles","track":"Esencia","country":"Spain","suggested_main":"flamenco urbano","suggested_influence":"","notes":"Ketekalles - spanish flamenco urbano"},{"artist":"Mohamed Lamouri & groupe Mostla","track":"Tgoul Maaraft","country":"Algeria","suggested_main":"gnawa","suggested_influence":"","notes":"Mohamed Lamouri - algerian chaabi folk"},{"artist":"Fatoumata Diawara","track":"Nterini - A COLORS SHOW","country":"Mali","suggested_main":"sahelian folk","suggested_influence":"","notes":"Fatoumata Diawara - malian wassoulou tradition"},{"artist":"Laura Murcia","track":"Las Curanderas","country":"Mexico","suggested_main":"folk latino","suggested_influence":"","notes":"Laura Murcia - mexican folk"},{"artist":"FEMI,Julia Bravo","track":"PAJARITOS - Versión Acústica","country":"Nigeria; Russian Federation","suggested_main":"folk latino","suggested_influence":"","notes":"FEMI - latin folk"},{"artist":"Bebo,Diego","track":"Lagrimas Negras","country":"Cuba; Switzerland","suggested_main":"bolero","suggested_influence":"jazz","notes":"Bebo Valdés - cuban bolero/son cubano"},{"artist":"Maria Arnal,Marcel Bagés","track":"Tú Que Vienes a Rondarme","country":"Spain","suggested_main":"folk español","suggested_influence":"canzone napoletana","notes":"Maria Arnal - catalan folk with mediterranean roots"},{"artist":"T.A.K The Rhymehead","track":"Babylonhe","country":"Japan","suggested_main":"reggae","suggested_influence":"hip hop","notes":"T.A.K The Rhymehead - japanese reggae-rap"},{"artist":"Skinshape,D'Alma","track":"Sua Alma","country":"United Kingdom","suggested_main":"brasileira","suggested_influence":"","notes":"Skinshape ft D'Alma - MPB-influenced"},{"artist":"Charif Megarbane","track":"Chez Mounir","country":"Lebanon","suggested_main":"lebanese folk","suggested_influence":"","notes":"Charif Megarbane - lebanese indie folk"},{"artist":"Klezmerson","track":"Lady Plastica","country":"Mexico","suggested_main":"jazz","suggested_influence":"folk","notes":"Klezmerson - mexican klezmer-jazz fusion"},{"artist":"Rogér Fakhr","track":"Gone Away Again","country":"Lebanon","suggested_main":"lebanese folk","suggested_influence":"","notes":"Rogér Fakhr - lebanese 70s folk"},{"artist":"Soapkills","track":"Galbi","country":"Lebanon","suggested_main":"lebanese folk","suggested_influence":"electronic","notes":"Soapkills - lebanese indie electronic"},{"artist":"Markandeya,Joaquín Cornejo","track":"Harvest Dub - Joaquín Cornejo Version","country":"Sweden; Ecuador","suggested_main":"electronic","suggested_influence":"folk","notes":"Markandeya - world dub fusion"}]
+
+const decisions = {}
+
+function autocomplete(input, listEl) {
+  let selIdx = -1
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase()
+    listEl.innerHTML = ''; selIdx = -1
+    if (!q) { listEl.classList.remove('visible'); return }
+    const matches = GENRES.filter(g => g.includes(q)).slice(0, 10)
+    if (!matches.length) { listEl.classList.remove('visible'); return }
+    matches.forEach(g => {
+      const item = document.createElement('div')
+      item.className = 'ac-item'; item.textContent = g
+      item.addEventListener('mousedown', e => { e.preventDefault(); input.value = g; listEl.classList.remove('visible') })
+      listEl.appendChild(item)
+    })
+    listEl.classList.add('visible')
+  })
+  input.addEventListener('keydown', e => {
+    const items = listEl.querySelectorAll('.ac-item')
+    if (e.key === 'ArrowDown') { selIdx = Math.min(selIdx+1, items.length-1); items.forEach((el,i) => el.classList.toggle('selected', i===selIdx)); e.preventDefault() }
+    else if (e.key === 'ArrowUp') { selIdx = Math.max(selIdx-1, 0); items.forEach((el,i) => el.classList.toggle('selected', i===selIdx)); e.preventDefault() }
+    else if (e.key === 'Enter' && selIdx >= 0) { input.value = items[selIdx].textContent; listEl.classList.remove('visible'); e.preventDefault() }
+    else if (e.key === 'Escape') { listEl.classList.remove('visible') }
+  })
+  input.addEventListener('blur', () => setTimeout(() => listEl.classList.remove('visible'), 150))
+}
+
+function buildCards() {
+  const container = document.getElementById('cards')
+  TRACKS.forEach((t, idx) => {
+    const card = document.createElement('div')
+    card.className = 'card'; card.id = 'card-' + idx
+    card.innerHTML = `
+      <div class="card-left">
+        <div class="card-track">${t.track}</div>
+        <div class="card-artist">${t.artist}</div>
+        <div class="card-country">${t.country}</div>
+        ${t.notes ? `<div class="card-notes">💡 ${t.notes}</div>` : ''}
+        <div class="field-row">
+          <span class="field-label">main genre</span>
+          <div class="genre-input-wrap">
+            <input class="genre-input" id="main-${idx}" value="${t.suggested_main}" placeholder="main genre..." autocomplete="off">
+            <div class="autocomplete-list" id="main-ac-${idx}"></div>
+          </div>
+        </div>
+        <div class="field-row">
+          <span class="field-label">influence</span>
+          <div class="genre-input-wrap">
+            <input class="genre-input" id="infl-${idx}" value="${t.suggested_influence}" placeholder="influence (optional)..." autocomplete="off">
+            <div class="autocomplete-list" id="infl-ac-${idx}"></div>
+          </div>
+        </div>
+        <div id="status-${idx}" style="margin-top:8px;"></div>
+      </div>
+      <div class="card-right">
+        <button class="btn btn-confirm" onclick="confirmCard(${idx})">confirm ✓</button>
+        <button class="btn btn-delete" onclick="markDelete(${idx})">delete</button>
+        <button class="btn btn-skip" onclick="skip(${idx})">skip</button>
+      </div>`
+    container.appendChild(card)
+    autocomplete(document.getElementById('main-'+idx), document.getElementById('main-ac-'+idx))
+    autocomplete(document.getElementById('infl-'+idx), document.getElementById('infl-ac-'+idx))
+  })
+  updateProgress()
+}
+
+function confirmCard(idx) {
+  const t = TRACKS[idx]
+  const main = document.getElementById('main-'+idx).value.trim()
+  const infl = document.getElementById('infl-'+idx).value.trim()
+  if (!main) { alert('main genre required'); return }
+  decisions[idx] = { action:'tag', track:t.track, artist:t.artist, main, influence:infl }
+  document.getElementById('card-'+idx).classList.add('done')
+  document.getElementById('status-'+idx).innerHTML = `<span class="status-tag status-saved">✓ ${main}${infl?' + '+infl:''}</span>`
+  updateProgress()
+}
+
+function markDelete(idx) {
+  const t = TRACKS[idx]
+  decisions[idx] = { action:'delete', track:t.track, artist:t.artist }
+  document.getElementById('card-'+idx).classList.add('done','delete-marked')
+  document.getElementById('status-'+idx).innerHTML = `<span class="status-tag status-deleted">✗ delete</span>`
+  updateProgress()
+}
+
+function skip(idx) {
+  document.getElementById('card-'+idx).style.opacity = '0.35'
+}
+
+function updateProgress() {
+  const done = Object.keys(decisions).length
+  document.getElementById('progress-bar').style.width = (done/TRACKS.length*100)+'%'
+  document.getElementById('summary').textContent = done + ' / ' + TRACKS.length + ' decisions made'
+}
+
+function exportDecisions() {
+  const out = document.getElementById('export-output')
+  out.textContent = JSON.stringify(decisions, null, 2)
+  out.style.display = 'block'
+}
+
+buildCards()
+</script>
+</body>
+</html>
