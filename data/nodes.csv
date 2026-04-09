@@ -4,13 +4,11 @@ acid rock,8,rock
 acid-folk,5,folk-singer-songwriter
 acousmatic,1,classical-experimental
 acoustic pop,1,pop-indie
-african diaspora,0,african-global-roots
 african folk,1,african-global-roots
 african percussion,0,ancestor
-afro folk,1,african-global-roots
 afro funk,1,soul-rnb-funk
 afro soul,1,soul-rnb-funk
-afrobeat,8,african-global-roots
+afrobeat,3,african-global-roots
 afropop,8,african-global-roots
 alternative country,3,folk-singer-songwriter
 alternative dance,4,electronic
@@ -28,8 +26,7 @@ arabic pop,0,pop-indie
 argentine rock,3,rock-latino-espanol
 art pop,4,pop-indie
 art rock,14,rock
-avant garde,2,jazz
-avant-garde,5,classical-experimental
+avant-garde,7,classical-experimental
 bachata,1,caribe
 balkan,1,folk-singer-songwriter
 bambuco,0,ancestor
@@ -58,7 +55,7 @@ canzone napoletana,16,folk-singer-songwriter
 carranga,1,andina
 chamber music,5,classical-experimental
 chamber pop,0,pop-indie
-champeta,1,caribe
+champeta,2,caribe
 chanson,8,folk-singer-songwriter
 chanson haïtienne,1,caribe
 chicha,13,caribe
@@ -102,16 +99,15 @@ egyptian pop,2,african-global-roots
 electro,9,electronic
 electro swing,3,jazz
 electroclash,1,electronic
-electrocumbia,68,caribe
+electrocumbia,70,caribe
 electronic,15,electronic
 electronic pop,3,electronic
 electronic rock,4,rock
 electronica,2,electronic
 electronica latina,2,electronic
 electropop,2,electronic
-ethiopian jazz,6,jazz
-ethnic caos,8,african-global-roots
-eurasian folk,0,folk-singer-songwriter
+ethiopian jazz,7,jazz
+eurasian folk,8,folk-singer-songwriter
 eurodance,1,electronic
 european immigrant music,0,ancestor
 europop,0,electronic
@@ -186,7 +182,6 @@ jazz rap,2,jazz
 jungle,1,electronic
 kayokyoku,1,pop-indie
 klezmer,1,folk-singer-songwriter
-latin alternative,1,rock-latino-espanol
 latin jazz,0,ancestor
 lebanese folk,4,folk-singer-songwriter
 libyan reggae,1,african-global-roots
@@ -272,7 +267,7 @@ rocksteady,1,african-global-roots
 roots reggae,4,african-global-roots
 roots rock,1,rock
 rumba flamenca,5,folk-singer-songwriter
-sahelian folk,2,african-global-roots
+sahelian folk,3,african-global-roots
 salsa,7,caribe
 samba,2,brasileira
 schlager,2,pop-indie
@@ -287,7 +282,7 @@ sludge metal,1,rock
 smooth jazz,1,jazz
 son cubano,11,caribe
 son jarocho,3,cancion
-soukous,1,african-global-roots
+soukous,2,african-global-roots
 soul,19,soul-rnb-funk
 soul blues,3,soul-rnb-funk
 soul inspired,0,soul-rnb-funk

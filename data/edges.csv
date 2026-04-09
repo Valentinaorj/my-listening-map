@@ -32,12 +32,11 @@ folk latino,cancion protesta,influence,0.7
 ska,mexican ska,subgenre,0.9
 punk,mexican ska,origin,0.7
 reggae,ska,origin,0.9
-ska,rocksteady,subgenre,0.8
-rocksteady,reggae,subgenre,0.9
+ska,rocksteady,origin,0.9
+rocksteady,roots reggae,origin,0.9
 reggae,dub,subgenre,0.8
-reggae,roots reggae,subgenre,0.9
+roots reggae,reggae,origin,0.8
 reggae,lovers rock,subgenre,0.8
-afrobeat,afropop,subgenre,0.8
 blues,rock and roll,origin,1.0
 rock and roll,classic rock,subgenre,0.9
 classic rock,hard rock,subgenre,0.8
@@ -203,7 +202,7 @@ hard bop,jazz fusion,origin,0.6
 cool jazz,bossa nova,origin,0.7
 cool jazz,lounge,subgenre,0.6
 cool jazz,exotica,subgenre,0.5
-free jazz,avant garde,subgenre,0.7
+free jazz,avant-garde,subgenre,0.7
 jazz fusion,jazz funk,subgenre,0.8
 jazz fusion,acid jazz,subgenre,0.7
 jazz fusion,nu jazz,subgenre,0.7
@@ -219,7 +218,7 @@ french jazz,jazz,subgenre,0.8
 brazilian jazz,bossa nova,subgenre,0.8
 latin jazz,jazz latino,subgenre,0.9
 jazz latino,latin jazz,subgenre,0.9
-avant garde,experimental,subgenre,0.6
+avant-garde,experimental,subgenre,0.6
 indie jazz,nu jazz,subgenre,0.7
 smooth jazz,jazz fusion,subgenre,0.7
 soukous,champeta,origin,0.9
@@ -270,14 +269,12 @@ country,alternative country,subgenre,0.8
 alternative rock,alternative country,subgenre,0.6
 alternative rock,dreamy folk,influence,0.35
 afro funk,blues,influence,0.35
-afro folk,afrobeat,influence,0.35
-afrobeat,dreamy pop,influence,0.35
-soukous,afrobeat,influence,0.35
-shona mbira,african folk,influence,0.35
 neo-soul,jazz,influence,0.63
 rock latino,swing music,influence,0.58
-maghreb pop,folk,influence,0.39
-avant garde,alternative rock,influence,0.39
+sahelian folk,maghreb pop,influence,0.5
+african percussion,soukous,origin,0.8
+sahelian folk,egyptian pop,influence,0.4
+avant-garde,alternative rock,influence,0.39
 folk latino,hip hop latino,influence,0.39
 rock latino,hip hop latino,influence,0.91
 folk latino,samba,influence,0.39
@@ -285,11 +282,11 @@ dreamy electronic,avant-garde,influence,0.58
 hip hop,experimental,influence,0.49
 r&b,soul,influence,0.35
 r&b,reggae,influence,0.53
-jazz,avant garde,influence,0.39
+jazz,avant-garde,influence,0.39
 dreamy pop,bossa nova,influence,0.35
 hip hop,soul inspired,influence,0.39
 chanson,jazz,influence,0.35
-ethnic caos,folk,influence,0.67
+folk,eurasian folk,origin,0.7
 folk,cancion protesta,influence,0.35
 tuvan,traditional folk,influence,0.35
 folk rock,alternative rock,influence,0.39
@@ -349,34 +346,32 @@ alternative r&b,electronic,influence,0.35
 jazz,r&b,influence,0.35
 electronic,jazz,influence,0.35
 r&b,electronic,influence,0.35
-afrobeat,jazz,influence,0.35
+jazz,afrobeat,origin,0.8
+funk,afrobeat,origin,0.8
 country,folk,influence,0.35
 west african pentatonic,sahelian folk,origin,0.7
 west african pentatonic,blues,origin,0.7
 west african pentatonic,tuareg music,origin,0.7
-west african pentatonic,jaliya tradition,origin,0.7
-jaliya tradition,sahelian folk,subgenre,0.7
+sahelian folk,jaliya tradition,subgenre,0.7
 sahelian folk,afropop,origin,0.7
 sahelian folk,gnawa,subgenre,0.7
-tuareg music,afrobeat,subgenre,0.7
 funk,moroccan funk,origin,0.7
 reggae,libyan reggae,origin,0.7
 chanson,chanson haïtienne,origin,0.7
 arabic folk,lebanese folk,subgenre,0.7
 folk,georgian polyphonic,origin,0.7
 eurasian folk,georgian polyphonic,subgenre,0.7
-contemporary maloya,african diaspora,subgenre,0.7
+african percussion,contemporary maloya,origin,0.8
 african percussion,guinean ceremonial music,origin,0.7
 brasileira,jazz,influence,0.35
 alternative folk,bossa nova,influence,0.35
 cancion protesta,folk,influence,0.35
 jaliya tradition,african folk,influence,0.39
-moroccan funk,funk,influence,0.35
+gnawa,moroccan funk,origin,0.7
 lebanese folk,arabic pop,influence,0.35
 tuareg music,blues,influence,0.35
 post-punk,reggae rock,influence,0.35
 chanson haïtienne,chanson,influence,0.35
-guinean ceremonial music,african percussion,influence,0.35
 georgian polyphonic,eurasian folk,influence,0.35
 qawwali,indie jazz,influence,0.35
 jazz,bolero,influence,0.35
@@ -433,7 +428,6 @@ hip hop latino,spanish-language reggae,subgenre,0.7
 rock latino,mexican rock,subgenre,0.7
 rock latino,mexican indie,subgenre,0.7
 rock latino,argentine rock,subgenre,0.7
-rock latino,latin alternative,subgenre,0.7
 rock latino,indie latino,subgenre,0.7
 folk español,pop acustico,subgenre,0.7
 ska,ska latino,subgenre,0.7
@@ -446,8 +440,7 @@ rock and roll,electronic rock,origin,0.7
 alternative rock,electronic rock,origin,0.7
 psychedelic rock,j-rock,influence,0.7
 ska,ska punk,subgenre,0.7
-reggae,ska punk,influence,0.7
-afrobeat,egyptian pop,influence,0.7
+punk,ska punk,origin,0.7
 gnawa,mizrahi,influence,0.7
 house,lo-fi house,subgenre,0.7
 house,tribal house,subgenre,0.7
@@ -489,3 +482,4 @@ tango,cuarteto,influence,0.7
 folk latino,villancicos,subgenre,0.7
 currulao,colombian experimental,origin,0.7
 electronic,colombian experimental,influence,0.7
+african percussion,shona mbira,origin,0.8

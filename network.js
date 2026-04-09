@@ -178,8 +178,27 @@
     var clustersEl = document.getElementById('legend-clusters')
     if (!clustersEl) return
 
-    var entries = Object.keys(CLUSTER_COLORS).filter(function(k) { return k !== 'ancestor' })
+    // ancestor included — filtered out previously, now we want it
+    var entries = Object.keys(CLUSTER_COLORS)
     clustersEl.innerHTML = ''
+
+    // ── show all / hide all controls ──
+    var allHideRow = document.createElement('div')
+    allHideRow.style.cssText = 'display:flex;gap:4px;margin-bottom:6px;'
+
+    var showAllBtn = document.createElement('button')
+    showAllBtn.textContent = 'show all'
+    showAllBtn.style.cssText = 'flex:1;font-family:\'VT323\',monospace;font-size:12px;background:transparent;border:1px solid rgba(255,255,255,0.25);color:#e2e8f0;padding:2px 0;cursor:pointer;letter-spacing:0.05em;'
+    showAllBtn.title = 'show all clusters'
+
+    var hideAllBtn = document.createElement('button')
+    hideAllBtn.textContent = 'hide all'
+    hideAllBtn.style.cssText = 'flex:1;font-family:\'VT323\',monospace;font-size:12px;background:transparent;border:1px solid rgba(255,255,255,0.25);color:#e2e8f0;padding:2px 0;cursor:pointer;letter-spacing:0.05em;'
+    hideAllBtn.title = 'hide all clusters'
+
+    allHideRow.appendChild(showAllBtn)
+    allHideRow.appendChild(hideAllBtn)
+    clustersEl.appendChild(allHideRow)
 
     var isDragging      = false
     var dragTargetState = true
@@ -195,7 +214,12 @@
 
       var dot = document.createElement('div')
       dot.className = 'legend-cluster-dot'
-      dot.style.background = CLUSTER_COLORS[k]
+      // ancestor gets a diamond shape via CSS trick — use a small rotated square
+      if (k === 'ancestor') {
+        dot.style.cssText = 'width:8px;height:8px;flex-shrink:0;background:' + CLUSTER_COLORS[k] + ';transform:rotate(45deg);border:1px solid #475569;border-radius:0;'
+      } else {
+        dot.style.background = CLUSTER_COLORS[k]
+      }
 
       var label = document.createElement('span')
       label.textContent = CLUSTER_LABELS[k] || k
@@ -207,8 +231,8 @@
     })
 
     function setCluster(k, checked) {
-      var cb   = clustersEl.querySelector('[data-cluster="' + k + '"]')
-      var item = cb ? cb.closest('.legend-cluster-item') : null
+      var item = clustersEl.querySelector('.legend-cluster-item[data-cluster="' + k + '"]')
+      var cb   = item ? item.querySelector('.cluster-checkbox') : null
       if (!cb || !item) return
       if (checked) {
         cb.classList.add('checked')
@@ -228,11 +252,41 @@
       return !isChecked
     }
 
+    // solo mode: hide everything except k
+    function soloCluster(k) {
+      entries.forEach(function(c) { setCluster(c, c === k) })
+      applyVisibility()
+    }
+
+    showAllBtn.addEventListener('click', function() {
+      entries.forEach(function(k) { setCluster(k, true) })
+      applyVisibility()
+    })
+
+    hideAllBtn.addEventListener('click', function() {
+      entries.forEach(function(k) { setCluster(k, false) })
+      applyVisibility()
+    })
+
     clustersEl.addEventListener('mousedown', function(e) {
       var item = e.target.closest('.legend-cluster-item')
       if (!item) return
       e.preventDefault()
       var k = item.dataset.cluster
+
+      // alt+click = solo this cluster
+      if (e.altKey) {
+        // if already soloed (only this one visible), restore all
+        var allOthersHidden = entries.filter(function(c) { return c !== k }).every(function(c) { return hiddenClusters.has(c) })
+        if (allOthersHidden && !hiddenClusters.has(k)) {
+          entries.forEach(function(c) { setCluster(c, true) })
+        } else {
+          soloCluster(k)
+        }
+        applyVisibility()
+        return
+      }
+
       isDragging = true
       dragTargetState = toggleCluster(k)
     })

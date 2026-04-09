@@ -801,7 +801,7 @@ canvas { display: block; width: 100% !important; }
   cursor: pointer;
   user-select: none;
 }
-.legend-cluster-item.dimmed { opacity: 0.35; }
+.legend-cluster-item.dimmed { opacity: 0.4; }
 
 /* custom checkbox — white stroke, no fill, white tick */
 .cluster-checkbox {
@@ -831,7 +831,7 @@ canvas { display: block; width: 100% !important; }
   cursor: pointer;
   user-select: none;
 }
-.legend-edge-item.dimmed { opacity: 0.35; }
+.legend-edge-item.dimmed { opacity: 0.4; }
 
 .edge-checkbox {
   width: 11px;
