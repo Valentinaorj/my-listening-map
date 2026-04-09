@@ -1,4 +1,5 @@
 source,target,type,weight
+Elektronische Musique,electronic,origin,1.0
 african percussion,cumbia,origin,1.0
 indigenous colombian music,cumbia,origin,1.0
 cumbia,cumbia sonidera,subgenre,0.9
@@ -157,7 +158,6 @@ house,hi-nrg,origin,0.8
 house,melodic house,subgenre,0.8
 house,stutter house,subgenre,0.7
 house,uk garage,origin,0.6
-disco,italo dance,origin,0.7
 disco,hi-nrg,subgenre,0.8
 disco,eurodance,origin,0.7
 disco,nu disco,subgenre,0.9
@@ -178,8 +178,8 @@ downtempo,lo-fi,origin,0.6
 breakbeat,jungle,subgenre,0.9
 ambient,lo-fi,origin,0.5
 lo-fi,lo-fi beats,subgenre,0.9
-electronica,idm,subgenre,0.8
-electronica,electronica latina,subgenre,0.8
+electronic,idm,subgenre,0.8
+electronic,electronica latina,subgenre,0.8
 future bass,electronic pop,subgenre,0.6
 future bass,alternative dance,subgenre,0.5
 uk garage,uk funky,subgenre,0.8
@@ -305,13 +305,12 @@ roots rock,reggae rock,origin,0.7
 blues rock,southern rock,origin,0.7
 ebm,techno,origin,0.7
 industrial,techno,origin,0.7
-italo dance,eurodance,origin,0.7
 ambient,downtempo,origin,0.7
-ambient,electronica,origin,0.7
+ambient,electronic,origin,0.7
 ambient,dreamy electronic,origin,0.7
 downtempo,dreamy electronic,origin,0.7
 chanson,folk,origin,0.7
-canzone napoletana,folk,origin,0.7
+folk,canzone italiana,origin,0.75
 doo-wop,soul,origin,0.7
 alternative pop,r&b,influence,0.49
 pop latino,funk,influence,0.35

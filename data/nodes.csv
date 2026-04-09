@@ -51,7 +51,7 @@ c-pop,1,pop-indie
 cajun inspired,1,folk-singer-songwriter
 cancion protesta,14,cancion
 candombe,11,afro-sudamericano
-canzone napoletana,16,folk-singer-songwriter
+canzone italiana,25,cancion
 carranga,1,andina
 chamber music,5,classical-experimental
 chamber pop,0,pop-indie
@@ -79,7 +79,7 @@ cumbia pop,1,caribe
 cumbia sonidera,6,caribe
 currulao,6,afro-sudamericano
 dancehall,7,caribe
-dark folk,9,folk-singer-songwriter
+dark folk,10,folk-singer-songwriter
 darkwave,11,rock
 deathrock,2,rock
 devotional,2,folk-singer-songwriter
@@ -100,10 +100,10 @@ electro,9,electronic
 electro swing,3,jazz
 electroclash,1,electronic
 electrocumbia,70,caribe
-electronic,15,electronic
+electronic,17,electronic
 electronic pop,3,electronic
 electronic rock,4,rock
-electronica,2,electronic
+Elektronische Musique,0,ancestor
 electronica latina,2,electronic
 electropop,2,electronic
 ethiopian jazz,7,jazz
@@ -150,7 +150,7 @@ hardcore hip hop,2,hip-hop
 hardcore punk,2,rock
 heavy metal,0,ancestor
 hi-nrg,3,electronic
-hip hop,33,hip-hop
+hip hop,34,hip-hop
 hip hop italiano,4,hip-hop
 hip hop latino,48,hip-hop-latino
 house,2,electronic
@@ -163,7 +163,6 @@ indie rock,23,rock
 indigenous colombian music,0,ancestor
 indigenous cuban music,0,ancestor
 industrial,1,rock
-italo dance,12,electronic
 j-r&b,2,soul-rnb-funk
 j-rap,1,hip-hop
 j-rock,1,rock
@@ -239,7 +238,7 @@ power pop,1,rock
 progressive folk,2,folk-singer-songwriter
 progressive rock,35,rock
 proto-punk,16,rock
-psychedelic folk,5,folk-singer-songwriter
+psychedelic folk,6,folk-singer-songwriter
 psychedelic rock,25,rock
 psychedelic soul,7,soul-rnb-funk
 punk,13,rock

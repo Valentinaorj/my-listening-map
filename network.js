@@ -748,6 +748,29 @@
         adj[e.target].push(e.source)
       })
 
+      // structural degree = origin + subgenre only (influence does not shape layout)
+      var structuralDegree = {}
+      validEdges.forEach(function(e) {
+        if (e.type === 'influence') return
+        structuralDegree[e.source] = (structuralDegree[e.source] || 0) + 1
+        structuralDegree[e.target] = (structuralDegree[e.target] || 0) + 1
+      })
+      allNodes.forEach(function(n) {
+        n.structuralDegree = structuralDegree[n.id] || 0
+      })
+
+      // for each degree-1 node, record its single structural neighbor
+      // so the radial-leaves force can push directly away from it
+      var leafNeighborMap = {}
+      validEdges.forEach(function(e) {
+        if (e.type === 'influence') return
+        if (structuralDegree[e.source] === 1) leafNeighborMap[e.source] = e.target
+        if (structuralDegree[e.target] === 1) leafNeighborMap[e.target] = e.source
+      })
+      allNodes.forEach(function(n) {
+        n.leafNeighbor = leafNeighborMap[n.id] || null
+      })
+
       var W = container.offsetWidth  || 800
       var H = container.offsetHeight || 500
 
@@ -796,13 +819,13 @@
           .distance(function(d) {
             if (d.type === 'origin')    return 80
             if (d.type === 'subgenre')  return 65
-            if (d.type === 'influence') return 140
-            return 120
+            if (d.type === 'influence') return 90
+            return 100
           })
           .strength(function(d) {
             if (d.type === 'origin')    return 0.4
             if (d.type === 'subgenre')  return 0.3
-            if (d.type === 'influence') return 0.08
+            if (d.type === 'influence') return 0.2
             return 0.15
           })
         )
@@ -818,6 +841,46 @@
             var strength = n.isAncestor ? 0.02 : 0.06
             n.vx += (center.x - n.x) * strength * alpha
             n.vy += (center.y - n.y) * strength * alpha
+          })
+        })
+        .force('radial-leaves', function(alpha) {
+          allNodes.forEach(function(n) {
+            var cx = W / 2
+            var cy = H / 2
+
+            if (n.structuralDegree === 0) {
+              // no structural edges at all — only influence edges (or nothing) hold them
+              // pull strongly toward cluster center so they stay in the right neighbourhood
+              var center = clusterCenters[n.cluster]
+              if (!center) return
+              n.vx += (center.x - n.x) * 0.25 * alpha
+              n.vy += (center.y - n.y) * 0.25 * alpha
+              // also push away from canvas center so they sit on the outer edge of their cluster
+              var dcx = n.x - cx
+              var dcy = n.y - cy
+              var dc = Math.sqrt(dcx * dcx + dcy * dcy) || 1
+              n.vx += (dcx / dc) * 1.5 * alpha
+              n.vy += (dcy / dc) * 1.5 * alpha
+              return
+            }
+
+            if (n.structuralDegree === 1) {
+              // one structural edge — push away from canvas center and away from
+              // single neighbor so leaf sits on the outside of it
+              var neighbor = nodeById[n.leafNeighbor]
+              var dcx = n.x - cx
+              var dcy = n.y - cy
+              var dc = Math.sqrt(dcx * dcx + dcy * dcy) || 1
+              n.vx += (dcx / dc) * 2.5 * alpha
+              n.vy += (dcy / dc) * 2.5 * alpha
+              if (neighbor) {
+                var dnx = n.x - neighbor.x
+                var dny = n.y - neighbor.y
+                var dn = Math.sqrt(dnx * dnx + dny * dny) || 1
+                n.vx += (dnx / dn) * 1.5 * alpha
+                n.vy += (dny / dn) * 1.5 * alpha
+              }
+            }
           })
         })
 
