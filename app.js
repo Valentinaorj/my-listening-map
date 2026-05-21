@@ -58,12 +58,13 @@ var FILTER_LABELS = {
 
 function getVisibleColumns(filterType) {
   // always show title (fixed), always show artist
-  // hide the column that matches the current filter
+  // when filtering by genre: hide genre column, show influence instead
   return {
-    showArtist:  true,
-    showYear:    filterType !== 'decade',
-    showGenre:   true,
-    showCountry: filterType !== 'country' && filterType !== 'language'
+    showArtist:    true,
+    showYear:      filterType !== 'decade',
+    showGenre:     filterType !== 'genre',
+    showInfluence: filterType === 'genre',
+    showCountry:   filterType !== 'country' && filterType !== 'language'
   }
 }
 
@@ -82,10 +83,11 @@ function renderSongsTable(label, songs, filterType) {
   // update column visibility
   var cols = getVisibleColumns(filterType)
   if (theadRow) {
-    theadRow.querySelector('.col-artist').style.display  = ''
-    theadRow.querySelector('.col-year').style.display    = cols.showYear    ? '' : 'none'
-    theadRow.querySelector('.col-genre').style.display   = cols.showGenre   ? '' : 'none'
-    theadRow.querySelector('.col-country').style.display = cols.showCountry ? '' : 'none'
+    theadRow.querySelector('.col-artist').style.display    = ''
+    theadRow.querySelector('.col-year').style.display      = cols.showYear      ? '' : 'none'
+    theadRow.querySelector('.col-genre').style.display     = cols.showGenre     ? '' : 'none'
+    theadRow.querySelector('.col-influence').style.display = cols.showInfluence ? '' : 'none'
+    theadRow.querySelector('.col-country').style.display   = cols.showCountry   ? '' : 'none'
   }
 
   if (!songs || songs.length === 0) {
@@ -99,18 +101,20 @@ function renderSongsTable(label, songs, filterType) {
   if (emptyEl) emptyEl.style.display = 'none'
 
   tbody.innerHTML = songs.map(function(s) {
-    var title   = esc(s['Track Name']     || '—')
-    var artist  = esc(s['Artist Name(s)'] || '—')
-    var year    = (s['Release Date'] || '').slice(0, 4) || '—'
-    var genre = esc((s['Genres'] || '').split(';').map(function(g) { return g.trim() }).filter(Boolean).join(', ') || '—')
-    var country = esc((s['Artist Country'] || '—').split(';')[0].trim())
+    var title     = esc(s['Track Name']     || '—')
+    var artist    = esc(s['Artist Name(s)'] || '—')
+    var year      = (s['Release Date'] || '').slice(0, 4) || '—'
+    var genre     = esc(s['Main Genre'] || '—')
+    var influence = esc(s['Influence Genre'] || '—')
+    var country   = esc((s['Artist Country'] || '—').split(';')[0].trim())
 
     return '<tr>' +
       '<td class="col-fixed col-title" title="' + title + '">'  + title  + '</td>' +
       '<td class="col-artist" title="' + artist + '">' + artist + '</td>' +
-      (cols.showYear    ? '<td class="col-year">'    + year    + '</td>' : '') +
-      (cols.showGenre   ? '<td class="col-genre" title="' + genre + '">'   + genre   + '</td>' : '') +
-      (cols.showCountry ? '<td class="col-country" title="' + country + '">' + country + '</td>' : '') +
+      (cols.showYear      ? '<td class="col-year">'    + year    + '</td>' : '') +
+      (cols.showGenre     ? '<td class="col-genre" title="' + genre + '">' + genre + '</td>' : '') +
+      (cols.showInfluence ? '<td class="col-influence" title="' + influence + '">' + influence + '</td>' : '') +
+      (cols.showCountry   ? '<td class="col-country" title="' + country + '">' + country + '</td>' : '') +
       '</tr>'
   }).join('')
 

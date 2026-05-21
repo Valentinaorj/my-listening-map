@@ -1,462 +1,372 @@
-"source","target","type","weight"
-"Elektronische Musik","electronic","origin","1.0"
-"african percussion","cumbia","origin","1.0"
-"indigenous colombian music","cumbia","origin","1.0"
-"cumbia","cumbia sonidera","subgenre","0.9"
-"cumbia","cumbia pop","subgenre","0.8"
-"cumbia","chicha","subgenre","0.8"
-"african percussion","champeta","origin","0.8"
-"indigenous colombian music","vallenato","origin","0.7"
-"son cubano","salsa","origin","0.9"
-"african percussion","salsa","origin","0.8"
-"salsa","mambo","subgenre","0.9"
-"african percussion","merengue","origin","0.8"
-"indigenous colombian music","merengue","origin","0.7"
-"merengue","bachata","subgenre","0.6"
-"reggae","reggaeton","origin","0.9"
-"dancehall","reggaeton","origin","0.9"
-"african percussion","currulao","origin","1.0"
-"african percussion","candombe","origin","1.0"
-"candombe","tango","origin","0.7"
-"african percussion","samba","origin","0.9"
-"samba","bossa nova","origin","0.9"
-"bossa nova","mpb","origin","0.8"
-"mpb","nova mpb","subgenre","0.9"
-"african percussion","son cubano","origin","0.8"
-"indigenous cuban music","son cubano","origin","0.8"
-"son cubano","son jarocho","subgenre","0.7"
-"son cubano","bolero","origin","0.6"
-"bolero","nueva trova","origin","0.5"
-"nueva trova","trova","subgenre","0.9"
-"trova","cancion protesta","subgenre","0.8"
-"folk latino","cancion protesta","influence","0.7"
-"ska","mexican ska","subgenre","0.9"
-"punk","mexican ska","origin","0.7"
-"reggae","ska","origin","0.9"
-"ska","rocksteady","origin","0.9"
-"rocksteady","roots reggae","origin","0.9"
-"reggae","dub","subgenre","0.8"
-"roots reggae","reggae","origin","0.8"
-"reggae","lovers rock","subgenre","0.8"
-"blues","rock and roll","origin","1.0"
-"rock and roll","classic rock","subgenre","0.9"
-"classic rock","hard rock","subgenre","0.8"
-"classic rock","psychedelic rock","subgenre","0.8"
-"classic rock","progressive rock","subgenre","0.8"
-"blues","jazz","origin","0.8"
-"blues","soul","origin","0.9"
-"soul","funk","origin","0.8"
-"funk","hip hop","origin","0.8"
-"soul","motown","subgenre","0.9"
-"soul","classic soul","subgenre","0.9"
-"classic soul","neo-soul","origin","0.8"
-"funk","disco","origin","0.7"
-"disco","house","origin","0.9"
-"hip hop","east coast hip hop","subgenre","0.9"
-"hip hop","west coast hip hop","subgenre","0.9"
-"hip hop","boom bap","subgenre","0.9"
-"hip hop","gangster rap","subgenre","0.8"
-"hip hop","old school hip hop","subgenre","0.9"
-"hip hop","experimental hip hop","subgenre","0.7"
-"hip hop","alternative hip hop","subgenre","0.8"
-"punk","proto-punk","origin","0.9"
-"proto-punk","garage rock","origin","0.8"
-"proto-punk","punk","origin","0.9"
-"punk","hardcore punk","subgenre","0.9"
-"punk","post-punk","subgenre","0.9"
-"post-punk","new wave","subgenre","0.9"
-"post-punk","gothic rock","subgenre","0.8"
-"post-punk","darkwave","subgenre","0.8"
-"darkwave","cold wave","subgenre","0.8"
-"darkwave","deathrock","subgenre","0.8"
-"post-punk","industrial","subgenre","0.6"
-"new wave","alternative rock","origin","0.8"
-"alternative rock","indie rock","subgenre","0.9"
-"alternative rock","grunge","subgenre","0.9"
-"alternative rock","shoegaze","subgenre","0.8"
-"shoegaze","dream pop","subgenre","0.8"
-"shoegaze","slowcore","subgenre","0.7"
-"psychedelic rock","neo-psychedelic","subgenre","0.9"
-"jazz","bebop","subgenre","0.9"
-"bebop","cool jazz","origin","0.8"
-"bebop","hard bop","subgenre","0.9"
-"jazz","free jazz","subgenre","0.8"
-"jazz","nu jazz","subgenre","0.7"
-"jazz","vocal jazz","subgenre","0.8"
-"jazz","big band","origin","0.8"
-"big band","swing music","subgenre","0.9"
-"flamenco","rumba flamenca","subgenre","0.9"
-"african percussion","fado","origin","0.6"
-"blues","blues rock","origin","0.9"
-"blues rock","rock and roll","influence","0.7"
-"rock and roll","surf rock","subgenre","0.8"
-"rock and roll","roots rock","subgenre","0.7"
-"classic rock","blues rock","subgenre","0.8"
-"classic rock","art rock","subgenre","0.8"
-"classic rock","glam rock","subgenre","0.7"
-"classic rock","folk rock","subgenre","0.8"
-"classic rock","country rock","subgenre","0.7"
-"classic rock","southern rock","subgenre","0.7"
-"classic rock","acid rock","subgenre","0.8"
-"art rock","progressive rock","subgenre","0.8"
-"art rock","glam rock","subgenre","0.6"
-"progressive rock","art rock","subgenre","0.7"
-"progressive rock","space rock","subgenre","0.7"
-"psychedelic rock","acid rock","subgenre","0.9"
-"psychedelic rock","space rock","subgenre","0.7"
-"psychedelic rock","art rock","origin","0.6"
-"psychedelic rock","shoegaze","origin","0.5"
-"psychedelic rock","dream pop","origin","0.5"
-"garage rock","punk","origin","0.8"
-"garage rock","proto-punk","subgenre","0.8"
-"garage rock","jangle pop","origin","0.6"
-"punk","folk punk","subgenre","0.8"
-"punk","egg punk","subgenre","0.7"
-"punk","riot grrrl","subgenre","0.8"
-"post-punk","cold wave","subgenre","0.8"
-"post-punk","ebm","origin","0.7"
-"new wave","electropop","subgenre","0.8"
-"new wave","electroclash","origin","0.6"
-"alternative rock","britpop","subgenre","0.8"
-"alternative rock","madchester","subgenre","0.8"
-"alternative rock","dream pop","subgenre","0.7"
-"alternative rock","post-rock","subgenre","0.7"
-"alternative rock","math rock","subgenre","0.7"
-"alternative rock","jangle pop","subgenre","0.7"
-"indie rock","jangle pop","subgenre","0.8"
-"indie rock","britpop","subgenre","0.7"
-"indie rock","madchester","subgenre","0.7"
-"grunge","sludge metal","origin","0.5"
-"heavy metal","hard rock","origin","0.8"
-"heavy metal","sludge metal","subgenre","0.7"
-"heavy metal","drone metal","subgenre","0.7"
-"heavy metal","glam metal","subgenre","0.8"
-"hard rock","heavy metal","subgenre","0.8"
-"gothic rock","darkwave","subgenre","0.8"
-"gothic rock","deathrock","subgenre","0.9"
-"industrial","ebm","subgenre","0.8"
-"post-rock","math rock","subgenre","0.6"
-"post-rock","slowcore","subgenre","0.6"
-"post-rock","space rock","origin","0.5"
-"power pop","jangle pop","subgenre","0.6"
-"power pop","britpop","origin","0.5"
-"folk rock","roots rock","subgenre","0.8"
-"folk rock","country rock","subgenre","0.6"
-"folk rock","americana","subgenre","0.6"
-"country rock","roots rock","subgenre","0.8"
-"southern rock","roots rock","subgenre","0.8"
-"house","melodic house","subgenre","0.8"
-"house","stutter house","subgenre","0.7"
-"house","uk garage","origin","0.6"
-"disco","hi-nrg","subgenre","0.8"
-"disco","eurodance","origin","0.7"
-"disco","nu disco","subgenre","0.9"
-"hi-nrg","eurodance","origin","0.7"
-"synthpop","electropop","subgenre","0.8"
-"alternative dance","indie dance","subgenre","0.9"
-"alternative dance","new rave","subgenre","0.8"
-"trip hop","downtempo","origin","0.8"
-"downtempo","chillwave","subgenre","0.7"
-"downtempo","lo-fi","origin","0.6"
-"breakbeat","jungle","subgenre","0.9"
-"electronic","idm","subgenre","0.8"
-"electronic","electronica latina","subgenre","0.8"
-"hip hop","breakbeat","origin","0.7"
-"jazz","jazz funk","subgenre","0.8"
-"jazz","jazz blues","subgenre","0.8"
-"jazz","city pop","origin","0.6"
-"jazz","lounge","subgenre","0.7"
-"jazz","exotica","subgenre","0.6"
-"jazz","smooth jazz","subgenre","0.8"
-"jazz","indie jazz","subgenre","0.7"
-"jazz","jazz beats","subgenre","0.7"
-"jazz","soul jazz","subgenre","0.8"
-"bebop","free jazz","origin","0.7"
-"bebop","jazz fusion","origin","0.7"
-"hard bop","soul jazz","subgenre","0.7"
-"hard bop","jazz fusion","origin","0.6"
-"cool jazz","bossa nova","origin","0.7"
-"cool jazz","lounge","subgenre","0.6"
-"cool jazz","exotica","subgenre","0.5"
-"free jazz","avant-garde","subgenre","0.7"
-"jazz fusion","jazz funk","subgenre","0.8"
-"jazz fusion","acid jazz","subgenre","0.7"
-"jazz fusion","nu jazz","subgenre","0.7"
-"nu jazz","indie jazz","subgenre","0.7"
-"nu jazz","jazz beats","subgenre","0.7"
-"acid jazz","nu jazz","subgenre","0.7"
-"soul jazz","jazz funk","subgenre","0.8"
-"swing music","jazz","origin","0.8"
-"ragtime","jazz","origin","0.8"
-"ragtime","blues","origin","0.7"
-"lounge","exotica","subgenre","0.8"
-"french jazz","jazz","subgenre","0.8"
-"brazilian jazz","bossa nova","subgenre","0.8"
-"latin jazz","jazz latino","subgenre","0.9"
-"jazz latino","latin jazz","subgenre","0.9"
-"avant-garde","experimental","subgenre","0.6"
-"indie jazz","nu jazz","subgenre","0.7"
-"smooth jazz","jazz fusion","subgenre","0.7"
-"soukous","champeta","origin","0.9"
-"porro","champeta","origin","0.6"
-"african percussion","vallenato","origin","0.8"
-"roots reggae","dancehall","origin","0.9"
-"dancehall","hip hop","origin","0.6"
-"roots reggae","ragga","subgenre","0.8"
-"heavy metal","alternative metal","subgenre","0.8"
-"classic rock","rock latino","origin","0.8"
-"punk","rock latino","origin","0.7"
-"alternative rock","rock latino","origin","0.7"
-"classic rock","rock español","origin","0.8"
-"new wave","rock español","origin","0.6"
-"punk","punk latino","subgenre","0.8"
-"proto-punk","punk latino","origin","0.7"
-"son jarocho","ranchera","origin","0.7"
-"african percussion","son jarocho","origin","0.8"
-"spanish music","son jarocho","origin","0.8"
-"indigenous colombian music","son jarocho","origin","0.7"
-"pop","city pop","subgenre","0.7"
-"pop","indie pop","subgenre","0.8"
-"pop","c-pop","subgenre","0.7"
-"pop","art pop","subgenre","0.7"
-"pop","bedroom pop","subgenre","0.8"
-"pop","dreamy pop","subgenre","0.7"
-"pop","alternative pop","subgenre","0.8"
-"pop","pop rock","subgenre","0.8"
-"classic rock","pop rock","subgenre","0.7"
-"pop","acoustic pop","subgenre","0.8"
-"folk","cajun inspired","origin","0.7"
-"americana","psychedelic folk","origin","0.7"
-"folk","galician folk","subgenre","0.8"
-"folk","americana","subgenre","0.8"
-"blues","americana","origin","0.7"
-"country","americana","subgenre","0.8"
-"folk","flamenco","origin","0.7"
-"african percussion","flamenco","origin","0.7"
-"folk","acid-folk","subgenre","0.8"
-"blues","doo-wop","origin","0.7"
-"folk","progressive folk","subgenre","0.8"
-"folk","alternative folk","subgenre","0.8"
-"alternative rock","alternative folk","subgenre","0.6"
-"devotional","qawwali","subgenre","0.8"
-"folk","folk español","subgenre","0.8"
-"folk","country","origin","0.8"
-"country","alternative country","subgenre","0.8"
-"alternative rock","alternative country","subgenre","0.6"
-"alternative rock","dreamy folk","influence","0.35"
-"afro funk","blues","influence","0.35"
-"neo-soul","jazz","influence","0.63"
-"rock latino","swing music","influence","0.58"
-"sahelian folk","maghreb pop","influence","0.5"
-"african percussion","soukous","origin","0.8"
-"sahelian folk","egyptian pop","influence","0.4"
-"avant-garde","alternative rock","influence","0.39"
-"folk latino","hip hop latino","influence","0.39"
-"rock latino","hip hop latino","influence","0.91"
-"folk latino","samba","influence","0.39"
-"dreamy electronic","avant-garde","influence","0.58"
-"hip hop","experimental","influence","0.49"
-"r&b","soul","influence","0.35"
-"r&b","reggae","influence","0.53"
-"jazz","avant-garde","influence","0.39"
-"dreamy pop","bossa nova","influence","0.35"
-"chanson","jazz","influence","0.35"
-"folk","eurasian folk","origin","0.7"
-"folk","cancion protesta","influence","0.35"
-"folk rock","alternative rock","influence","0.39"
-"musical theater","dark folk","influence","0.39"
-"r&b","hip hop","influence","0.39"
-"dark folk","chanson","influence","0.39"
-"neo soul","afrobeat","influence","0.39"
-"medieval","folk","influence","0.35"
-"electrocumbia","neo-psychedelic","influence","0.35"
-"art rock","alternative rock","origin","0.7"
-"glam rock","punk","origin","0.7"
-"roots rock","reggae rock","origin","0.7"
-"blues rock","southern rock","origin","0.7"
-"ebm","techno","origin","0.7"
-"industrial","techno","origin","0.7"
-"ambient","downtempo","origin","0.7"
-"downtempo","dreamy electronic","origin","0.7"
-"folk","canzone italiana","origin","0.75"
-"doo-wop","soul","origin","0.7"
-"alternative pop","r&b","influence","0.49"
-"pop latino","funk","influence","0.35"
-"folk","electronic","influence","0.44"
-"hip hop","soul","influence","0.35"
-"alternative pop","funk","influence","0.35"
-"dark folk","ambient","influence","0.63"
-"experimental","hip hop","influence","0.49"
-"gnawa","jazz","influence","0.35"
-"folk latino","electronic","influence","0.35"
-"dream pop","shoegaze","influence","0.44"
-"electronic","pop","influence","0.35"
-"soul","r&b","influence","0.39"
-"rock latino","blues","influence","0.35"
-"indie pop","folk","influence","0.35"
-"alternative rock","electronic","influence","0.35"
-"electronic","cumbia","influence","0.35"
-"folk","baroque pop","influence","0.35"
-"folk","blues","influence","0.49"
-"electronic","alternative pop","influence","0.35"
-"soul","hip hop","influence","0.35"
-"soul","jazz","influence","0.35"
-"electronic","hip hop","influence","0.35"
-"hip hop","jazz","influence","0.35"
-"jazz","electronic","influence","0.35"
-"alternative r&b","hip hop","influence","0.35"
-"electronic","soul","influence","0.35"
-"jazz","folk español","influence","0.35"
-"electronic","r&b","influence","0.35"
-"folk rock","soul","influence","0.35"
-"alternative r&b","electronic","influence","0.35"
-"jazz","r&b","influence","0.35"
-"electronic","jazz","influence","0.35"
-"r&b","electronic","influence","0.35"
-"jazz","afrobeat","origin","0.8"
-"funk","afrobeat","origin","0.8"
-"country","folk","influence","0.35"
-"west african pentatonic","sahelian folk","origin","0.7"
-"west african pentatonic","blues","origin","0.7"
-"west african pentatonic","tuareg music","origin","0.7"
-"sahelian folk","jaliya tradition","subgenre","0.7"
-"sahelian folk","afropop","origin","0.7"
-"sahelian folk","gnawa","subgenre","0.7"
-"funk","moroccan funk","origin","0.7"
-"reggae","libyan reggae","origin","0.7"
-"chanson","chanson haïtienne","origin","0.7"
-"folk","georgian polyphonic","origin","0.7"
-"eurasian folk","georgian polyphonic","subgenre","0.7"
-"african percussion","contemporary maloya","origin","0.8"
-"african percussion","guinean ceremonial music","origin","0.7"
-"brasileira","jazz","influence","0.35"
-"alternative folk","bossa nova","influence","0.35"
-"cancion protesta","folk","influence","0.35"
-"jaliya tradition","african folk","influence","0.39"
-"gnawa","moroccan funk","origin","0.7"
-"tuareg music","blues","influence","0.35"
-"post-punk","reggae rock","influence","0.35"
-"chanson haïtienne","chanson","influence","0.35"
-"georgian polyphonic","eurasian folk","influence","0.35"
-"qawwali","indie jazz","influence","0.35"
-"jazz","bolero","influence","0.35"
-"flamenco","alternative rock","influence","0.35"
-"folk","klezmer","origin","0.7"
-"flamenco","flamenco urbano","subgenre","0.7"
-"folk","dreamy folk","subgenre","0.7"
-"dreamy folk","jazz","influence","0.35"
-"flamenco urbano","folk español","influence","0.35"
-"son cubano","jazz","influence","0.35"
-"folk español","dreamy pop","influence","0.35"
-"reggae","hip hop","influence","0.35"
-"klezmer","jazz","influence","0.35"
-"lebanese folk","electronic","influence","0.35"
-"dreamy electronic","folk","influence","0.35"
-"classical","neo-classical","origin","0.7"
-"classical","contemporary classical","origin","0.7"
-"classical","neoclassical","subgenre","0.7"
-"classical","minimalism","subgenre","0.7"
-"classical","chamber music","subgenre","0.7"
-"classical","choral","subgenre","0.7"
-"classical","opera","subgenre","0.7"
-"classical","orchestra","subgenre","0.7"
-"classical","requiem","subgenre","0.7"
-"classical","japanese classical","subgenre","0.7"
-"classical piano","neo-classical","origin","0.7"
-"classical piano","contemporary classical","origin","0.7"
-"contemporary classical","neo-classical","subgenre","0.7"
-"minimalism","acousmatic","origin","0.7"
-"classical","space music","subgenre","0.7"
-"classical","new age","influence","0.7"
-"soul","retro soul","subgenre","0.7"
-"soul","northern soul","subgenre","0.7"
-"soul","soul blues","subgenre","0.7"
-"soul","quiet storm","subgenre","0.7"
-"soul","new jack swing","subgenre","0.7"
-"soul","afro soul","subgenre","0.7"
-"psychedelic rock","psychedelic soul","origin","0.7"
-"soul","psychedelic soul","origin","0.7"
-"blues","modern blues","subgenre","0.7"
-"funk","funk rock","subgenre","0.7"
-"r&b","j-r&b","subgenre","0.7"
-"r&b","uk r&b","subgenre","0.7"
-"hip hop","german hip hop","subgenre","0.7"
-"hip hop","hip hop italiano","subgenre","0.7"
-"hip hop","hardcore hip hop","subgenre","0.7"
-"hip hop","arabic hip hop","subgenre","0.7"
-"hip hop","j-rap","subgenre","0.7"
-"hip hop","rap","subgenre","0.7"
-"hip hop","jazz rap","subgenre","0.7"
-"hip hop latino","r&b latino","subgenre","0.7"
-"rock latino","mexican rock","subgenre","0.7"
-"rock latino","mexican indie","subgenre","0.7"
-"rock latino","argentine rock","subgenre","0.7"
-"rock latino","indie latino","subgenre","0.7"
-"folk español","pop acustico","subgenre","0.7"
-"ska","ska latino","subgenre","0.7"
-"jazz","ethiopian jazz","subgenre","0.7"
-"jazz","jazz rap","subgenre","0.7"
-"jazz","jazz house","subgenre","0.7"
-"electro swing","jazz","origin","0.7"
-"swing music","electro swing","origin","0.7"
-"rock and roll","electronic rock","origin","0.7"
-"alternative rock","electronic rock","origin","0.7"
-"psychedelic rock","j-rock","influence","0.7"
-"ska","ska punk","subgenre","0.7"
-"punk","ska punk","origin","0.7"
-"gnawa","mizrahi","influence","0.7"
-"house","gqom","origin","0.7"
-"folk","balkan","origin","0.7"
-"flamenco","flamenco pop","subgenre","0.7"
-"candombe","murga","origin","0.7"
-"african percussion","murga","origin","0.7"
-"african percussion","bullerengue","origin","0.7"
-"cumbia","bullerengue","influence","0.7"
-"folk latino","folclor andino","subgenre","0.7"
-"native american music","folclor andino","influence","0.7"
-"folk latino","native american music","origin","0.7"
-"samba","brazilian hip hop","origin","0.7"
-"hip hop","brazilian hip hop","origin","0.7"
-"brasileira","forró","subgenre","0.7"
-"j-rock","shibuya-kei","origin","0.7"
-"city pop","shibuya-kei","origin","0.7"
-"pop","schlager","subgenre","0.7"
-"pop","nederpop","subgenre","0.7"
-"pop","kayokyoku","subgenre","0.7"
-"rock and roll","british pop","origin","0.7"
-"european immigrant music","tango","origin","0.7"
-"folk latino","guasca","subgenre","0.7"
-"folk latino","carranga","subgenre","0.7"
-"dub","cumbia","influence","0.35"
-"jazz","psychedelic rock","influence","0.39"
-"folk latino","reggae","influence","0.35"
-"bambuco","guasca","origin","0.7"
-"bambuco","carranga","origin","0.7"
-"bambuco","folclor andino","origin","0.7"
-"reggaeton","reggaeton chileno","subgenre","0.7"
-"african percussion","punta","origin","0.7"
-"progressive rock","jam band","origin","0.7"
-"blues rock","jam band","origin","0.7"
-"cumbia","cuarteto","origin","0.7"
-"tango","cuarteto","influence","0.7"
-"folk latino","villancicos","subgenre","0.7"
-"currulao","colombian experimental","origin","0.7"
-"electronic","colombian experimental","influence","0.7"
-"african percussion","shona mbira","origin","0.8"
-"indie dance","funk","influence","0.45"
-"hip hop latino","folclor andino","influence","0.4"
-"disco","cosmic disco","origin","0.7"
-"post-punk","coldwave","origin","0.8"
-"new wave","coldwave","origin","0.7"
-"chanson","french pop","origin","0.7"
-"electronic","french pop","influence","0.4"
-"hip hop","jazz hop","subgenre","0.8"
-"jazz","jazz hop","origin","0.6"
-"hip hop","instrumental hip hop","subgenre","0.8"
-"hi-nrg","house","origin","0.7"
-"hip hop","trip hop","origin","0.8"
-"Elektronische Musik","ambient","origin","0.8"
-"electronic","synthpop","origin","0.7"
-"folk","chanson","origin","0.7"
-"post-punk","alternative dance","origin","0.8"
-"new wave","alternative dance","origin","0.7"
+source,target,type,weight
+Elektronische Musik,electronic,origin,1.0
+african percussion,cumbia,origin,1.0
+indigenous colombian music,cumbia,origin,1.0
+cumbia,cumbia sonidera,subgenre,0.9
+cumbia,cumbia pop,subgenre,0.8
+cumbia,chicha,subgenre,0.8
+indigenous colombian music,vallenato,origin,0.7
+son cubano,salsa,origin,0.9
+salsa,mambo,subgenre,0.9
+african percussion,merengue,origin,0.8
+indigenous colombian music,merengue,origin,0.7
+merengue,bachata,subgenre,0.6
+reggae,reggaeton,origin,0.9
+dancehall,reggaeton,origin,0.9
+african percussion,currulao,origin,1.0
+african percussion,candombe,origin,1.0
+candombe,tango,origin,0.7
+african percussion,samba,origin,0.9
+samba,bossa nova,origin,0.9
+bossa nova,mpb,origin,0.8
+mpb,nova mpb,subgenre,0.9
+african percussion,son cubano,origin,0.8
+indigenous cuban music,son cubano,origin,0.8
+son cubano,son jarocho,subgenre,0.7
+son cubano,bolero,origin,0.6
+bolero,nueva trova,origin,0.5
+nueva trova,trova,subgenre,0.9
+trova,cancion protesta,subgenre,0.8
+folk latino,cancion protesta,influence,0.7
+ska,mexican ska,subgenre,0.9
+punk,mexican ska,origin,0.7
+reggae,ska,origin,0.9
+ska,rocksteady,origin,0.9
+rocksteady,roots reggae,origin,0.9
+reggae,dub,subgenre,0.8
+roots reggae,reggae,origin,0.8
+reggae,lovers rock,subgenre,0.8
+blues,rock and roll,origin,1.0
+rock and roll,classic rock,subgenre,0.9
+classic rock,hard rock,subgenre,0.8
+classic rock,psychedelic rock,subgenre,0.8
+blues,jazz,origin,0.8
+blues,soul,origin,0.9
+soul,funk,origin,0.8
+funk,hip hop,origin,0.8
+soul,motown,subgenre,0.9
+soul,classic soul,subgenre,0.9
+classic soul,neo-soul,origin,0.8
+funk,disco,origin,0.7
+hip hop,east coast hip hop,subgenre,0.9
+hip hop,west coast hip hop,subgenre,0.9
+hip hop,boom bap,subgenre,0.9
+hip hop,gangster rap,subgenre,0.8
+hip hop,old school hip hop,subgenre,0.9
+hip hop,experimental hip hop,subgenre,0.7
+hip hop,alternative hip hop,subgenre,0.8
+garage rock,proto-punk,origin,0.8
+punk,post-punk,subgenre,0.9
+post-punk,new wave,subgenre,0.9
+post-punk,darkwave,subgenre,0.8
+new wave,alternative rock,origin,0.8
+alternative rock,indie rock,subgenre,0.9
+alternative rock,grunge,subgenre,0.9
+psychedelic rock,neo-psychedelic,subgenre,0.9
+jazz,bebop,subgenre,0.9
+bebop,cool jazz,origin,0.8
+bebop,hard bop,subgenre,0.9
+jazz,nu jazz,subgenre,0.7
+jazz,vocal jazz,subgenre,0.8
+jazz,big band,origin,0.8
+big band,swing music,subgenre,0.9
+flamenco,rumba flamenca,subgenre,0.9
+african percussion,fado,origin,0.6
+blues,blues rock,origin,0.9
+classic rock,blues rock,subgenre,0.8
+classic rock,folk rock,subgenre,0.8
+art rock,progressive rock,subgenre,0.8
+art rock,glam rock,subgenre,0.6
+psychedelic rock,art rock,origin,0.6
+new wave,electropop,subgenre,0.8
+alternative rock,dream pop,subgenre,0.7
+indie rock,jangle pop,subgenre,0.8
+indie rock,britpop,subgenre,0.7
+indie rock,madchester,subgenre,0.7
+heavy metal,drone metal,subgenre,0.7
+hard rock,heavy metal,origin,0.85
+folk rock,americana,subgenre,0.6
+house,melodic house,subgenre,0.8
+house,stutter house,subgenre,0.7
+house,uk garage,origin,0.6
+disco,hi-nrg,subgenre,0.8
+disco,nu disco,subgenre,0.9
+hi-nrg,eurodance,origin,0.7
+synthpop,electropop,subgenre,0.8
+trip hop,downtempo,origin,0.8
+downtempo,chillwave,subgenre,0.7
+downtempo,lo-fi,origin,0.6
+breakbeat,jungle,subgenre,0.9
+electronic,idm,subgenre,0.8
+electronic,electronica latina,subgenre,0.8
+hip hop,breakbeat,origin,0.7
+jazz,jazz blues,subgenre,0.8
+jazz,city pop,origin,0.6
+jazz,smooth jazz,subgenre,0.8
+bebop,free jazz,origin,0.7
+hard bop,soul jazz,subgenre,0.7
+hard bop,jazz fusion,origin,0.6
+cool jazz,bossa nova,origin,0.7
+cool jazz,lounge,subgenre,0.6
+free jazz,avant-garde,subgenre,0.7
+jazz fusion,jazz funk,subgenre,0.8
+jazz fusion,acid jazz,subgenre,0.7
+nu jazz,indie jazz,subgenre,0.7
+acid jazz,nu jazz,subgenre,0.7
+soul jazz,jazz funk,subgenre,0.8
+swing music,jazz,origin,0.8
+ragtime,jazz,origin,0.8
+ragtime,blues,origin,0.7
+lounge,exotica,subgenre,0.8
+french jazz,jazz,subgenre,0.8
+brazilian jazz,bossa nova,subgenre,0.8
+latin jazz,jazz latino,subgenre,0.9
+jazz latino,latin jazz,subgenre,0.9
+avant-garde,experimental,subgenre,0.6
+smooth jazz,jazz fusion,subgenre,0.7
+soukous,champeta,origin,0.9
+porro,champeta,origin,0.6
+african percussion,vallenato,origin,0.8
+roots reggae,dancehall,origin,0.9
+dancehall,hip hop,origin,0.6
+roots reggae,ragga,subgenre,0.8
+heavy metal,alternative metal,subgenre,0.8
+classic rock,rock latino,origin,0.8
+punk,rock latino,origin,0.7
+alternative rock,rock latino,origin,0.7
+classic rock,rock español,origin,0.8
+new wave,rock español,origin,0.6
+son jarocho,ranchera,origin,0.7
+spanish music,son jarocho,origin,0.8
+indigenous colombian music,son jarocho,origin,0.7
+pop,city pop,subgenre,0.7
+pop,indie pop,subgenre,0.8
+pop,c-pop,subgenre,0.7
+pop,art pop,subgenre,0.7
+pop,bedroom pop,subgenre,0.8
+pop,dreamy pop,subgenre,0.7
+pop,alternative pop,subgenre,0.8
+pop,pop rock,subgenre,0.8
+classic rock,pop rock,subgenre,0.7
+pop,acoustic pop,subgenre,0.8
+folk,cajun inspired,origin,0.7
+americana,psychedelic folk,origin,0.7
+folk,galician folk,subgenre,0.8
+blues,americana,origin,0.7
+country,americana,subgenre,0.8
+folk,flamenco,origin,0.7
+african percussion,flamenco,origin,0.7
+folk,acid-folk,subgenre,0.8
+blues,doo-wop,origin,0.7
+folk,progressive folk,subgenre,0.8
+folk,alternative folk,subgenre,0.8
+alternative rock,alternative folk,subgenre,0.6
+devotional,qawwali,subgenre,0.8
+folk,folk español,subgenre,0.8
+folk,country,origin,0.8
+country,alternative country,subgenre,0.8
+alternative rock,alternative country,subgenre,0.6
+alternative rock,dreamy folk,influence,0.35
+afro funk,blues,influence,0.35
+neo-soul,jazz,influence,0.63
+rock latino,swing music,influence,0.58
+sahelian folk,maghreb pop,influence,0.5
+african percussion,soukous,origin,0.8
+sahelian folk,egyptian pop,influence,0.4
+avant-garde,alternative rock,influence,0.39
+folk latino,hip hop latino,influence,0.39
+rock latino,hip hop latino,influence,0.91
+folk latino,samba,influence,0.39
+dreamy electronic,avant-garde,influence,0.58
+hip hop,experimental,influence,0.49
+r&b,soul,influence,0.35
+r&b,reggae,influence,0.53
+jazz,avant-garde,influence,0.39
+dreamy pop,bossa nova,influence,0.35
+chanson,jazz,influence,0.35
+folk,eurasian folk,origin,0.7
+folk,cancion protesta,influence,0.35
+folk rock,alternative rock,influence,0.39
+musical theater,dark folk,influence,0.39
+r&b,hip hop,influence,0.39
+dark folk,chanson,influence,0.39
+neo soul,afrobeat,influence,0.39
+medieval,folk,influence,0.35
+electrocumbia,neo-psychedelic,influence,0.35
+art rock,alternative rock,origin,0.7
+glam rock,punk,origin,0.7
+ambient,downtempo,origin,0.7
+downtempo,dreamy electronic,origin,0.7
+folk,canzone italiana,origin,0.75
+doo-wop,soul,origin,0.7
+alternative pop,r&b,influence,0.49
+pop latino,funk,influence,0.35
+folk,electronic,influence,0.44
+hip hop,soul,influence,0.35
+alternative pop,funk,influence,0.35
+dark folk,ambient,influence,0.63
+experimental,hip hop,influence,0.49
+gnawa,jazz,influence,0.35
+folk latino,electronic,influence,0.35
+electronic,pop,influence,0.35
+soul,r&b,influence,0.39
+rock latino,blues,influence,0.35
+indie pop,folk,influence,0.35
+alternative rock,electronic,influence,0.35
+electronic,cumbia,influence,0.35
+folk,baroque pop,influence,0.35
+folk,blues,influence,0.49
+electronic,alternative pop,influence,0.35
+soul,hip hop,influence,0.35
+soul,jazz,influence,0.35
+electronic,hip hop,influence,0.35
+hip hop,jazz,influence,0.35
+jazz,electronic,influence,0.35
+alternative r&b,hip hop,influence,0.35
+electronic,soul,influence,0.35
+jazz,folk español,influence,0.35
+electronic,r&b,influence,0.35
+folk rock,soul,influence,0.35
+alternative r&b,electronic,influence,0.35
+jazz,r&b,influence,0.35
+electronic,jazz,influence,0.35
+r&b,electronic,influence,0.35
+jazz,afrobeat,origin,0.8
+funk,afrobeat,origin,0.8
+country,folk,influence,0.35
+west african pentatonic,sahelian folk,origin,0.7
+west african pentatonic,blues,origin,0.7
+west african pentatonic,tuareg,origin,0.7
+sahelian folk,jaliya tradition,subgenre,0.7
+sahelian folk,afropop,origin,0.7
+sahelian folk,gnawa,subgenre,0.7
+funk,moroccan funk,origin,0.7
+reggae,libyan reggae,origin,0.7
+chanson,chanson haïtienne,origin,0.7
+eurasian folk,georgian polyphonic,subgenre,0.7
+african percussion,contemporary maloya,origin,0.8
+african percussion,guinean ceremonial music,origin,0.7
+brasileira,jazz,influence,0.35
+alternative folk,bossa nova,influence,0.35
+cancion protesta,folk,influence,0.35
+jaliya tradition,african folk,influence,0.39
+gnawa,moroccan funk,origin,0.7
+tuareg,blues,influence,0.35
+post-punk,reggae rock,influence,0.35
+chanson haïtienne,chanson,influence,0.35
+georgian polyphonic,eurasian folk,influence,0.35
+qawwali,indie jazz,influence,0.35
+jazz,bolero,influence,0.35
+flamenco,alternative rock,influence,0.35
+folk,klezmer,origin,0.7
+flamenco,flamenco urbano,subgenre,0.7
+folk,dreamy folk,subgenre,0.7
+dreamy folk,jazz,influence,0.35
+flamenco urbano,folk español,influence,0.35
+son cubano,jazz,influence,0.35
+folk español,dreamy pop,influence,0.35
+reggae,hip hop,influence,0.35
+klezmer,jazz,influence,0.35
+lebanese folk,electronic,influence,0.35
+dreamy electronic,folk,influence,0.35
+classical,contemporary classical,origin,0.7
+classical,neoclassical,subgenre,0.7
+classical,minimalism,subgenre,0.7
+classical,chamber music,subgenre,0.7
+classical,choral,subgenre,0.7
+classical,opera,subgenre,0.7
+classical,orchestra,subgenre,0.7
+classical,requiem,subgenre,0.7
+classical,japanese classical,subgenre,0.7
+classical piano,contemporary classical,origin,0.7
+contemporary classical,neo-classical,subgenre,0.7
+minimalism,acousmatic,origin,0.7
+classical,space music,subgenre,0.7
+classical,new age,influence,0.7
+soul,retro soul,subgenre,0.7
+soul,northern soul,subgenre,0.7
+soul,soul blues,subgenre,0.7
+soul,quiet storm,subgenre,0.7
+soul,new jack swing,subgenre,0.7
+soul,afro soul,subgenre,0.7
+blues,modern blues,subgenre,0.7
+funk,funk rock,subgenre,0.7
+r&b,j-r&b,subgenre,0.7
+r&b,uk r&b,subgenre,0.7
+hip hop,german hip hop,subgenre,0.7
+hip hop,hip hop italiano,subgenre,0.7
+hip hop,hardcore hip hop,subgenre,0.7
+hip hop,arabic hip hop,subgenre,0.7
+hip hop,j-rap,subgenre,0.7
+hip hop,rap,subgenre,0.7
+hip hop,jazz rap,subgenre,0.7
+hip hop latino,r&b latino,subgenre,0.7
+rock latino,mexican rock,subgenre,0.7
+rock latino,mexican indie,subgenre,0.7
+rock latino,argentine rock,subgenre,0.7
+rock latino,indie latino,subgenre,0.7
+folk español,pop acustico,subgenre,0.7
+ska,ska latino,subgenre,0.7
+jazz,ethiopian jazz,subgenre,0.7
+jazz,jazz rap,subgenre,0.7
+jazz,jazz house,subgenre,0.7
+electro swing,jazz,origin,0.7
+swing music,electro swing,origin,0.7
+ska,ska punk,subgenre,0.7
+punk,ska punk,origin,0.7
+gnawa,mizrahi,influence,0.7
+house,gqom,origin,0.7
+folk,balkan,origin,0.7
+flamenco,flamenco pop,subgenre,0.7
+candombe,murga,origin,0.7
+african percussion,bullerengue,origin,0.7
+cumbia,bullerengue,influence,0.7
+folk latino,folclor andino,subgenre,0.7
+native american music,folclor andino,influence,0.7
+folk latino,native american music,origin,0.7
+samba,brazilian hip hop,origin,0.7
+hip hop,brazilian hip hop,origin,0.7
+brasileira,forró,subgenre,0.7
+city pop,shibuya-kei,origin,0.7
+pop,schlager,subgenre,0.7
+pop,nederpop,subgenre,0.7
+pop,kayokyoku,subgenre,0.7
+rock and roll,british pop,origin,0.7
+european immigrant music,tango,origin,0.7
+folk latino,guasca,subgenre,0.7
+folk latino,carranga,subgenre,0.7
+dub,cumbia,influence,0.35
+jazz,psychedelic rock,influence,0.39
+folk latino,reggae,influence,0.35
+bambuco,guasca,origin,0.7
+bambuco,carranga,origin,0.7
+bambuco,folclor andino,origin,0.7
+reggaeton,reggaeton chileno,subgenre,0.7
+african percussion,punta,origin,0.7
+cumbia,cuarteto,origin,0.7
+tango,cuarteto,influence,0.7
+folk latino,villancicos,subgenre,0.7
+currulao,colombian experimental,origin,0.7
+electronic,colombian experimental,influence,0.7
+african percussion,shona mbira,origin,0.8
+indie dance,funk,influence,0.45
+hip hop latino,folclor andino,influence,0.4
+disco,cosmic disco,origin,0.7
+new wave,coldwave,origin,0.7
+chanson,french pop,origin,0.7
+electronic,french pop,influence,0.4
+hip hop,jazz hop,subgenre,0.8
+jazz,jazz hop,origin,0.6
+hip hop,instrumental hip hop,subgenre,0.8
+hi-nrg,house,origin,0.7
+hip hop,trip hop,origin,0.8
+Elektronische Musik,ambient,origin,0.8
+electronic,synthpop,origin,0.7
+folk,chanson,origin,0.7
+punk,folk,influence,0.4
+alternative rock,post-punk,influence,0.4
+psychedelic rock,hard rock,influence,0.4
+new wave,reggae rock,origin,0.7
+garage rock,punk latino,origin,0.8
+rock and roll,garage rock,origin,0.85
+proto-punk,punk,origin,0.9
