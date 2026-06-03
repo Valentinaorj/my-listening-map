@@ -3,10 +3,23 @@
 // ============================================
 
 // ── STATE ──
-var allTracks = []
-var activeFilter = { type: null, value: null }
+var allTracks     = []
+var mapFilter     = null   // { type: 'country', value: 'Colombia' }
+var networkFilter = null   // { type: 'genre',   value: 'folk latino' }
+var decadeMin     = null
+var decadeMax     = null
+var searchQuery   = ''
+var currentSort   = { key: 'year', dir: -1 }
+var DECADE_DECADES = []
 
-// continent colors matching neo-brutalist palette
+// Map markers for dimming: array of { marker, country }
+var mapMarkers = []
+
+// ── NAVIGATION HISTORY ──
+var navHistory = []   // array of { mapFilter, networkFilter }
+var navIndex   = -1   // current position in history
+var navPaused  = false // true while navigating so we don't push during restore
+
 var CONTINENT_COLORS = {
   'America':  '#e8614a',
   'Europe':   '#b8a0d4',
@@ -22,180 +35,698 @@ function updateClock() {
   if (!el) return
   var now = new Date()
   el.textContent =
-    now.getHours().toString().padStart(2, '0') + ':' +
-    now.getMinutes().toString().padStart(2, '0')
+    now.getHours().toString().padStart(2,'0') + ':' +
+    now.getMinutes().toString().padStart(2,'0')
 }
 updateClock()
 setInterval(updateClock, 10000)
-
-// ── TABS ──
-function initTabs() {
-  document.querySelectorAll('.tab-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var target = btn.getAttribute('data-tab')
-      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active') })
-      document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active') })
-      btn.classList.add('active')
-      var pane = document.getElementById('tab-' + target)
-      if (pane) pane.classList.add('active')
-      if (target === 'map' && window._leafletMap) {
-        setTimeout(function() { window._leafletMap.invalidateSize() }, 50)
-      }
-    })
-  })
-}
-
-// ── SONGS TABLE ──
-// columns: title (fixed), artist, year, genre, country
-// when filtering by a dimension, hide that column and show in title
-
-var FILTER_LABELS = {
-  country: 'pais',
-  genre:   'genero',
-  decade:  'decada',
-  language:'idioma'
-}
-
-function getVisibleColumns(filterType) {
-  // always show title (fixed), always show artist
-  // when filtering by genre: hide genre column, show influence instead
-  return {
-    showArtist:    true,
-    showYear:      filterType !== 'decade',
-    showGenre:     filterType !== 'genre',
-    showInfluence: filterType === 'genre',
-    showCountry:   filterType !== 'country' && filterType !== 'language'
-  }
-}
-
-function renderSongsTable(label, songs, filterType) {
-  var tbody    = document.getElementById('songs-tbody')
-  var footer   = document.getElementById('songs-footer')
-  var titleEl  = document.getElementById('songs-title')
-  var theadRow = document.getElementById('songs-thead-row')
-  var emptyEl  = document.getElementById('songs-empty')
-  var tableEl  = document.getElementById('songs-table-container')
-  if (!tbody) return
-
-  // update title
-  if (titleEl) titleEl.textContent = label ? 'canciones · ' + label : 'canciones'
-
-  // update column visibility
-  var cols = getVisibleColumns(filterType)
-  if (theadRow) {
-    theadRow.querySelector('.col-artist').style.display    = ''
-    theadRow.querySelector('.col-year').style.display      = cols.showYear      ? '' : 'none'
-    theadRow.querySelector('.col-genre').style.display     = cols.showGenre     ? '' : 'none'
-    theadRow.querySelector('.col-influence').style.display = cols.showInfluence ? '' : 'none'
-    theadRow.querySelector('.col-country').style.display   = cols.showCountry   ? '' : 'none'
-  }
-
-  if (!songs || songs.length === 0) {
-    tbody.innerHTML = ''
-    if (emptyEl) { emptyEl.textContent = 'sin resultados para "' + label + '"'; emptyEl.style.display = 'flex' }
-    if (footer) footer.textContent = ''
-    return
-  }
-
-  if (tableEl) tableEl.style.display = ''
-  if (emptyEl) emptyEl.style.display = 'none'
-
-  tbody.innerHTML = songs.map(function(s) {
-    var title     = esc(s['Track Name']     || '—')
-    var artist    = esc(s['Artist Name(s)'] || '—')
-    var year      = (s['Release Date'] || '').slice(0, 4) || '—'
-    var genre     = esc(s['Main Genre'] || '—')
-    var influence = esc(s['Influence Genre'] || '—')
-    var country   = esc((s['Artist Country'] || '—').split(';')[0].trim())
-
-    return '<tr>' +
-      '<td class="col-fixed col-title" title="' + title + '">'  + title  + '</td>' +
-      '<td class="col-artist" title="' + artist + '">' + artist + '</td>' +
-      (cols.showYear      ? '<td class="col-year">'    + year    + '</td>' : '') +
-      (cols.showGenre     ? '<td class="col-genre" title="' + genre + '">' + genre + '</td>' : '') +
-      (cols.showInfluence ? '<td class="col-influence" title="' + influence + '">' + influence + '</td>' : '') +
-      (cols.showCountry   ? '<td class="col-country" title="' + country + '">' + country + '</td>' : '') +
-      '</tr>'
-  }).join('')
-
-  if (footer) footer.textContent = songs.length + ' canciones'
-}
-
-function esc(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
-
-function clearSongs() {
-  activeFilter = { type: null, value: null }
-  var tbody    = document.getElementById('songs-tbody')
-  var footer   = document.getElementById('songs-footer')
-  var titleEl  = document.getElementById('songs-title')
-  var theadRow = document.getElementById('songs-thead-row')
-  var emptyEl  = document.getElementById('songs-empty')
-  var tableEl2 = document.getElementById('songs-table-container')
-
-  if (titleEl)  titleEl.textContent = 'canciones'
-  if (footer)   footer.textContent = ''
-  if (tbody)    tbody.innerHTML = ''
-  if (emptyEl)  { emptyEl.textContent = 'haz clic en cualquier gráfico para filtrar'; emptyEl.style.display = 'flex' }
-  if (tableEl2) tableEl2.style.display = 'none'
-}
-
-// ── GLOBAL FILTER (called by network.js and charts) ──
-window.filterSongs = function(type, value) {
-  if (!allTracks.length) return
-  activeFilter = { type: type, value: value }
-  var songs = []
-
-  if (type === 'country') {
-    songs = allTracks.filter(function(s) {
-      if (!s['Artist Country']) return false
-      return s['Artist Country'].split('; ').map(function(c) { return c.trim() }).indexOf(value) !== -1
-    })
-  }
-
-  if (type === 'genre') {
-    songs = allTracks.filter(function(s) {
-      var main = (s['Main Genre'] || s['Genres'] || '').trim().toLowerCase()
-      return main === value.toLowerCase()
-    })
-  }
-
-  if (type === 'decade') {
-    var dec = parseInt(value)
-    songs = allTracks.filter(function(s) {
-      var y = parseInt(s['Release Date'])
-      return !isNaN(y) && Math.floor(y / 10) * 10 === dec
-    })
-  }
-
-  if (type === 'language') {
-    songs = allTracks.filter(function(s) {
-      if (!s['Artist Country']) return false
-      return s['Artist Country'].split('; ').some(function(c) {
-        return countryLanguage[c.trim()] === value
-      })
-    })
-  }
-
-  renderSongsTable(value, songs, type)
-}
-
-// ── RAW FILTER (called by influence edge panel in network.js) ──
-// Accepts a pre-filtered song array directly instead of re-filtering
-window.filterSongsRaw = function(label, songs, filterType) {
-  activeFilter = { type: filterType, value: label }
-  renderSongsTable(label, songs, filterType)
-}
 
 // ── STATUS ──
 function setStatus(msg) {
   var el = document.getElementById('bottom-status')
   if (el) el.textContent = msg
+}
+
+// ── ESCAPE ──
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+}
+
+// ── SORT ──
+function getSortValue(s, key) {
+  if (key === 'year')    return parseInt(s['Release Date']) || 0
+  if (key === 'title')   return (s['Track Name']     || '').toLowerCase()
+  if (key === 'artist')  return (s['Artist Name(s)'] || '').toLowerCase()
+  if (key === 'genre')   return (s['Main Genre']     || '').toLowerCase()
+  if (key === 'country') return (s['Artist Country'] || '').toLowerCase()
+  return ''
+}
+
+function sortTracks(tracks, key, dir) {
+  return tracks.slice().sort(function(a, b) {
+    var av = getSortValue(a, key)
+    var bv = getSortValue(b, key)
+    if (av < bv) return -1 * dir
+    if (av > bv) return  1 * dir
+    return 0
+  })
+}
+
+function updateSortArrows() {
+  document.querySelectorAll('.sort-arrows').forEach(function(el) {
+    var key = el.getAttribute('data-sort')
+    el.classList.remove('sort-active','sort-asc','sort-desc')
+    if (key === currentSort.key) {
+      el.classList.add('sort-active')
+      el.classList.add(currentSort.dir === 1 ? 'sort-asc' : 'sort-desc')
+      // swap symbols: filled = active direction
+      var up = el.querySelector('.arr-up')
+      var dn = el.querySelector('.arr-dn')
+      if (currentSort.dir === 1) {
+        if (up) up.textContent = '▲'
+        if (dn) dn.textContent = '▽'
+      } else {
+        if (up) up.textContent = '△'
+        if (dn) dn.textContent = '▼'
+      }
+    } else {
+      var up = el.querySelector('.arr-up')
+      var dn = el.querySelector('.arr-dn')
+      if (up) up.textContent = '△'
+      if (dn) dn.textContent = '▽'
+    }
+  })
+}
+
+function initSortArrows() {
+  document.querySelectorAll('.sort-arrows').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation()
+      var key = el.getAttribute('data-sort')
+      if (currentSort.key === key) {
+        currentSort.dir *= -1
+      } else {
+        currentSort.key = key
+        currentSort.dir = key === 'year' ? -1 : 1
+      }
+      updateSortArrows()
+      renderTable()
+    })
+  })
+  // also make th-inner click work
+  document.querySelectorAll('.th-inner').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var arrows = el.querySelector('.sort-arrows')
+      if (arrows) arrows.dispatchEvent(new Event('click'))
+    })
+  })
+  updateSortArrows()
+}
+
+// ── TEXT SEARCH ──
+function initSearchBox() {
+  var input = document.getElementById('songs-search')
+  if (!input) return
+  var debounce = null
+  input.addEventListener('input', function() {
+    clearTimeout(debounce)
+    debounce = setTimeout(function() {
+      searchQuery = input.value.trim().toLowerCase()
+      renderTable()
+    }, 150)
+  })
+}
+
+// ── GET TRACKS MATCHING CURRENT FILTERS ──
+// Used for both the table AND for cross-filter dimming
+function getFilteredTracks() {
+  var tracks = allTracks.slice()
+
+  // map filter (country)
+  if (mapFilter) {
+    var country = mapFilter.value
+    tracks = tracks.filter(function(s) {
+      if (!s['Artist Country']) return false
+      return s['Artist Country'].split('; ').map(function(c){return c.trim()}).indexOf(country) !== -1
+    })
+  }
+
+  // network filter (genre)
+  if (networkFilter) {
+    var genre = networkFilter.value
+    tracks = tracks.filter(function(s) {
+      return (s['Main Genre'] || '').trim().toLowerCase() === genre.toLowerCase()
+    })
+  }
+
+  // decade range — skip if full range selected
+  var allDecadeMin = DECADE_DECADES.length ? DECADE_DECADES[0] : null
+  var allDecadeMax = DECADE_DECADES.length ? DECADE_DECADES[DECADE_DECADES.length - 1] : null
+  var decadeIsFullRange = (decadeMin === allDecadeMin && decadeMax === allDecadeMax)
+  if (!decadeIsFullRange && decadeMin !== null && decadeMax !== null) {
+    tracks = tracks.filter(function(s) {
+      var y = parseInt(s['Release Date'])
+      if (isNaN(y)) return false
+      var d = Math.floor(y / 10) * 10
+      if (d < decadeMin) return false
+      if (d > decadeMax) return false
+      return true
+    })
+  }
+
+  // text search
+  if (searchQuery) {
+    tracks = tracks.filter(function(s) {
+      return (s['Track Name']     || '').toLowerCase().includes(searchQuery) ||
+             (s['Artist Name(s)'] || '').toLowerCase().includes(searchQuery) ||
+             (s['Main Genre']     || '').toLowerCase().includes(searchQuery)
+    })
+  }
+
+  return tracks
+}
+
+// ── RENDER TABLE ──
+function renderTable() {
+  var tracks     = sortTracks(getFilteredTracks(), currentSort.key, currentSort.dir)
+  var filterType = networkFilter ? 'genre' : (mapFilter ? 'country' : null)
+
+  // title label
+  var parts = []
+  if (mapFilter)     parts.push(mapFilter.value)
+  if (networkFilter) parts.push(networkFilter.value)
+  var dRange = formatDecadeRange()
+  if (dRange && dRange !== 'all') parts.push(dRange)
+  if (searchQuery)   parts.push('"' + searchQuery + '"')
+
+  var titleEl = document.getElementById('songs-title')
+  if (titleEl) titleEl.textContent = parts.length ? 'songs · ' + parts.join(' · ') : 'songs'
+
+  // column visibility
+  var showInfluence = filterType === 'genre' || filterType === 'influence'
+  var showCountry   = filterType !== 'country'
+  var theadRow = document.getElementById('songs-thead-row')
+  if (theadRow) {
+    var genreTh    = theadRow.querySelector('.col-genre')
+    var influenceTh = theadRow.querySelector('.col-influence')
+    var countryTh  = theadRow.querySelector('.col-country')
+    if (genreTh)     genreTh.style.display     = showInfluence ? 'none' : ''
+    if (influenceTh) influenceTh.style.display  = showInfluence ? '' : 'none'
+    if (countryTh)   countryTh.style.display    = showCountry   ? '' : 'none'
+  }
+
+  var tbody  = document.getElementById('songs-tbody')
+  var footer = document.getElementById('songs-footer')
+  if (!tbody) return
+
+  if (!tracks.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="padding:20px;text-align:center;opacity:0.5;font-size:14px;">no results</td></tr>'
+    if (footer) footer.textContent = '0 songs'
+    return
+  }
+
+  tbody.innerHTML = tracks.map(function(s) {
+    var title     = esc(s['Track Name']     || '—')
+    var artist    = esc(s['Artist Name(s)'] || '—')
+    var year      = (s['Release Date'] || '').slice(0,4) || '—'
+    var genre     = esc(s['Main Genre']     || '—')
+    var influence = esc(s['Influence Genre']|| '—')
+    var country   = esc((s['Artist Country']|| '—').split(';')[0].trim())
+    return '<tr>' +
+      '<td class="col-fixed col-title" title="' + title + '">' + title + '</td>' +
+      '<td class="col-artist" title="' + artist + '">' + artist + '</td>' +
+      '<td class="col-year">' + year + '</td>' +
+      (showInfluence
+        ? '<td class="col-influence" title="' + influence + '">' + influence + '</td>'
+        : '<td class="col-genre"    title="' + genre     + '">' + genre     + '</td>') +
+      (showCountry ? '<td class="col-country" title="' + country + '">' + country + '</td>' : '') +
+      '</tr>'
+  }).join('')
+
+  if (footer) footer.textContent = tracks.length + ' songs'
+}
+
+// ── CROSS-FILTER: dim map bubbles based on map selection + network filter ──
+function applyMapDim() {
+  if (!mapMarkers.length) return
+
+  // base pool respects decade range
+  var pool = decadeFilteredTracks()
+
+  // countries active under network filter (within decade range)
+  var networkActiveCountries = null
+  if (networkFilter) {
+    var nTracks = pool.filter(function(s) {
+      return (s['Main Genre'] || '').trim().toLowerCase() === networkFilter.value.toLowerCase()
+    })
+    networkActiveCountries = {}
+    nTracks.forEach(function(s) {
+      if (!s['Artist Country']) return
+      s['Artist Country'].split('; ').forEach(function(c) { networkActiveCountries[c.trim()] = true })
+    })
+  }
+
+  // countries active under decade range alone (when no network filter)
+  var decadeActiveCountries = null
+  if ((decadeMin !== null || decadeMax !== null) && !networkFilter) {
+    decadeActiveCountries = {}
+    pool.forEach(function(s) {
+      if (!s['Artist Country']) return
+      s['Artist Country'].split('; ').forEach(function(c) { decadeActiveCountries[c.trim()] = true })
+    })
+  }
+
+  var selectedCountry = mapFilter ? mapFilter.value : null
+  var activeCountries = networkActiveCountries || decadeActiveCountries
+  var hasAnyFilter    = !!(selectedCountry || activeCountries)
+
+  mapMarkers.forEach(function(m) {
+    var passesNetwork = !activeCountries || activeCountries[m.country]
+    var isSelected    = selectedCountry && m.country === selectedCountry
+
+    var fillOpacity, markerOpacity, stroke, strokeWidth
+    if (!hasAnyFilter) {
+      fillOpacity = 0.60; markerOpacity = 1; stroke = '#000000'; strokeWidth = 1
+    } else if (isSelected) {
+      fillOpacity = 0.85; markerOpacity = 1; stroke = '#ffffff'; strokeWidth = 2
+    } else if (passesNetwork && !selectedCountry) {
+      fillOpacity = 0.60; markerOpacity = 1; stroke = '#000000'; strokeWidth = 1
+    } else {
+      fillOpacity = 0.08; markerOpacity = 0.25; stroke = '#000000'; strokeWidth = 1
+    }
+    m.marker.setStyle({ fillOpacity: fillOpacity, opacity: markerOpacity, color: stroke, weight: strokeWidth })
+  })
+}
+
+// ── DECADE-FILTERED TRACK SUBSET ──
+// Returns tracks passing the decade range only (ignores map/network filters)
+// Used by dim functions to know which nodes/countries are active in the current decade
+function decadeFilteredTracks() {
+  var allDecadeMin = DECADE_DECADES.length ? DECADE_DECADES[0] : null
+  var allDecadeMax = DECADE_DECADES.length ? DECADE_DECADES[DECADE_DECADES.length - 1] : null
+  var isFullRange  = (decadeMin === allDecadeMin && decadeMax === allDecadeMax)
+  if (isFullRange || decadeMin === null || decadeMax === null) return allTracks
+  return allTracks.filter(function(s) {
+    var y = parseInt(s['Release Date'])
+    if (isNaN(y)) return false
+    var d = Math.floor(y / 10) * 10
+    return d >= decadeMin && d <= decadeMax
+  })
+}
+
+// ── APPLY ALL DIMS ──
+// Single call that refreshes both map and network dims together
+function applyAllDims() {
+  applyMapDim()
+  // network dim depends on which filter is active
+  if (mapFilter && typeof window.applyNetworkDimByCountry === 'function') {
+    window.applyNetworkDimByCountry(mapFilter.value)
+  } else if (!mapFilter && typeof window.applyNetworkDimByDecade === 'function') {
+    window.applyNetworkDimByDecade()
+  }
+}
+
+// ── RELEASE MAP FILTER (background click) ──
+function releaseMapFilter() {
+  if (!mapFilter) return
+  mapFilter = null
+  applyMapDim()
+  if (typeof window.applyNetworkDimByCountry === 'function') {
+    window.applyNetworkDimByCountry(null)
+  }
+  renderTable()
+  updateMapStatus()
+}
+
+function updateMapStatus() {
+  var el = document.getElementById('map-status')
+  if (!el) return
+  if (mapFilter) {
+    // count songs from this country
+    var country = mapFilter.value
+    var count = allTracks.filter(function(s) {
+      if (!s['Artist Country']) return false
+      return s['Artist Country'].split('; ').map(function(c){return c.trim()}).indexOf(country) !== -1
+    }).length
+    el.textContent = country + ' (' + count + ' songs)'
+  } else {
+    // count distinct countries in data
+    var seen = {}
+    mapMarkers.forEach(function(m) { seen[m.country] = true })
+    el.textContent = Object.keys(seen).length + ' countries'
+  }
+}
+
+// ── GLOBAL FILTER (called by network.js on node/edge click) ──
+window.filterSongs = function(type, value) {
+  if (!allTracks.length) return
+  if (type === 'genre') {
+    networkFilter = { type: 'genre', value: value }
+  } else if (type === 'country') {
+    mapFilter = { type: 'country', value: value }
+  } else {
+    networkFilter = { type: type, value: value }
+  }
+  applyMapDim()
+  renderTable()
+  navPush()
+}
+
+// ── RAW FILTER (for influence edge panel in network.js) ──
+window.filterSongsRaw = function(label, songs, filterType) {
+  networkFilter = { type: filterType || 'influence', value: label }
+  // leave mapFilter untouched — influence edge replaces network filter only
+  var titleEl = document.getElementById('songs-title')
+  if (titleEl) titleEl.textContent = 'songs · ' + label
+
+  var theadRow = document.getElementById('songs-thead-row')
+  if (theadRow) {
+    var g = theadRow.querySelector('.col-genre')
+    var i = theadRow.querySelector('.col-influence')
+    var c = theadRow.querySelector('.col-country')
+    if (g) g.style.display = 'none'
+    if (i) i.style.display = ''
+    if (c) c.style.display = ''
+  }
+
+  var sorted = sortTracks(songs, currentSort.key, currentSort.dir)
+  var tbody  = document.getElementById('songs-tbody')
+  var footer = document.getElementById('songs-footer')
+  if (!tbody) return
+
+  tbody.innerHTML = sorted.map(function(s) {
+    var title     = esc(s['Track Name']     || '—')
+    var artist    = esc(s['Artist Name(s)'] || '—')
+    var year      = (s['Release Date'] || '').slice(0,4) || '—'
+    var influence = esc(s['Influence Genre']|| '—')
+    var country   = esc((s['Artist Country']|| '—').split(';')[0].trim())
+    return '<tr>' +
+      '<td class="col-fixed col-title" title="' + title + '">' + title + '</td>' +
+      '<td class="col-artist" title="' + artist + '">' + artist + '</td>' +
+      '<td class="col-year">' + year + '</td>' +
+      '<td class="col-influence" title="' + influence + '">' + influence + '</td>' +
+      '<td class="col-country"  title="' + country   + '">' + country   + '</td>' +
+      '</tr>'
+  }).join('')
+  if (footer) footer.textContent = sorted.length + ' songs'
+  applyMapDim()
+}
+
+// ── NAVIGATION HISTORY FUNCTIONS ──
+function navPush() {
+  if (navPaused) return
+  // trim forward history
+  navHistory = navHistory.slice(0, navIndex + 1)
+  navHistory.push({
+    mapFilter:     mapFilter     ? Object.assign({}, mapFilter)     : null,
+    networkFilter: networkFilter ? Object.assign({}, networkFilter) : null
+  })
+  navIndex = navHistory.length - 1
+  updateNavButtons()
+}
+
+function navRestore(state) {
+  navPaused = true
+  mapFilter     = state.mapFilter     ? Object.assign({}, state.mapFilter)     : null
+  networkFilter = state.networkFilter ? Object.assign({}, state.networkFilter) : null
+
+  // re-apply all visual state
+  applyMapDim()
+  if (mapFilter) {
+    if (typeof window.applyNetworkDimByCountry === 'function')
+      window.applyNetworkDimByCountry(mapFilter.value)
+  } else if (networkFilter) {
+    // network selection drives its own dim via filterSongs path — trigger directly
+    if (typeof window.applyNetworkDimByCountry === 'function')
+      window.applyNetworkDimByCountry(null)
+  } else {
+    if (typeof window.clearNetworkDim === 'function') window.clearNetworkDim()
+    applyMapDim()
+  }
+  renderTable()
+  updateNavButtons()
+  navPaused = false
+}
+
+function navBack() {
+  if (navIndex <= 0) return
+  navIndex--
+  navRestore(navHistory[navIndex])
+}
+
+function navForward() {
+  if (navIndex >= navHistory.length - 1) return
+  navIndex++
+  navRestore(navHistory[navIndex])
+}
+
+function updateNavButtons() {
+  var back    = document.getElementById('nav-back')
+  var forward = document.getElementById('nav-forward')
+  if (back)    back.disabled    = navIndex <= 0
+  if (forward) forward.disabled = navIndex >= navHistory.length - 1
+}
+
+// ── EXPOSE: network.js checks whether a network filter is active ──
+window.getNetworkFilterActive = function() {
+  return !!networkFilter
+}
+
+// ── EXPOSE: network.js calls this to get genres active in the current map filter ──
+// Returns a Set of genre ids that have songs in the currently filtered track set,
+// or null if no map filter is active (= no dimming needed)
+window.getActiveGenresForDim = function() {
+  // base pool always respects decade range
+  var pool = decadeFilteredTracks()
+
+  if (mapFilter) {
+    // genres present in the selected country within the decade range
+    var country = mapFilter.value
+    var tracks = pool.filter(function(s) {
+      if (!s['Artist Country']) return false
+      return s['Artist Country'].split('; ').map(function(c){return c.trim()}).indexOf(country) !== -1
+    })
+    var genres = {}
+    tracks.forEach(function(s) {
+      var g = (s['Main Genre'] || '').trim()
+      if (g) genres[g] = true
+    })
+    return genres
+  }
+
+  // no map filter — but decade filter active: return all genres in that decade range
+  if (decadeMin !== null || decadeMax !== null) {
+    var genres = {}
+    pool.forEach(function(s) {
+      var g = (s['Main Genre'] || '').trim()
+      if (g) genres[g] = true
+    })
+    return genres
+  }
+
+  return null  // no spatial or temporal filter
+}
+
+// ── RESET ALL ──
+function resetAll() {
+  mapFilter     = null
+  networkFilter = null
+  searchQuery   = ''
+  var input = document.getElementById('songs-search')
+  if (input) input.value = ''
+
+  // reset decade slider to full range
+  if (DECADE_DECADES.length) {
+    decadeMin = DECADE_DECADES[0]
+    decadeMax = DECADE_DECADES[DECADE_DECADES.length - 1]
+    updateDecadeUI()
+  }
+
+  // clear map dim + close any open popup + recenter
+  mapMarkers.forEach(function(m) {
+    m.marker.setStyle({ fillOpacity: 0.60, opacity: 1 })
+  })
+  if (window._leafletMap) {
+    window._leafletMap.closePopup()
+    window._leafletMap.setView([20, 0], 2, { animate: true })
+  }
+
+  // clear network dim + close overlays + recenter
+  if (typeof window.clearNetworkDim  === 'function') window.clearNetworkDim()
+  if (typeof window.resetNetworkView === 'function') window.resetNetworkView()
+
+  // clear nav history
+  navHistory = []
+  navIndex   = -1
+  updateNavButtons()
+
+  applyAllDims()
+  renderTable()
+}
+
+// ── DECADE SLIDER ──
+var _updateDecadeUI = null  // set by initDecadeSlider
+
+function formatDecadeRange() {
+  if (!DECADE_DECADES.length) return 'all'
+  var allMin = DECADE_DECADES[0]
+  var allMax = DECADE_DECADES[DECADE_DECADES.length - 1]
+  var dMin   = decadeMin !== null ? decadeMin : allMin
+  var dMax   = decadeMax !== null ? decadeMax : allMax
+  if (dMin === allMin && dMax === allMax) return 'all'
+  return dMin + 's – ' + dMax + 's'
+}
+
+function updateDecadeUI() {
+  if (_updateDecadeUI) _updateDecadeUI()
+}
+
+function initDecadeSlider(decades) {
+  DECADE_DECADES = decades.slice().sort(function(a,b){return a-b})
+  if (!DECADE_DECADES.length) return
+
+  decadeMin = DECADE_DECADES[0]
+  decadeMax = DECADE_DECADES[DECADE_DECADES.length - 1]
+
+  var track    = document.getElementById('decade-track')
+  var fill     = document.getElementById('decade-fill')
+  var thumbMin = document.getElementById('thumb-min')
+  var thumbMax = document.getElementById('thumb-max')
+  var label    = document.getElementById('decade-range-label')
+  var ticks    = document.getElementById('decade-ticks')
+  var resetBtn = document.getElementById('decade-reset')
+
+  if (!track || !fill || !thumbMin || !thumbMax) return
+
+  // build ticks
+  ticks.innerHTML = ''
+  DECADE_DECADES.forEach(function(d) {
+    var tick = document.createElement('div')
+    tick.className = 'decade-tick'
+    tick.textContent = d + 's'
+    ticks.appendChild(tick)
+  })
+
+  function idxOf(decade) {
+    return DECADE_DECADES.indexOf(decade)
+  }
+
+  function pctOf(decade) {
+    var range = DECADE_DECADES[DECADE_DECADES.length-1] - DECADE_DECADES[0]
+    if (!range) return 0
+    return (decade - DECADE_DECADES[0]) / range
+  }
+
+  function snapToDecade(pct) {
+    var idx = Math.round(pct * (DECADE_DECADES.length - 1))
+    idx = Math.max(0, Math.min(DECADE_DECADES.length - 1, idx))
+    return DECADE_DECADES[idx]
+  }
+
+  function pctFromEvent(e) {
+    var rect = track.getBoundingClientRect()
+    var clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX
+    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
+  }
+
+  function doUpdateUI() {
+    // guard: if elements got detached somehow, do nothing
+    if (!document.getElementById('decade-track')) return
+    var pMin = pctOf(decadeMin)
+    var pMax = pctOf(decadeMax)
+    fill.style.left   = (pMin * 100) + '%'
+    fill.style.width  = ((pMax - pMin) * 100) + '%'
+    thumbMin.style.left = (pMin * 100) + '%'
+    thumbMax.style.left = (pMax * 100) + '%'
+    label.textContent = formatDecadeRange()
+  }
+  _updateDecadeUI = doUpdateUI
+
+  // ── drag state ──
+  // mode: 'min' | 'max' | 'range'
+  var dragMode      = null
+  var dragStartPct  = null   // cursor pct when drag started
+  var dragStartMin  = null   // decadeMin index when drag started
+  var dragStartMax  = null   // decadeMax index when drag started
+
+  function clientX(e) {
+    return (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX
+  }
+
+  function startDrag(e, mode) {
+    e.preventDefault()
+    e.stopPropagation()
+    dragMode     = mode
+    dragStartPct = pctFromEvent(e)
+    dragStartMin = idxOf(decadeMin)
+    dragStartMax = idxOf(decadeMax)
+    document.addEventListener('mousemove', onDrag)
+    document.addEventListener('mouseup',   endDrag)
+    document.addEventListener('touchmove', onDrag, { passive: false })
+    document.addEventListener('touchend',  endDrag)
+  }
+
+  function onDrag(e) {
+    if (!dragMode) return
+    if (e.cancelable) e.preventDefault()
+
+    var pct = pctFromEvent(e)
+
+    if (dragMode === 'min') {
+      decadeMin = Math.min(snapToDecade(pct), decadeMax)
+
+    } else if (dragMode === 'max') {
+      decadeMax = Math.max(snapToDecade(pct), decadeMin)
+
+    } else if (dragMode === 'range') {
+      // shift the whole range by however many steps the cursor moved
+      var deltaPct  = pct - dragStartPct
+      var totalSteps = DECADE_DECADES.length - 1
+      var deltaSteps = Math.round(deltaPct * totalSteps)
+      var rangeLen   = dragStartMax - dragStartMin
+
+      var newMinIdx = dragStartMin + deltaSteps
+      var newMaxIdx = dragStartMax + deltaSteps
+
+      // clamp so range doesn't go out of bounds
+      if (newMinIdx < 0) { newMinIdx = 0; newMaxIdx = rangeLen }
+      if (newMaxIdx > totalSteps) { newMaxIdx = totalSteps; newMinIdx = totalSteps - rangeLen }
+
+      decadeMin = DECADE_DECADES[newMinIdx]
+      decadeMax = DECADE_DECADES[newMaxIdx]
+    }
+
+    doUpdateUI()
+    applyAllDims()
+    renderTable()
+  }
+
+  function endDrag() {
+    dragMode = null
+    document.removeEventListener('mousemove', onDrag)
+    document.removeEventListener('mouseup',   endDrag)
+    document.removeEventListener('touchmove', onDrag)
+    document.removeEventListener('touchend',  endDrag)
+  }
+
+  // thumb events
+  thumbMin.addEventListener('mousedown',  function(e) { startDrag(e, 'min') })
+  thumbMax.addEventListener('mousedown',  function(e) { startDrag(e, 'max') })
+  thumbMin.addEventListener('touchstart', function(e) { startDrag(e, 'min') }, { passive: false })
+  thumbMax.addEventListener('touchstart', function(e) { startDrag(e, 'max') }, { passive: false })
+
+  // fill drag — moves the whole range
+  fill.addEventListener('mousedown',  function(e) { startDrag(e, 'range') })
+  fill.addEventListener('touchstart', function(e) { startDrag(e, 'range') }, { passive: false })
+  fill.style.cursor = 'grab'
+
+  // click on empty track area — snap nearest thumb
+  track.addEventListener('mousedown', function(e) {
+    if (e.target === thumbMin || e.target === thumbMax || e.target === fill) return
+    var pct     = pctFromEvent(e)
+    var d       = snapToDecade(pct)
+    var distMin = Math.abs(pctOf(decadeMin) - pct)
+    var distMax = Math.abs(pctOf(decadeMax) - pct)
+    if (distMin <= distMax) decadeMin = Math.min(d, decadeMax)
+    else                    decadeMax = Math.max(d, decadeMin)
+    doUpdateUI()
+    applyAllDims()
+    renderTable()
+  })
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', function() {
+      decadeMin = DECADE_DECADES[0]
+      decadeMax = DECADE_DECADES[DECADE_DECADES.length - 1]
+      doUpdateUI()
+      applyAllDims()
+      renderTable()
+    })
+  }
+
+  doUpdateUI()
 }
 
 // ── CHART DEFAULTS ──
@@ -206,73 +737,6 @@ function initChartDefaults() {
   Chart.register(ChartDataLabels)
 }
 
-// ── DECADES CHART ──
-function buildDecadesChart(tracks) {
-  var decades = {}
-  tracks.forEach(function(s) {
-    var y = parseInt(s['Release Date'])
-    if (isNaN(y)) return
-    var d = Math.floor(y / 10) * 10
-    decades[d] = (decades[d] || 0) + 1
-  })
-
-  var sorted = Object.keys(decades).sort()
-  var total  = tracks.length
-
-  var ctx = document.getElementById('decades-chart')
-  if (!ctx) return
-
-  var decadeColors = {
-    1950: '#404040', 1960: '#404040',
-    1970: '#008080', 1980: '#800080',
-    1990: '#000080', 2000: '#008000',
-    2010: '#c17f3a', 2020: '#c00000'
-  }
-
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: sorted.map(function(d) { return d + 's' }),
-      datasets: [{
-        label: '% canciones',
-        data: sorted.map(function(d) { return ((decades[d] / total) * 100).toFixed(1) }),
-        backgroundColor: sorted.map(function(d) { return decadeColors[parseInt(d)] || '#666' }),
-        borderWidth: 0,
-        borderRadius: 0
-      }]
-    },
-    options: {
-      onClick: function(e, els) {
-        if (!els.length) return
-        var idx = els[0].index
-        var dec = parseInt(sorted[idx])
-        window.filterSongs('decade', dec)
-      },
-      plugins: {
-        legend: { display: false },
-        datalabels: {
-          anchor: 'end', align: 'top',
-          font: { size: 12, family: "'VT323', monospace" },
-          formatter: function(v) { return v + '%' }
-        },
-        tooltip: { callbacks: { label: function(c) { return c.parsed.y + '%' } } }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: { color: '#d8d0c0' },
-          ticks: { callback: function(v) { return v + '%' }, font: { size: 13, family: "'VT323', monospace" } }
-        },
-        x: {
-          grid: { display: false },
-          ticks: { font: { size: 14, family: "'VT323', monospace" } }
-        }
-      },
-      cursor: 'pointer'
-    }
-  })
-}
-
 // ── MAP ──
 function buildMap(tracks) {
   var countries = {}
@@ -280,23 +744,17 @@ function buildMap(tracks) {
 
   tracks.forEach(function(s) {
     if (!s['Artist Country']) return
-    var cList = s['Artist Country'].split('; ')
+    var cList    = s['Artist Country'].split('; ')
     var contList = (s['Artist Continent'] || '').split('; ')
     cList.forEach(function(c, i) {
       c = c.trim()
       if (!c || c === 'Unknown') return
       countries[c] = (countries[c] || 0) + 1
       if (!countryContinents[c]) {
-        var cont = (contList[i] || '').trim()
-        countryContinents[c] = cont || 'Unknown'
+        countryContinents[c] = (contList[i] || '').trim() || 'Unknown'
       }
     })
   })
-
-  console.log('countries:', Object.keys(countries).length)
-  console.log('sample:', Object.keys(countries).slice(0,3).map(function(c) {
-    return c + ' -> ' + countryContinents[c]
-  }))
 
   var map = L.map('map').setView([20, 0], 2)
   window._leafletMap = map
@@ -310,192 +768,122 @@ function buildMap(tracks) {
 
   Object.keys(countries).forEach(function(country) {
     if (country === 'Unknown' || !countryCoordinates[country]) return
-    var count = countries[country]
-    var radius = Math.sqrt(count / maxCount) * 40
+    var count     = countries[country]
+    var radius    = Math.sqrt(count / maxCount) * 40
     var continent = countryContinents[country] || 'Unknown'
-    var color = CONTINENT_COLORS[continent] || CONTINENT_COLORS['Unknown']
+    var color     = CONTINENT_COLORS[continent] || CONTINENT_COLORS['Unknown']
 
-    L.circleMarker(countryCoordinates[country], {
+    var marker = L.circleMarker(countryCoordinates[country], {
       radius: radius,
       fillColor: color,
       color: '#000000',
       weight: 1,
       fillOpacity: 0.60
     })
-    .on('click', function() { window.filterSongs('country', country) })
-    .bindPopup('<strong>' + country + '</strong><br>' + count + ' canciones<br><em>' + continent + '</em>')
-    .addTo(map)
-  })
-}
-
-// ── AUDIO RADAR ──
-function buildAudioChart(tracks) {
-  var features = ['Danceability','Energy','Valence','Acousticness','Instrumentalness','Speechiness']
-  var avgs = {}
-  features.forEach(function(f) {
-    var sum = 0, n = 0
-    tracks.forEach(function(s) {
-      var v = parseFloat(s[f])
-      if (!isNaN(v)) { sum += v; n++ }
-    })
-    avgs[f] = n ? sum / n : 0
-  })
-
-  var ctx = document.getElementById('audio-chart')
-  if (!ctx) return
-
-  new Chart(ctx, {
-    type: 'radar',
-    data: {
-      labels: features,
-      datasets: [{
-        label: 'perfil sonico',
-        data: features.map(function(f) { return avgs[f].toFixed(2) }),
-        fill: true,
-        backgroundColor: 'rgba(125,212,168,0.25)',
-        borderColor: '#1a1a1a',
-        pointBackgroundColor: '#1a1a1a',
-        pointBorderColor: '#f6eee0',
-        pointRadius: 4
-      }]
-    },
-    options: {
-      scales: {
-        r: {
-          min: 0, max: 0.8,
-          ticks: { stepSize: 0.2, backdropColor: 'transparent', font: { size: 11, family: "'VT323', monospace" } },
-          grid: { color: '#c8c0b0' },
-          pointLabels: { font: { size: 14, family: "'VT323', monospace" } }
-        }
-      },
-      plugins: { datalabels: { display: false }, legend: { display: false } }
-    }
-  })
-}
-
-// ── LANGUAGES DONUT ──
-function buildLanguagesChart(tracks) {
-  var countries = {}
-  tracks.forEach(function(s) {
-    if (!s['Artist Country']) return
-    s['Artist Country'].split('; ').forEach(function(c) {
-      c = c.trim()
-      if (c) countries[c] = (countries[c] || 0) + 1
-    })
-  })
-
-  var languages = {}
-  Object.keys(countries).forEach(function(c) {
-    if (c === 'Unknown') return
-    var lang = countryLanguage[c]
-    if (!lang) return
-    languages[lang] = (languages[lang] || 0) + countries[c]
-  })
-
-  var sorted = Object.entries(languages).sort(function(a, b) { return b[1] - a[1] })
-
-  var ctx = document.getElementById('languages-chart')
-  if (!ctx) return
-
-  var langColors = [
-    '#e8614a','#b8a0d4','#e8c547','#7dd4a8',
-    '#f4a24a','#f4a0b8','#6090c8','#a0c870',
-    '#c87060','#80a8d4','#d4a060','#a060d4',
-    '#60d4b8','#d46080','#90b840','#7080c8'
-  ]
-
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: sorted.map(function(l) { return l[0] }),
-      datasets: [{
-        data: sorted.map(function(l) { return l[1] }),
-        backgroundColor: langColors,
-        borderColor: '#1a1a1a',
-        borderWidth: 2
-      }]
-    },
-    options: {
-      onClick: function(e, els) {
-        if (!els.length) return
-        var lang = sorted[els[0].index][0]
-        window.filterSongs('language', lang)
-      },
-      plugins: {
-        datalabels: { display: false },
-        legend: {
-          position: 'right',
-          labels: { font: { size: 13, family: "'VT323', monospace" }, boxWidth: 14, padding: 8 }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) {
-              var total = ctx.dataset.data.reduce(function(a, b) { return a + b }, 0)
-              return ctx.label + ': ' + ((ctx.raw / total) * 100).toFixed(1) + '%'
-            }
-          }
-        }
+    .on('click', function(e) {
+      L.DomEvent.stopPropagation(e)
+      // replace map filter only — leave network filter untouched
+      mapFilter = { type: 'country', value: country }
+      renderTable()
+      applyMapDim()
+      if (typeof window.applyNetworkDimByCountry === 'function') {
+        window.applyNetworkDimByCountry(country)
       }
-    }
+      navPush()
+      updateMapStatus()
+    })
+    .bindPopup('<strong>' + country + '</strong><br>' + count + ' songs<br><em>' + continent + '</em>')
+    .addTo(map)
+
+    mapMarkers.push({ marker: marker, country: country })
   })
+
+  // update map status meta with country count
+  var mapStatusEl = document.getElementById('map-status')
+  if (mapStatusEl) mapStatusEl.textContent = Object.keys(countries).length + ' countries'
+
+  // popup close releases map filter
+  map.on('popupclose', function() {
+    releaseMapFilter()
+  })
+
+  // background click releases map filter
+  map.on('click', function() {
+    releaseMapFilter()
+  })
+
+  setTimeout(function() { map.invalidateSize() }, 100)
 }
 
 // ── MAIN ──
 document.addEventListener('DOMContentLoaded', function() {
-
-  initTabs()
-  clearSongs()
-
-  // clear filter button
-  var clearBtn = document.getElementById('songs-clear')
-  if (clearBtn) clearBtn.addEventListener('click', clearSongs)
-
-  // fake progress
-  setTimeout(function() {
-    var fill = document.getElementById('progress-fill')
-    if (fill) fill.style.width = '50%'
-  }, 100)
-
+  updateClock()
   initChartDefaults()
-  setStatus('cargando datos...')
+  setStatus('loading...')
+  initSearchBox()
+
+  var resetAllBtn = document.getElementById('reset-all-btn')
+  if (resetAllBtn) resetAllBtn.addEventListener('click', resetAll)
+
+  var navBackBtn = document.getElementById('nav-back')
+  if (navBackBtn) navBackBtn.addEventListener('click', navBack)
+
+  var navFwdBtn = document.getElementById('nav-forward')
+  if (navFwdBtn) navFwdBtn.addEventListener('click', navForward)
+
+  var networkResetBtn = document.getElementById('network-reset-btn')
+  if (networkResetBtn) networkResetBtn.addEventListener('click', function() {
+    networkFilter = null
+    if (typeof window.clearNetworkDim    === 'function') window.clearNetworkDim()
+    if (typeof window.resetNetworkView   === 'function') window.resetNetworkView()
+    if (typeof window.resetNetworkStatus === 'function') window.resetNetworkStatus()
+    applyMapDim()
+    renderTable()
+  })
+
+  var mapResetBtn = document.getElementById('map-reset-btn')
+  if (mapResetBtn) mapResetBtn.addEventListener('click', function() {
+    releaseMapFilter()
+  })
 
   Papa.parse('data/master_playlist_enriched.csv', {
     header: true,
     download: true,
     error: function(err) {
-      setStatus('error cargando CSV: ' + err.message)
+      setStatus('error loading CSV: ' + err.message)
       console.error('CSV error:', err)
     },
     complete: function(results) {
       allTracks = results.data.filter(function(r) { return r['Track Name'] && r['Track Name'].trim() })
+      setStatus(allTracks.length + ' tracks loaded')
 
-      var fill = document.getElementById('progress-fill')
-      if (fill) fill.style.width = '100%'
-      var lbl = document.getElementById('load-label')
-      if (lbl) lbl.textContent = allTracks.length + ' tracks'
-
-      setStatus(allTracks.length + ' canciones cargadas · exportacion spotify')
-
-      buildDecadesChart(allTracks)
-      buildAudioChart(allTracks)
-      buildLanguagesChart(allTracks)
-
-      // map is default tab — init immediately
-      var mapBuilt = false
-      function maybeInitMap() {
-        if (!mapBuilt) {
-          mapBuilt = true
-          buildMap(allTracks)
-        }
-      }
-      setTimeout(maybeInitMap, 100)
-
-      // also init on tab click in case it wasn't ready
-      document.querySelectorAll('.tab-btn[data-tab="map"]').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          setTimeout(maybeInitMap, 60)
-        })
+      var decadeSet = {}
+      allTracks.forEach(function(s) {
+        var y = parseInt(s['Release Date'])
+        if (!isNaN(y)) decadeSet[Math.floor(y/10)*10] = true
       })
+      var dataDecades = Object.keys(decadeSet).map(Number).sort()
+
+      // Option C: fill every decade between earliest and latest
+      var decades = []
+      if (dataDecades.length) {
+        var dMin = dataDecades[0]
+        var dMax = dataDecades[dataDecades.length - 1]
+        for (var d = dMin; d <= dMax; d += 10) decades.push(d)
+      }
+
+      // set CSS var for grid line divisions
+      var trackEl = document.getElementById('decade-track')
+      if (trackEl && decades.length > 1) {
+        trackEl.style.setProperty('--decade-count', decades.length - 1)
+      }
+
+      initDecadeSlider(decades)
+      // decadeMin/Max are set to full range by initDecadeSlider — leave them as-is
+
+      initSortArrows()
+      renderTable()
+      buildMap(allTracks)
     }
   })
 })
@@ -530,8 +918,7 @@ var countryLanguage = {
   "Benin":"French","Togo":"French","Djibouti":"French","Gabon":"French",
   "Equatorial Guinea":"French","Martinique":"French","Guadeloupe":"French",
   "Haiti":"French","Luxembourg":"French","Mauritius":"French",
-  "Germany":"German","Austria":"German",
-  "Italy":"Italian",
+  "Germany":"German","Austria":"German","Italy":"Italian",
   "Egypt":"Arabic","Libya":"Arabic","Sudan":"Arabic","Saudi Arabia":"Arabic",
   "Yemen":"Arabic","Oman":"Arabic","United Arab Emirates":"Arabic",
   "Qatar":"Arabic","Kuwait":"Arabic","Bahrain":"Arabic","Iraq":"Arabic",

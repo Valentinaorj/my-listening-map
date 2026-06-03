@@ -63,7 +63,8 @@
   var overlayHistory = []
   var allNodes       = []
   var allEdges       = []
-  var allTracks      = []   // full track rows, used for influence edge song lists
+  var allTracks      = []
+  var validEdges     = []   // hoisted so updateNetworkStatus can access it
   var hiddenClusters  = new Set()
   var hiddenEdgeTypes = new Set()
   var activeSelection = null  // { type: 'node'|'edge', nodeId?, srcId?, tgtId? }
@@ -73,6 +74,10 @@
   var nodeSelection    = null
   var linkHitSelection = null
   var linkVisSelection = null
+  var zoomBehavior     = null
+  var svgSelection     = null
+  var networkContainer = null
+  var updateNetworkStatus = null  // assigned in initNetwork, called from openOverlay/closeOverlay
 
   function parseCSV(text) {
     var lines   = text.trim().split('\n')
@@ -141,6 +146,14 @@
     if (activeSelection) applyDim()
   }
 
+  function recentreNetwork() {
+    if (!svgSelection || !zoomBehavior || !networkContainer) return
+    svgSelection.transition().duration(500).call(
+      zoomBehavior.transform,
+      d3.zoomIdentity
+    )
+  }
+
   function applyDim() {
     if (!nodeSelection || !activeSelection) return
 
@@ -162,6 +175,16 @@
       })
       linkVisSelection.style('opacity', function(l) {
         return (l.source.id === src && l.target.id === tgt) ? 1 : 0.03
+      })
+    }
+
+    if (activeSelection.type === 'country' || activeSelection.type === 'decade') {
+      var activeGenres = activeSelection.activeGenres || {}
+      nodeSelection.style('opacity', function(n) {
+        return activeGenres[n.id] ? 1 : 0.08
+      })
+      linkVisSelection.style('opacity', function(l) {
+        return (activeGenres[l.source.id] && activeGenres[l.target.id]) ? 1 : 0.03
       })
     }
   }
@@ -508,6 +531,7 @@
     if (typeof window.filterSongs === 'function' && n.song_count > 0) {
       window.filterSongs('genre', n.id)
     }
+    updateNetworkStatus(genreId)
   }
 
   function renderOverlayCards(containerId, connections) {
@@ -543,6 +567,7 @@
     var backBtn = document.getElementById('overlay-back-btn')
     if (backBtn) backBtn.disabled = true
     clearDim()
+    if (updateNetworkStatus) updateNetworkStatus(null)
   }
 
   // ── EDGE TOOLTIP ──
@@ -651,7 +676,7 @@
       '<span style="color:' + srcColor + ';font-size:18px">' + srcId + '</span>' +
       '<span style="opacity:0.35;font-size:14px">influences</span>' +
       '<span style="color:' + tgtColor + ';font-size:18px">' + tgtId + '</span>' +
-      '<span style="opacity:0.4;font-size:13px;margin-left:6px">· ' + songs.length + ' ' + (songs.length === 1 ? 'canción' : 'canciones') + '</span>'
+      '<span style="opacity:0.4;font-size:13px;margin-left:6px">· ' + songs.length + ' ' + (songs.length === 1 ? 'song' : 'songs') + '</span>'
 
     var closeBtn = document.createElement('button')
     closeBtn.textContent = '✕'
@@ -691,6 +716,18 @@
   function initNetwork() {
     var statusEl  = document.getElementById('network-status')
     var container = document.getElementById('network-container')
+
+    updateNetworkStatus = function(genreId) {
+      if (!statusEl) return
+      if (!genreId) {
+        statusEl.textContent = allNodes.length + ' genres · ' + validEdges.length + ' connections'
+        return
+      }
+      var n = nodeById[genreId]
+      if (!n) return
+      var conns = (adj[genreId] || []).length
+      statusEl.textContent = genreId + ' (' + (n.song_count > 0 ? n.song_count + ' songs' : 'root') + ' · ' + conns + ' connections)'
+    }
     if (!container) return
 
     initLegend()
@@ -737,7 +774,7 @@
         adjParents[e.target].push({  id: e.source, type: e.type, weight: e.weight })
       })
 
-      var validEdges = allEdges.filter(function(e) {
+      validEdges = allEdges.filter(function(e) {
         return nodeById[e.source] && nodeById[e.target]
       })
 
@@ -783,12 +820,25 @@
       merge.append('feMergeNode').attr('in', 'SourceGraphic')
 
       var g = svg.append('g')
+      svgSelection     = svg
+      networkContainer = container
 
       var zoom = d3.zoom().scaleExtent([0.05, 8])
         .on('zoom', function(e) { g.attr('transform', e.transform) })
+      zoomBehavior = zoom
       svg.call(zoom)
       svg.on('click', function(e) {
         if (e.target === svg.node()) {
+          // if a network filter is active, background click does nothing —
+          // only the reset button can clear it
+          var hasNetworkFilter = typeof window.filterSongs === 'function' &&
+            (function() {
+              // check app.js state via a dedicated getter
+              return typeof window.getNetworkFilterActive === 'function'
+                ? window.getNetworkFilterActive()
+                : false
+            })()
+          if (hasNetworkFilter) return
           hideEdgeTooltip()
           closeOverlay()
         }
@@ -961,8 +1011,8 @@
               '<strong style="color:' + d.color + '">' + d.id + '</strong>' +
               '<div style="opacity:0.5;font-size:11px;margin-top:2px">' + d.cluster + '</div>' +
               (d.song_count > 0
-                ? '<div style="margin-top:4px">' + d.song_count + ' canciones</div>'
-                : '<div style="opacity:0.4;margin-top:4px">nodo raíz</div>')
+                ? '<div style="margin-top:4px">' + d.song_count + ' songs</div>'
+                : '<div style="opacity:0.4;margin-top:4px">root node</div>')
           }
           // hover always shows immediate neighbourhood regardless of selection state
           nodeSelection.style('opacity', function(n) { return connIds.has(n.id) ? 1 : 0.08 })
@@ -1005,7 +1055,7 @@
         nodeSelection.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')' })
       })
 
-      if (statusEl) statusEl.textContent = allNodes.length + ' géneros · ' + validEdges.length + ' conexiones'
+      if (statusEl) statusEl.textContent = allNodes.length + ' genres · ' + validEdges.length + ' connections'
 
     }).catch(function(err) {
       console.error('Network error:', err)
@@ -1017,6 +1067,117 @@
     document.addEventListener('DOMContentLoaded', initNetwork)
   } else {
     initNetwork()
+  }
+
+  // ── EXTERNAL CROSS-FILTER API ──
+
+  // Called by app.js when a country is clicked on the map.
+  // Pass null to release the dim. Dims genre nodes with zero songs from that country.
+  window.applyNetworkDimByCountry = function(country) {
+    if (!nodeSelection) return
+
+    // null = release
+    if (!country) {
+      activeSelection = null
+      nodeSelection.style('opacity', null)
+      if (linkVisSelection) linkVisSelection.style('opacity', null)
+      return
+    }
+
+    var activeGenres = typeof window.getActiveGenresForDim === 'function'
+      ? window.getActiveGenresForDim()
+      : null
+
+    if (!activeGenres) {
+      activeSelection = null
+      nodeSelection.style('opacity', null)
+      if (linkVisSelection) linkVisSelection.style('opacity', null)
+      return
+    }
+
+    // store on activeSelection so applyDim() can restore after hover
+    activeSelection = { type: 'country', country: country, activeGenres: activeGenres }
+
+    nodeSelection.style('opacity', function(n) {
+      return activeGenres[n.id] ? 1 : 0.08
+    })
+    if (linkVisSelection) {
+      linkVisSelection.style('opacity', function(l) {
+        return (activeGenres[l.source.id] && activeGenres[l.target.id]) ? 1 : 0.03
+      })
+    }
+
+    // recenter the network to show active nodes
+    recentreNetwork()
+  }
+
+  // Called by app.js resetAll to clear any external dim
+  window.clearNetworkDim = function() {
+    activeSelection = null
+    if (nodeSelection)    nodeSelection.style('opacity', null)
+    if (linkVisSelection) linkVisSelection.style('opacity', null)
+    if (updateNetworkStatus) updateNetworkStatus(null)
+  }
+
+  // Called by map bubble click — clears dim but leaves overlay open
+  window.clearNetworkDimKeepOverlay = function() {
+    activeSelection = null
+    if (nodeSelection)    nodeSelection.style('opacity', null)
+    if (linkVisSelection) linkVisSelection.style('opacity', null)
+    if (updateNetworkStatus) updateNetworkStatus(null)
+  }
+
+  // Called by app.js resetAll to close overlays and recenter
+  window.resetNetworkView = function() {
+    // close genre overlay
+    var overlay = document.getElementById('genre-overlay')
+    if (overlay) overlay.classList.add('collapsed')
+    overlayHistory = []
+    var backBtn = document.getElementById('overlay-back-btn')
+    if (backBtn) backBtn.disabled = true
+
+    // close influence panel if open
+    if (typeof hideEdgeTooltip === 'function') hideEdgeTooltip()
+
+    // reset status text
+    if (updateNetworkStatus) updateNetworkStatus(null)
+
+    // recenter zoom
+    recentreNetwork()
+  }
+
+  // Called when decade range changes — dims genres with no songs in that range
+  // Uses getActiveGenresForDim which already respects the decade range
+  window.applyNetworkDimByDecade = function() {
+    if (!nodeSelection) return
+
+    var activeGenres = typeof window.getActiveGenresForDim === 'function'
+      ? window.getActiveGenresForDim()
+      : null
+
+    if (!activeGenres) {
+      // no filter active — restore full opacity
+      activeSelection = null
+      nodeSelection.style('opacity', null)
+      if (linkVisSelection) linkVisSelection.style('opacity', null)
+      return
+    }
+
+    activeSelection = { type: 'decade', activeGenres: activeGenres }
+
+    nodeSelection.style('opacity', function(n) {
+      return activeGenres[n.id] ? 1 : 0.08
+    })
+    if (linkVisSelection) {
+      linkVisSelection.style('opacity', function(l) {
+        return (activeGenres[l.source.id] && activeGenres[l.target.id]) ? 1 : 0.03
+      })
+    }
+  }
+
+  // Exposed so app.js can force a status reset
+  window.resetNetworkStatus = function() {
+    if (updateNetworkStatus) updateNetworkStatus(null)
   }
 
 })()

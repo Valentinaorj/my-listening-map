@@ -14,226 +14,175 @@
 </head>
 <body>
 
-  <!-- TASKBAR -->
-  <div id="taskbar">
-    <button class="start-btn">Start</button>
-    <div class="taskbar-divider"></div>
-    <div class="taskbar-items">
-      <span class="taskbar-item active">my listening map</span>
+  <!-- GLOBAL HEADER -->
+  <div id="global-header">
+    <div id="global-header-left">
+      <button class="nav-btn" id="nav-back" title="back" disabled>&#8592;</button>
+      <button class="nav-btn" id="nav-forward" title="forward" disabled>&#8594;</button>
     </div>
-    <div class="taskbar-clock" id="clock"></div>
+    <span id="global-title">my listening map</span>
+    <div id="global-header-right">
+      <button id="reset-all-btn">reset all filters</button>
+    </div>
   </div>
 
   <!-- MAIN LAYOUT -->
   <div id="app-layout">
 
-    <!-- LEFT PANEL -->
-    <div id="left-panel">
+    <!-- LEFT COLUMN: viz panels stacked -->
+    <div id="viz-column">
 
-      <!-- player header -->
-      <div class="win-panel" id="player-panel">
-        <div class="win-titlebar">
-          <div class="win-ctrl-btn-left">
-            <button class="win-ctrl-btn">_</button>
-          </div>
-          <span class="win-titlebar-text">my listening map</span>
-        <div class="win-ctrl-btn-right">
-          <button class="win-ctrl-btn">▴</button>
-          <button class="win-ctrl-btn">▾</button>
+      <!-- MAP PANEL (top) -->
+      <div class="win-panel viz-panel" id="map-panel">
+        <div class="win-titlebar" id="map-titlebar">
+          <span class="win-titlebar-text">map</span>
+          <span class="win-titlebar-meta" id="map-status">loading...</span>
+          <button class="panel-reset-btn" id="map-reset-btn">reset</button>
         </div>
-      </div>
-        <div class="player-body">
-          <div class="player-screen">
-            <div class="player-name">valentina orjuela</div>
-            <div class="player-sub">music taste dashboard</div>
-            <div class="player-tags">
-              <span class="player-tag">2,202 tracks</span>
-              <span class="player-tag">56 playlists</span>
-              <span class="player-tag">spotify export</span>
-            </div>
-          </div>
-          <div class="player-note">
-            a map of my musical taste. built after breaking up with spotify.
-          </div>
-          <div class="player-transport">
-            <button class="transport-btn">◀◀</button>
-            <button class="transport-btn">▶</button>
-            <button class="transport-btn">▶▶</button>
-            <button class="transport-btn">■</button>
-          </div>
-          <div class="player-progress-row">
-            <div class="player-progress-track">
-              <div class="player-progress-fill" id="progress-fill"></div>
-            </div>
-            <span class="player-progress-lbl" id="load-label">loading...</span>
-          </div>
-        </div>
+        <div id="map"></div>
       </div>
 
-      <!-- songs panel -->
+      <!-- NETWORK PANEL (bottom) -->
+      <div class="win-panel viz-panel" id="network-panel">
+        <div class="win-titlebar" id="network-titlebar">
+          <span class="win-titlebar-text">genre network</span>
+          <span class="win-titlebar-meta" id="network-status">loading...</span>
+          <button class="panel-reset-btn" id="network-reset-btn">reset</button>
+        </div>
+        <div id="network-container">
+          <svg id="network-svg"></svg>
+          <div id="network-tooltip"></div>
+          <div id="network-hint">drag · scroll · click node to explore · click edge for details</div>
+
+          <!-- GENRE SEARCH -->
+          <div id="genre-search-wrap">
+            <input type="text" id="genre-search-input" placeholder="search genres..." autocomplete="off">
+            <div id="genre-search-results"></div>
+          </div>
+
+          <!-- LEGEND -->
+          <div id="network-legend">
+            <div id="network-legend-titlebar">
+              <span id="network-legend-title">legend</span>
+              <button class="net-legend-btn" id="legend-toggle">−</button>
+            </div>
+            <div id="network-legend-body">
+              <div class="legend-section-label">clusters</div>
+              <div id="legend-clusters"></div>
+              <div class="legend-section-label" style="margin-top:8px;">edge types</div>
+              <div class="legend-edges" id="legend-edges">
+                <div class="legend-edge-item" data-edge-type="origin"><span class="legend-line origin-line"></span>origin</div>
+                <div class="legend-edge-item" data-edge-type="subgenre"><span class="legend-line subgenre-line"></span>subgenre</div>
+                <div class="legend-edge-item" data-edge-type="influence"><span class="legend-line influence-line"></span>influence</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- EDGE TOOLTIP -->
+          <div id="edge-tooltip"></div>
+
+          <!-- GENRE OVERLAY -->
+          <div id="genre-overlay" class="genre-overlay collapsed">
+            <div id="genre-overlay-header">
+              <div id="genre-overlay-nav">
+                <button id="overlay-back-btn" class="overlay-nav-btn" disabled>← back</button>
+                <div id="genre-overlay-title-wrap">
+                  <span id="genre-overlay-dot"></span>
+                  <span id="genre-overlay-name"></span>
+                  <span id="genre-overlay-meta"></span>
+                </div>
+              </div>
+              <button id="overlay-close-btn" class="overlay-nav-btn">✕</button>
+            </div>
+            <div id="genre-overlay-body">
+              <div class="overlay-section">
+                <div class="overlay-section-title" id="overlay-parents-title">comes from</div>
+                <div class="overlay-cards" id="overlay-parents"></div>
+              </div>
+              <div class="overlay-section">
+                <div class="overlay-section-title" id="overlay-children-title">leads to</div>
+                <div class="overlay-cards" id="overlay-children"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end viz-column -->
+
+    <!-- RIGHT COLUMN: songs panel only -->
+    <div id="songs-column">
+
+      <!-- SONGS PANEL -->
       <div class="win-panel" id="songs-panel">
         <div class="win-titlebar">
-          <span class="win-titlebar-text" id="songs-title">canciones</span>
-          <button class="songs-clear-btn" id="songs-clear" title="clear filter">✕</button>
+          <span class="win-titlebar-text" id="songs-title">songs</span>
         </div>
+
+        <!-- SEARCH BAR -->
+        <div id="songs-controls">
+          <input type="text" id="songs-search" placeholder="search artist, song..." autocomplete="off">
+        </div>
+
+        <!-- TABLE -->
         <div class="songs-scroll-wrap">
           <div class="songs-table-container" id="songs-table-container">
             <table id="songs-table">
               <thead>
                 <tr id="songs-thead-row">
-                  <th class="col-fixed col-title">título</th>
-                  <th class="col-artist">artista</th>
-                  <th class="col-year">año</th>
-                  <th class="col-genre">género</th>
-                  <th class="col-influence" style="display:none">influencia</th>
-                  <th class="col-country">país</th>
+                  <th class="col-fixed col-title">
+                    <div class="th-inner">title <span class="sort-arrows" data-sort="title"><span class="arr-up">△</span><span class="arr-dn">▽</span></span></div>
+                  </th>
+                  <th class="col-artist">
+                    <div class="th-inner">artist <span class="sort-arrows" data-sort="artist"><span class="arr-up">△</span><span class="arr-dn">▽</span></span></div>
+                  </th>
+                  <th class="col-year">
+                    <div class="th-inner">year <span class="sort-arrows" data-sort="year"><span class="arr-up">△</span><span class="arr-dn">▽</span></span></div>
+                  </th>
+                  <th class="col-genre">
+                    <div class="th-inner">genre <span class="sort-arrows" data-sort="genre"><span class="arr-up">△</span><span class="arr-dn">▽</span></span></div>
+                  </th>
+                  <th class="col-influence" style="display:none">influence</th>
+                  <th class="col-country">
+                    <div class="th-inner">country <span class="sort-arrows" data-sort="country"><span class="arr-up">△</span><span class="arr-dn">▽</span></span></div>
+                  </th>
                 </tr>
               </thead>
               <tbody id="songs-tbody"></tbody>
             </table>
           </div>
-          <div id="songs-empty">
-            haz clic en cualquier<br>gráfico para filtrar
-          </div>
         </div>
+
+        <!-- SONGS COUNT (always visible below table) -->
         <div class="songs-footer" id="songs-footer"></div>
+
+        <!-- DECADE RANGE FILTER -->
+        <div id="decade-filter">
+          <div id="decade-filter-header">
+            <span class="win-titlebar-text">decades</span>
+            <span class="win-titlebar-meta" id="decade-range-label"></span>
+            <button id="decade-reset" title="reset decade filter">reset</button>
+          </div>
+          <div id="decade-slider-wrap">
+            <div id="decade-track">
+              <div id="decade-fill"></div>
+              <div class="decade-thumb" id="thumb-min" data-thumb="min"></div>
+              <div class="decade-thumb" id="thumb-max" data-thumb="max"></div>
+            </div>
+            <div id="decade-ticks"></div>
+          </div>
+        </div>
+
       </div>
 
-        </div><!-- end left-panel -->
-
-    <!-- RIGHT PANEL -->
-    <div id="right-panel">
-
-      <!-- tab bar -->
-      <div id="tab-bar">
-        <button class="tab-btn active" data-tab="network">genre network</button>
-        <button class="tab-btn" data-tab="map">mapa</button>
-        <button class="tab-btn" data-tab="decades">decadas</button>
-        <button class="tab-btn" data-tab="stats">otros stats</button>
-        <div class="tab-spacer"></div>
-      </div>
-
-      <!-- tab panes -->
-      <div id="tab-contents">
-
-        <!-- NETWORK -->
-        <div class="tab-pane active" id="tab-network">
-          <div id="network-container">
-            <svg id="network-svg"></svg>
-            <div id="network-tooltip"></div>
-            <div id="network-hint">drag · scroll · click node to explore · click edge for details</div>
-
-            <!-- GENRE SEARCH (top left) -->
-            <div id="genre-search-wrap">
-              <input type="text" id="genre-search-input" placeholder="search genres..." autocomplete="off">
-              <div id="genre-search-results"></div>
-            </div>
-
-            <!-- LEGEND (top right, collapsible) -->
-            <div id="network-legend">
-              <div id="network-legend-titlebar">
-                <span id="network-legend-title">legend</span>
-                <button class="net-legend-btn" id="legend-toggle">−</button>
-              </div>
-              <div id="network-legend-body">
-                <div class="legend-section-label">clusters</div>
-                <div id="legend-clusters"></div>
-                <div class="legend-section-label" style="margin-top:8px;">edge types</div>
-                <div class="legend-edges" id="legend-edges">
-                  <div class="legend-edge-item" data-edge-type="origin"><span class="legend-line origin-line"></span>origin</div>
-                  <div class="legend-edge-item" data-edge-type="subgenre"><span class="legend-line subgenre-line"></span>subgenre</div>
-                  <div class="legend-edge-item" data-edge-type="influence"><span class="legend-line influence-line"></span>influence</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- EDGE TOOLTIP -->
-            <div id="edge-tooltip"></div>
-
-            <!-- GENRE OVERLAY (slides up from bottom) -->
-            <div id="genre-overlay" class="genre-overlay collapsed">
-              <div id="genre-overlay-header">
-                <div id="genre-overlay-nav">
-                  <button id="overlay-back-btn" class="overlay-nav-btn" disabled>← back</button>
-                  <div id="genre-overlay-title-wrap">
-                    <span id="genre-overlay-dot"></span>
-                    <span id="genre-overlay-name"></span>
-                    <span id="genre-overlay-meta"></span>
-                  </div>
-                </div>
-                <button id="overlay-close-btn" class="overlay-nav-btn">✕</button>
-              </div>
-              <div id="genre-overlay-body">
-                <div class="overlay-section">
-                  <div class="overlay-section-title" id="overlay-parents-title">comes from</div>
-                  <div class="overlay-cards" id="overlay-parents"></div>
-                </div>
-                <div class="overlay-section">
-                  <div class="overlay-section-title" id="overlay-children-title">leads to</div>
-                  <div class="overlay-cards" id="overlay-children"></div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-          <div class="tab-statusbar">
-            <span id="network-status">loading network...</span>
-            <span class="sb-div">|</span>
-            <span>click node = explore · click edge = details</span>
-          </div>
-        </div>
-
-        <!-- MAP -->
-        <div class="tab-pane" id="tab-map">
-          <div id="map"></div>
-          <div class="tab-statusbar">
-            <span>bubble size = song count</span>
-            <span class="sb-div">|</span>
-            <span>colors = continent</span>
-            <span class="sb-div">|</span>
-            <span>click = filter canciones</span>
-          </div>
-        </div>
-
-        <!-- DECADES -->
-        <div class="tab-pane" id="tab-decades">
-          <div class="chart-wrap">
-            <canvas id="decades-chart"></canvas>
-          </div>
-          <div class="tab-statusbar">
-            <span>% of total · click bar = filter canciones</span>
-          </div>
-        </div>
-
-        <!-- OTROS STATS -->
-        <div class="tab-pane" id="tab-stats">
-          <div id="stats-grid">
-            <div class="stat-block" id="languages-block">
-              <div class="stat-block-title">idiomas</div>
-              <div class="stat-block-body">
-                <canvas id="languages-chart"></canvas>
-              </div>
-              <div class="stat-block-note">click = filter canciones</div>
-            </div>
-            <div class="stat-block" id="audio-block">
-              <div class="stat-block-title">perfil sonico</div>
-              <div class="stat-block-body radar-body">
-                <canvas id="audio-chart"></canvas>
-              </div>
-              <div class="stat-block-note">valence = mood musical, no lirico</div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- end tab-contents -->
-    </div><!-- end right-panel -->
+    </div><!-- end songs-column -->
 
   </div><!-- end app-layout -->
 
   <!-- BOTTOM BAR -->
   <div id="bottom-bar">
-    <span id="bottom-status">cargando datos...</span>
-    <span id="bottom-credit">hecho por valentina orjuela</span>
+    <span id="bottom-status">loading...</span>
+    <span id="bottom-credit">by valentina orjuela</span>
   </div>
 
   <script src="network.js"></script>

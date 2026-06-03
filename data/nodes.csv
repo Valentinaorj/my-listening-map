@@ -1,273 +1,274 @@
-id,song_count,cluster
-acid jazz,2,jazz
-acid-folk,5,folk-singer-songwriter
-acousmatic,1,classical-experimental
-acoustic pop,1,pop-indie
-african folk,1,african-global-roots
-african percussion,0,ancestor
-afro funk,1,soul-rnb-funk
-afro soul,1,soul-rnb-funk
-afrobeat,3,african-global-roots
-afropop,8,african-global-roots
-alternative country,3,folk-singer-songwriter
-alternative folk,5,folk-singer-songwriter
-alternative hip hop,1,hip-hop
-alternative metal,2,rock
-alternative pop,47,pop-indie
-alternative r&b,10,soul-rnb-funk
-alternative rock,99,rock
-ambient,1,electronic
-americana,2,folk-singer-songwriter
-arabic hip hop,1,hip-hop
-argentine rock,3,rock-latino-espanol
-art pop,4,pop-indie
-art rock,14,rock
-avant-garde,7,classical-experimental
-bachata,1,caribe
-balkan,1,folk-singer-songwriter
-bambuco,0,ancestor
-baroque pop,14,classical-experimental
-bebop,0,ancestor
-bedroom pop,6,pop-indie
-big band,7,jazz
-blue-eyed soul,1,soul-rnb-funk
-blues,4,soul-rnb-funk
-blues rock,8,rock
-bolero,28,cancion
-boom bap,1,hip-hop
-bossa nova,2,brasileira
-brasileira,2,brasileira
-brazilian hip hop,1,brasileira
-brazilian jazz,4,brasileira
-breakbeat,1,electronic
-british pop,1,pop-indie
-britpop,2,rock
-bullerengue,6,afro-sudamericano
-c-pop,1,pop-indie
-cajun inspired,1,folk-singer-songwriter
-cancion protesta,14,cancion
-candombe,11,afro-sudamericano
-canzone italiana,25,cancion
-carranga,1,andina
-chamber music,5,classical-experimental
-champeta,2,caribe
-chanson,9,folk-singer-songwriter
-chanson haïtienne,1,caribe
-chicha,10,caribe
-chillwave,2,electronic
-choral,4,classical-experimental
-city pop,16,jazz
-classic rock,22,rock
-classic soul,2,soul-rnb-funk
-classical,14,classical-experimental
-classical piano,12,classical-experimental
-colombian experimental,4,caribe
-contemporary classical,24,classical-experimental
-contemporary maloya,1,african-global-roots
-cool jazz,4,jazz
-country,6,folk-singer-songwriter
-cuarteto,1,caribe
-cumbia,19,caribe
-cumbia pop,1,caribe
-cumbia sonidera,6,caribe
-currulao,6,afro-sudamericano
-dancehall,7,caribe
-dark folk,10,folk-singer-songwriter
-darkwave,25,rock
-devotional,2,folk-singer-songwriter
-disco,8,soul-rnb-funk
-doo-wop,3,soul-rnb-funk
-downtempo,9,electronic
-dream pop,19,rock
-dreamy electronic,12,electronic
-dreamy folk,1,folk-singer-songwriter
-dreamy pop,13,pop-indie
-drone metal,1,rock
-dub,7,african-global-roots
-east coast hip hop,5,hip-hop
-egyptian pop,2,african-global-roots
-electro swing,3,jazz
-electrocumbia,55,caribe
-electronic,7,electronic
-Elektronische Musik,0,ancestor
-electronica latina,4,electronic
-electropop,4,electronic
-ethiopian jazz,7,jazz
-eurasian folk,8,folk-singer-songwriter
-eurodance,1,electronic
-european immigrant music,0,ancestor
-exotica,2,jazz
-experimental,11,classical-experimental
-experimental hip hop,1,hip-hop
-fado,7,folk-singer-songwriter
-flamenco,9,folk-singer-songwriter
-flamenco pop,1,folk-singer-songwriter
-flamenco urbano,2,folk-singer-songwriter
-folclor andino,11,andina
-folk,51,folk-singer-songwriter
-folk español,12,folk-singer-songwriter
-folk latino,175,cancion
-folk rock,10,rock
-forró,1,brasileira
-free jazz,2,jazz
-french jazz,8,jazz
-funk,4,soul-rnb-funk
-funk rock,2,soul-rnb-funk
-galician folk,2,folk-singer-songwriter
-gangster rap,1,hip-hop
-garage rock,19,rock
-georgian polyphonic,1,folk-singer-songwriter
-german hip hop,6,hip-hop
-glam rock,12,rock
-gnawa,12,african-global-roots
-gqom,1,electronic
-grunge,5,rock
-guasca,1,andina
-guinean ceremonial music,1,african-global-roots
-hard bop,0,ancestor
-hard rock,15,rock
-hardcore hip hop,2,hip-hop
-heavy metal,0,ancestor
-hi-nrg,3,electronic
-hip hop,34,hip-hop
-hip hop italiano,4,hip-hop
-hip hop latino,49,hip-hop-latino
-house,3,electronic
-idm,0,ancestor
-indie dance,1,electronic
-indie jazz,2,jazz
-indie latino,1,rock-latino-espanol
-indie pop,6,pop-indie
-indie rock,23,rock
-indigenous colombian music,0,ancestor
-indigenous cuban music,0,ancestor
-j-r&b,2,soul-rnb-funk
-j-rap,1,hip-hop
-jaliya tradition,2,african-global-roots
-jangle pop,21,rock
-japanese classical,4,classical-experimental
-jazz,23,jazz
-jazz blues,7,jazz
-jazz funk,3,jazz
-jazz fusion,5,jazz
-jazz house,1,jazz
-jazz latino,11,jazz
-jazz rap,2,jazz
-jungle,1,electronic
-kayokyoku,1,pop-indie
-klezmer,1,folk-singer-songwriter
-latin jazz,0,ancestor
-lebanese folk,4,folk-singer-songwriter
-libyan reggae,1,african-global-roots
-lo-fi,3,electronic
-lounge,6,jazz
-lovers rock,1,african-global-roots
-madchester,9,rock
-maghreb pop,2,african-global-roots
-mambo,2,caribe
-medieval,2,classical-experimental
-melodic house,9,electronic
-merengue,6,caribe
-mexican indie,8,rock-latino-espanol
-mexican rock,9,rock-latino-espanol
-mexican ska,4,rock-latino-espanol
-minimalism,2,classical-experimental
-mizrahi,1,african-global-roots
-modern blues,2,soul-rnb-funk
-moroccan funk,1,african-global-roots
-motown,7,soul-rnb-funk
-mpb,2,brasileira
-murga,7,afro-sudamericano
-musical theater,2,classical-experimental
-native american music,4,andina
-nederpop,1,pop-indie
-neo soul,2,soul-rnb-funk
-neo-classical,46,classical-experimental
-neo-psychedelic,32,pop-indie
-neo-soul,26,soul-rnb-funk
-neoclassical,2,classical-experimental
-new age,1,classical-experimental
-new jack swing,1,soul-rnb-funk
-new wave,13,rock
-northern soul,3,soul-rnb-funk
-nova mpb,2,brasileira
-nu disco,3,soul-rnb-funk
-nu jazz,17,jazz
-nueva trova,6,cancion
-old school hip hop,4,hip-hop
-opera,9,classical-experimental
-orchestra,6,classical-experimental
-pop,5,pop-indie
-pop acustico,5,rock-latino-espanol
-pop latino,24,rock-latino-espanol
-pop rock,11,pop-indie
-porro,1,ancestor
-post-punk,9,rock
-progressive folk,2,folk-singer-songwriter
-progressive rock,35,rock
-proto-punk,16,rock
-psychedelic folk,6,folk-singer-songwriter
-psychedelic rock,49,rock
-punk,18,rock
-punk latino,1,rock-latino-espanol
-punta,1,caribe
-qawwali,2,folk-singer-songwriter
-quiet storm,2,soul-rnb-funk
-r&b,18,soul-rnb-funk
-r&b latino,1,hip-hop-latino
-ragga,2,african-global-roots
-ragtime,3,jazz
-ranchera,3,andina
-rap,6,hip-hop
-reggae,3,african-global-roots
-reggae rock,5,rock
-reggaeton,12,caribe
-reggaeton chileno,1,caribe
-requiem,2,classical-experimental
-retro soul,9,soul-rnb-funk
-rock and roll,26,rock
-rock español,9,rock-latino-espanol
-rock latino,107,rock-latino-espanol
-rocksteady,1,african-global-roots
-roots reggae,4,african-global-roots
-rumba flamenca,5,folk-singer-songwriter
-sahelian folk,3,african-global-roots
-salsa,8,caribe
-samba,2,brasileira
-schlager,2,pop-indie
-shibuya-kei,3,pop-indie
-shona mbira,1,african-global-roots
-ska,16,african-global-roots
-ska latino,3,rock-latino-espanol
-ska punk,2,african-global-roots
-smooth jazz,1,jazz
-son cubano,11,caribe
-son jarocho,3,cancion
-soukous,2,african-global-roots
-soul,19,soul-rnb-funk
-soul blues,3,soul-rnb-funk
-soul jazz,0,ancestor
-space music,1,classical-experimental
-spanish music,0,ancestor
-stutter house,0,ancestor
-swing music,7,jazz
-synthpop,9,electronic
-tango,4,afro-sudamericano
-techno,0,ancestor
-trip hop,11,electronic
-trova,16,cancion
-tuareg,1,african-global-roots
-tuvan,1,folk-singer-songwriter
-uk garage,0,ancestor
-uk r&b,1,soul-rnb-funk
-vallenato,4,caribe
-villancicos,1,andina
-vocal jazz,7,jazz
-west african pentatonic,0,ancestor
-west coast hip hop,1,hip-hop
-cosmic disco,1,electronic
-coldwave,3,electronic
-french pop,2,pop-indie
-jazz hop,1,hip-hop
-instrumental hip hop,1,hip-hop
-cumbia digital,18,caribe
+"id","song_count","cluster"
+"acid jazz","2","jazz"
+"acid-folk","5","folk-singer-songwriter"
+"acousmatic","1","classical-experimental"
+"acoustic pop","1","pop-indie"
+"african folk","1","african-global-roots"
+"african percussion","0","ancestor"
+"afro funk","1","soul-rnb-funk"
+"afro soul","1","soul-rnb-funk"
+"afrobeat","3","african-global-roots"
+"afropop","8","african-global-roots"
+"alternative country","3","folk-singer-songwriter"
+"alternative folk","5","folk-singer-songwriter"
+"alternative hip hop","1","hip-hop"
+"alternative metal","2","rock"
+"alternative pop","47","pop-indie"
+"alternative r&b","10","soul-rnb-funk"
+"alternative rock","99","rock"
+"ambient","1","electronic"
+"americana","2","folk-singer-songwriter"
+"arabic hip hop","1","hip-hop"
+"argentine rock","3","rock-latino-espanol"
+"art pop","4","pop-indie"
+"art rock","14","rock"
+"avant-garde","7","classical-experimental"
+"bachata","1","caribe"
+"balkan","1","folk-singer-songwriter"
+"bambuco","0","ancestor"
+"baroque pop","14","classical-experimental"
+"bebop","0","ancestor"
+"bedroom pop","6","pop-indie"
+"big band","7","jazz"
+"blue-eyed soul","1","soul-rnb-funk"
+"blues","4","soul-rnb-funk"
+"blues rock","8","rock"
+"bolero","28","cancion"
+"boom bap","1","hip-hop"
+"bossa nova","2","brasileira"
+"brasileira","2","brasileira"
+"brazilian hip hop","1","brasileira"
+"brazilian jazz","4","brasileira"
+"breakbeat","1","electronic"
+"british pop","1","pop-indie"
+"britpop","2","rock"
+"bullerengue","6","afro-sudamericano"
+"c-pop","1","pop-indie"
+"cajun inspired","1","folk-singer-songwriter"
+"cancion protesta","14","cancion"
+"candombe","11","afro-sudamericano"
+"canzone italiana","25","cancion"
+"carranga","1","andina"
+"chamber music","5","classical-experimental"
+"champeta","2","caribe"
+"chanson","9","folk-singer-songwriter"
+"chanson haïtienne","1","caribe"
+"chicha","10","caribe"
+"chillwave","2","electronic"
+"choral","4","classical-experimental"
+"city pop","16","jazz"
+"classic rock","22","rock"
+"classic soul","2","soul-rnb-funk"
+"classical","14","classical-experimental"
+"classical piano","12","classical-experimental"
+"colombian experimental","4","caribe"
+"contemporary classical","24","classical-experimental"
+"contemporary maloya","1","african-global-roots"
+"cool jazz","4","jazz"
+"country","6","folk-singer-songwriter"
+"cuarteto","1","caribe"
+"cumbia","19","caribe"
+"cumbia pop","1","caribe"
+"cumbia sonidera","6","caribe"
+"currulao","6","afro-sudamericano"
+"dancehall","7","caribe"
+"dark folk","10","folk-singer-songwriter"
+"darkwave","25","rock"
+"devotional","2","folk-singer-songwriter"
+"disco","8","soul-rnb-funk"
+"doo-wop","3","soul-rnb-funk"
+"downtempo","9","electronic"
+"dream pop","19","rock"
+"dreamy electronic","12","electronic"
+"dreamy folk","1","folk-singer-songwriter"
+"dreamy pop","13","pop-indie"
+"drone metal","1","rock"
+"dub","7","african-global-roots"
+"east coast hip hop","5","hip-hop"
+"egyptian pop","2","african-global-roots"
+"electro swing","3","jazz"
+"electrocumbia","55","caribe"
+"electronic","7","electronic"
+"elektronische musik","0","ancestor"
+"electronica latina","4","electronic"
+"electropop","4","electronic"
+"ethiopian jazz","7","jazz"
+"eurasian folk","8","folk-singer-songwriter"
+"eurodance","1","electronic"
+"european immigrant music","0","ancestor"
+"exotica","2","jazz"
+"experimental","11","classical-experimental"
+"experimental hip hop","1","hip-hop"
+"fado","7","folk-singer-songwriter"
+"flamenco","9","folk-singer-songwriter"
+"flamenco pop","1","folk-singer-songwriter"
+"flamenco urbano","2","folk-singer-songwriter"
+"folclor andino","11","andina"
+"folk","51","folk-singer-songwriter"
+"folk español","12","folk-singer-songwriter"
+"folk latino","175","cancion"
+"folk rock","10","rock"
+"forró","1","brasileira"
+"free jazz","2","jazz"
+"french jazz","8","jazz"
+"funk","4","soul-rnb-funk"
+"funk rock","2","soul-rnb-funk"
+"galician folk","2","folk-singer-songwriter"
+"gangster rap","1","hip-hop"
+"garage rock","19","rock"
+"georgian polyphonic","1","folk-singer-songwriter"
+"german hip hop","6","hip-hop"
+"glam rock","12","rock"
+"gnawa","12","african-global-roots"
+"gqom","1","electronic"
+"grunge","5","rock"
+"guasca","1","andina"
+"guinean ceremonial music","1","african-global-roots"
+"hard bop","0","ancestor"
+"hard rock","15","rock"
+"hardcore hip hop","2","hip-hop"
+"heavy metal","0","ancestor"
+"hi-nrg","3","electronic"
+"hip hop","34","hip-hop"
+"hip hop italiano","4","hip-hop"
+"hip hop latino","49","hip-hop-latino"
+"house","3","electronic"
+"idm","0","ancestor"
+"indie dance","1","electronic"
+"indie jazz","2","jazz"
+"indie latino","1","rock-latino-espanol"
+"indie pop","6","pop-indie"
+"indie rock","23","rock"
+"indigenous colombian music","0","ancestor"
+"indigenous cuban music","0","ancestor"
+"j-r&b","2","soul-rnb-funk"
+"j-rap","1","hip-hop"
+"jaliya tradition","2","african-global-roots"
+"jangle pop","21","rock"
+"japanese classical","4","classical-experimental"
+"jazz","23","jazz"
+"jazz blues","7","jazz"
+"jazz funk","3","jazz"
+"jazz fusion","5","jazz"
+"jazz house","1","jazz"
+"jazz latino","11","jazz"
+"jazz rap","2","jazz"
+"jungle","1","electronic"
+"kayokyoku","1","pop-indie"
+"klezmer","1","folk-singer-songwriter"
+"latin jazz","0","ancestor"
+"lebanese folk","4","folk-singer-songwriter"
+"libyan reggae","1","african-global-roots"
+"lo-fi","3","electronic"
+"lounge","6","jazz"
+"lovers rock","1","african-global-roots"
+"madchester","9","rock"
+"maghreb pop","2","african-global-roots"
+"mambo","2","caribe"
+"medieval","2","classical-experimental"
+"melodic house","9","electronic"
+"merengue","6","caribe"
+"mexican indie","8","rock-latino-espanol"
+"mexican rock","9","rock-latino-espanol"
+"mexican ska","4","rock-latino-espanol"
+"minimalism","2","classical-experimental"
+"mizrahi","1","african-global-roots"
+"modern blues","2","soul-rnb-funk"
+"moroccan funk","1","african-global-roots"
+"motown","7","soul-rnb-funk"
+"mpb","2","brasileira"
+"murga","7","afro-sudamericano"
+"musical theater","2","classical-experimental"
+"native american music","4","andina"
+"nederpop","1","pop-indie"
+"neo soul","2","soul-rnb-funk"
+"neo-classical","46","classical-experimental"
+"neo-psychedelic","32","pop-indie"
+"neo-soul","26","soul-rnb-funk"
+"neoclassical","2","classical-experimental"
+"new age","1","classical-experimental"
+"new jack swing","1","soul-rnb-funk"
+"new wave","13","rock"
+"northern soul","3","soul-rnb-funk"
+"nova mpb","2","brasileira"
+"nu disco","3","soul-rnb-funk"
+"nu jazz","17","jazz"
+"nueva trova","6","cancion"
+"old school hip hop","4","hip-hop"
+"opera","9","classical-experimental"
+"orchestra","6","classical-experimental"
+"pop","5","pop-indie"
+"pop acustico","5","rock-latino-espanol"
+"pop latino","24","rock-latino-espanol"
+"pop rock","11","pop-indie"
+"porro","1","ancestor"
+"post-punk","9","rock"
+"progressive folk","2","folk-singer-songwriter"
+"progressive rock","35","rock"
+"proto-punk","16","rock"
+"psychedelic folk","6","folk-singer-songwriter"
+"psychedelic rock","49","rock"
+"punk","18","rock"
+"punk latino","1","rock-latino-espanol"
+"punta","1","caribe"
+"qawwali","2","folk-singer-songwriter"
+"quiet storm","2","soul-rnb-funk"
+"r&b","18","soul-rnb-funk"
+"r&b latino","1","hip-hop-latino"
+"ragga","2","african-global-roots"
+"ragtime","3","jazz"
+"ranchera","3","andina"
+"rap","6","hip-hop"
+"reggae","3","african-global-roots"
+"reggae rock","5","rock"
+"reggaeton","12","caribe"
+"reggaeton chileno","1","caribe"
+"requiem","2","classical-experimental"
+"retro soul","9","soul-rnb-funk"
+"rock and roll","26","rock"
+"rock español","9","rock-latino-espanol"
+"rock latino","107","rock-latino-espanol"
+"rocksteady","1","african-global-roots"
+"roots reggae","4","african-global-roots"
+"rumba flamenca","5","folk-singer-songwriter"
+"sahelian folk","3","african-global-roots"
+"salsa","8","caribe"
+"samba","2","brasileira"
+"schlager","2","pop-indie"
+"shibuya-kei","3","pop-indie"
+"shona mbira","1","african-global-roots"
+"ska","16","african-global-roots"
+"ska latino","3","rock-latino-espanol"
+"ska punk","2","african-global-roots"
+"smooth jazz","1","jazz"
+"son cubano","11","caribe"
+"son jarocho","3","cancion"
+"soukous","2","african-global-roots"
+"soul","19","soul-rnb-funk"
+"soul blues","3","soul-rnb-funk"
+"soul jazz","0","ancestor"
+"space music","1","classical-experimental"
+"spanish music","0","ancestor"
+"stutter house","0","ancestor"
+"swing music","7","jazz"
+"synthpop","9","electronic"
+"tango","4","afro-sudamericano"
+"techno","0","ancestor"
+"trip hop","11","electronic"
+"trova","16","cancion"
+"tuareg music","1","african-global-roots"
+"tuvan","1","folk-singer-songwriter"
+"uk garage","0","ancestor"
+"uk r&b","1","soul-rnb-funk"
+"vallenato","4","caribe"
+"villancicos","1","andina"
+"vocal jazz","7","jazz"
+"west african pentatonic","0","ancestor"
+"west coast hip hop","1","hip-hop"
+"cosmic disco","1","electronic"
+"coldwave","3","electronic"
+"french pop","2","pop-indie"
+"jazz hop","1","hip-hop"
+"instrumental hip hop","1","hip-hop"
+"cumbia digital","18","caribe"
+"french house","3","electronic"
