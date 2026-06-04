@@ -320,12 +320,15 @@ function decadeFilteredTracks() {
 // Single call that refreshes both map and network dims together
 function applyAllDims() {
   applyMapDim()
-  // network dim depends on which filter is active
   if (mapFilter && typeof window.applyNetworkDimByCountry === 'function') {
     window.applyNetworkDimByCountry(mapFilter.value)
   } else if (!mapFilter && typeof window.applyNetworkDimByDecade === 'function') {
     window.applyNetworkDimByDecade()
   }
+  // update both titlebars whenever dims are recomputed
+  updateMapStatus()
+  var activeCountry = mapFilter ? mapFilter.value : null
+  updateNetworkStatusForCountry(activeCountry)
 }
 
 // ── RELEASE MAP FILTER (background click) ──
@@ -338,21 +341,94 @@ function releaseMapFilter() {
   }
   renderTable()
   updateMapStatus()
+  updateNetworkStatusForCountry(null)
+  navPush()
+}
+
+function updateNetworkStatusForCountry(country) {
+  if (typeof window.updateNetworkStatusForCountry === 'function') {
+    window.updateNetworkStatusForCountry(country)
+  }
 }
 
 function updateMapStatus() {
   var el = document.getElementById('map-status')
   if (!el) return
-  if (mapFilter) {
-    // count songs from this country
+
+  var dRange     = formatDecadeRange()
+  var hasDecade  = dRange !== 'all'
+  var hasCountry = !!mapFilter
+  var hasGenre   = !!(networkFilter && networkFilter.type === 'genre')
+
+  // helper: count countries active in a given track pool
+  function countActiveCountries(pool) {
+    var seen = {}
+    pool.forEach(function(s) {
+      if (!s['Artist Country']) return
+      s['Artist Country'].split('; ').forEach(function(c) { if (c.trim()) seen[c.trim()] = true })
+    })
+    return Object.keys(seen).length
+  }
+
+  if (hasCountry) {
     var country = mapFilter.value
-    var count = allTracks.filter(function(s) {
+    var rawCount = allTracks.filter(function(s) {
       if (!s['Artist Country']) return false
       return s['Artist Country'].split('; ').map(function(c){return c.trim()}).indexOf(country) !== -1
     }).length
-    el.textContent = country + ' (' + count + ' songs)'
+    var base = country + ' (' + rawCount + ' songs)'
+
+    if (hasGenre) {
+      var genre = networkFilter.value
+      // triple intersection: country + genre + decade
+      var pool = decadeFilteredTracks()
+      var n = pool.filter(function(s) {
+        if (!s['Artist Country']) return false
+        var inCountry = s['Artist Country'].split('; ').map(function(c){return c.trim()}).indexOf(country) !== -1
+        var inGenre   = (s['Main Genre'] || '').trim().toLowerCase() === genre.toLowerCase()
+        return inCountry && inGenre
+      }).length
+      el.textContent = hasDecade
+        ? base + ' · ' + n + ' with ' + genre + ' from ' + dRange
+        : base + ' · ' + n + ' with ' + genre
+    } else if (hasDecade) {
+      // country + decade: count songs from that country in that decade
+      var pool = decadeFilteredTracks()
+      var n = pool.filter(function(s) {
+        if (!s['Artist Country']) return false
+        return s['Artist Country'].split('; ').map(function(c){return c.trim()}).indexOf(country) !== -1
+      }).length
+      el.textContent = base + ' · ' + n + ' from ' + dRange
+    } else {
+      el.textContent = base
+    }
+
+  } else if (hasGenre) {
+    var genre = networkFilter.value
+    var pool  = decadeFilteredTracks()
+    var activeCountries = {}
+    pool.forEach(function(s) {
+      if ((s['Main Genre'] || '').trim().toLowerCase() !== genre.toLowerCase()) return
+      if (!s['Artist Country']) return
+      s['Artist Country'].split('; ').forEach(function(c) { if (c.trim()) activeCountries[c.trim()] = true })
+    })
+    var n = Object.keys(activeCountries).length
+    el.textContent = hasDecade
+      ? n + ' ' + (n === 1 ? 'country' : 'countries') + ' with ' + genre + ' from ' + dRange
+      : n + ' ' + (n === 1 ? 'country' : 'countries') + ' with ' + genre + ' songs'
+
+  } else if (hasDecade) {
+    // decade only: count countries with at least one song in this range
+    var pool = decadeFilteredTracks()
+    var seen = {}
+    pool.forEach(function(s) {
+      if (!s['Artist Country']) return
+      s['Artist Country'].split('; ').forEach(function(c) { if (c.trim()) seen[c.trim()] = true })
+    })
+    var nc = Object.keys(seen).length
+    el.textContent = nc + ' ' + (nc === 1 ? 'country' : 'countries') + ' with ' + dRange + ' songs'
+
   } else {
-    // count distinct countries in data
     var seen = {}
     mapMarkers.forEach(function(m) { seen[m.country] = true })
     el.textContent = Object.keys(seen).length + ' countries'
@@ -371,6 +447,7 @@ window.filterSongs = function(type, value) {
   }
   applyMapDim()
   renderTable()
+  updateMapStatus()
   navPush()
 }
 
@@ -412,41 +489,81 @@ window.filterSongsRaw = function(label, songs, filterType) {
   }).join('')
   if (footer) footer.textContent = sorted.length + ' songs'
   applyMapDim()
+  navPush()
 }
 
-// ── NAVIGATION HISTORY FUNCTIONS ──
+// ── NAVIGATION HISTORY ──
+
+function navStateLabel(state) {
+  var parts = []
+  if (state.mapFilter)     parts.push(state.mapFilter.value)
+  if (state.networkFilter) parts.push(state.networkFilter.value)
+  if (state.decadeMin !== null && state.decadeMax !== null) {
+    var allMin = DECADE_DECADES.length ? DECADE_DECADES[0] : null
+    var allMax = DECADE_DECADES.length ? DECADE_DECADES[DECADE_DECADES.length - 1] : null
+    if (state.decadeMin !== allMin || state.decadeMax !== allMax) {
+      parts.push(state.decadeMin + 's–' + state.decadeMax + 's')
+    }
+  }
+  return parts.length ? parts.join(' · ') : 'all songs'
+}
+
+function navCurrentState() {
+  return {
+    mapFilter:     mapFilter     ? Object.assign({}, mapFilter)     : null,
+    networkFilter: networkFilter ? Object.assign({}, networkFilter) : null,
+    decadeMin:     decadeMin,
+    decadeMax:     decadeMax
+  }
+}
+
+function navStatesEqual(a, b) {
+  var mA = a.mapFilter     ? a.mapFilter.value     : null
+  var mB = b.mapFilter     ? b.mapFilter.value     : null
+  var nA = a.networkFilter ? a.networkFilter.value : null
+  var nB = b.networkFilter ? b.networkFilter.value : null
+  return mA === mB && nA === nB && a.decadeMin === b.decadeMin && a.decadeMax === b.decadeMax
+}
+
 function navPush() {
   if (navPaused) return
+  var state = navCurrentState()
+  // deduplicate — don't push if current state matches top of stack
+  if (navIndex >= 0 && navStatesEqual(navHistory[navIndex], state)) return
   // trim forward history
   navHistory = navHistory.slice(0, navIndex + 1)
-  navHistory.push({
-    mapFilter:     mapFilter     ? Object.assign({}, mapFilter)     : null,
-    networkFilter: networkFilter ? Object.assign({}, networkFilter) : null
-  })
+  navHistory.push(state)
   navIndex = navHistory.length - 1
   updateNavButtons()
+  updateNavDropdown()
 }
 
 function navRestore(state) {
   navPaused = true
   mapFilter     = state.mapFilter     ? Object.assign({}, state.mapFilter)     : null
   networkFilter = state.networkFilter ? Object.assign({}, state.networkFilter) : null
+  decadeMin     = state.decadeMin
+  decadeMax     = state.decadeMax
 
   // re-apply all visual state
-  applyMapDim()
-  if (mapFilter) {
-    if (typeof window.applyNetworkDimByCountry === 'function')
-      window.applyNetworkDimByCountry(mapFilter.value)
-  } else if (networkFilter) {
-    // network selection drives its own dim via filterSongs path — trigger directly
-    if (typeof window.applyNetworkDimByCountry === 'function')
-      window.applyNetworkDimByCountry(null)
-  } else {
-    if (typeof window.clearNetworkDim === 'function') window.clearNetworkDim()
-    applyMapDim()
+  if (typeof window.clearNetworkDim === 'function') window.clearNetworkDim()
+
+  if (networkFilter && networkFilter.type === 'genre') {
+    // restore genre node dim
+    if (typeof window.applyNetworkDimByGenre === 'function') {
+      window.applyNetworkDimByGenre(networkFilter.value)
+    }
   }
+
+  // apply map + decade dims (handles all combinations)
+  applyAllDims()
+
+  // update decade slider UI
+  if (_updateDecadeUI) _updateDecadeUI()
+
   renderTable()
   updateNavButtons()
+  updateNavDropdown()
   navPaused = false
 }
 
@@ -465,13 +582,66 @@ function navForward() {
 function updateNavButtons() {
   var back    = document.getElementById('nav-back')
   var forward = document.getElementById('nav-forward')
+  var hist    = document.getElementById('nav-history-btn')
   if (back)    back.disabled    = navIndex <= 0
   if (forward) forward.disabled = navIndex >= navHistory.length - 1
+  if (hist)    hist.disabled    = navHistory.length <= 1
+}
+
+function updateNavDropdown() {
+  var dropdown = document.getElementById('nav-history-dropdown')
+  if (!dropdown) return
+  dropdown.innerHTML = ''
+  // show most recent first
+  for (var i = navHistory.length - 1; i >= 0; i--) {
+    var item  = document.createElement('div')
+    item.className = 'nav-history-item' + (i === navIndex ? ' current' : '')
+    item.setAttribute('data-idx', i)
+    var label = document.createElement('span')
+    label.textContent = navStateLabel(navHistory[i])
+    item.appendChild(label)
+    dropdown.appendChild(item)
+  }
+
+  dropdown.querySelectorAll('.nav-history-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      var idx = parseInt(item.getAttribute('data-idx'))
+      navIndex = idx
+      navRestore(navHistory[idx])
+      closeNavDropdown()
+    })
+  })
+}
+
+function closeNavDropdown() {
+  var d = document.getElementById('nav-history-dropdown')
+  if (d) d.classList.remove('open')
 }
 
 // ── EXPOSE: network.js checks whether a network filter is active ──
 window.getNetworkFilterActive = function() {
   return !!networkFilter
+}
+
+window.getMapFilter = function() {
+  return mapFilter ? mapFilter.value : null
+}
+
+window.getDecadeRange = function() {
+  var r = formatDecadeRange()
+  return r === 'all' ? null : r
+}
+
+window.getDecadeFilteredTracksForStatus = function() {
+  return decadeFilteredTracks()
+}
+
+window.clearNetworkFilter = function() {
+  if (!networkFilter) return
+  networkFilter = null
+  renderTable()
+  updateMapStatus()
+  navPush()
 }
 
 // ── EXPOSE: network.js calls this to get genres active in the current map filter ──
@@ -537,13 +707,12 @@ function resetAll() {
   if (typeof window.clearNetworkDim  === 'function') window.clearNetworkDim()
   if (typeof window.resetNetworkView === 'function') window.resetNetworkView()
 
-  // clear nav history
-  navHistory = []
-  navIndex   = -1
-  updateNavButtons()
-
   applyAllDims()
   renderTable()
+
+  // push clean state to history (don't clear history)
+  navPush()
+  updateNavDropdown()
 }
 
 // ── DECADE SLIDER ──
@@ -689,6 +858,7 @@ function initDecadeSlider(decades) {
     document.removeEventListener('mouseup',   endDrag)
     document.removeEventListener('touchmove', onDrag)
     document.removeEventListener('touchend',  endDrag)
+    navPush()
   }
 
   // thumb events
@@ -714,6 +884,7 @@ function initDecadeSlider(decades) {
     doUpdateUI()
     applyAllDims()
     renderTable()
+    navPush()
   })
 
   if (resetBtn) {
@@ -723,6 +894,7 @@ function initDecadeSlider(decades) {
       doUpdateUI()
       applyAllDims()
       renderTable()
+      navPush()
     })
   }
 
@@ -780,9 +952,47 @@ function buildMap(tracks) {
       weight: 1,
       fillOpacity: 0.60
     })
+    .on('mouseover', function(e) {
+      // show tooltip
+      var mapEl   = document.getElementById('map')
+      var tooltip = document.getElementById('map-tooltip')
+      if (tooltip && mapEl) {
+        tooltip.innerHTML = '<strong style="color:#e2e8f0">' + country + '</strong>' +
+          '<div style="margin-top:4px;opacity:0.7">' + count + ' songs</div>'
+        tooltip.style.opacity = '1'
+        var rect = mapEl.getBoundingClientRect()
+        tooltip.style.left = (e.originalEvent.clientX - rect.left + 14) + 'px'
+        tooltip.style.top  = (e.originalEvent.clientY - rect.top  - 10) + 'px'
+      }
+      // hover dim — only if no permanent filter is active for this country
+      if (!mapFilter || mapFilter.value !== country) {
+        mapMarkers.forEach(function(m) {
+          if (m.country !== country) {
+            m.marker.setStyle({ fillOpacity: 0.08, opacity: 0.25 })
+          } else {
+            m.marker.setStyle({ fillOpacity: 0.85, color: '#ffffff', weight: 2 })
+          }
+        })
+      }
+    })
+    .on('mousemove', function(e) {
+      var mapEl   = document.getElementById('map')
+      var tooltip = document.getElementById('map-tooltip')
+      if (tooltip && mapEl) {
+        var rect = mapEl.getBoundingClientRect()
+        tooltip.style.left = (e.originalEvent.clientX - rect.left + 14) + 'px'
+        tooltip.style.top  = (e.originalEvent.clientY - rect.top  - 10) + 'px'
+      }
+    })
+    .on('mouseout', function() {
+      // hide tooltip
+      var tooltip = document.getElementById('map-tooltip')
+      if (tooltip) tooltip.style.opacity = '0'
+      // restore dim state — if filter active, reapply it; otherwise restore all
+      applyMapDim()
+    })
     .on('click', function(e) {
       L.DomEvent.stopPropagation(e)
-      // replace map filter only — leave network filter untouched
       mapFilter = { type: 'country', value: country }
       renderTable()
       applyMapDim()
@@ -791,8 +1001,8 @@ function buildMap(tracks) {
       }
       navPush()
       updateMapStatus()
+      updateNetworkStatusForCountry(country)
     })
-    .bindPopup('<strong>' + country + '</strong><br>' + count + ' songs<br><em>' + continent + '</em>')
     .addTo(map)
 
     mapMarkers.push({ marker: marker, country: country })
@@ -801,11 +1011,6 @@ function buildMap(tracks) {
   // update map status meta with country count
   var mapStatusEl = document.getElementById('map-status')
   if (mapStatusEl) mapStatusEl.textContent = Object.keys(countries).length + ' countries'
-
-  // popup close releases map filter
-  map.on('popupclose', function() {
-    releaseMapFilter()
-  })
 
   // background click releases map filter
   map.on('click', function() {
@@ -831,14 +1036,24 @@ document.addEventListener('DOMContentLoaded', function() {
   var navFwdBtn = document.getElementById('nav-forward')
   if (navFwdBtn) navFwdBtn.addEventListener('click', navForward)
 
+  var navHistBtn = document.getElementById('nav-history-btn')
+  if (navHistBtn) navHistBtn.addEventListener('click', function(e) {
+    e.stopPropagation()
+    var d = document.getElementById('nav-history-dropdown')
+    if (d) d.classList.toggle('open')
+  })
+
+  // close dropdown when clicking outside
+  document.addEventListener('click', function() { closeNavDropdown() })
+
   var networkResetBtn = document.getElementById('network-reset-btn')
   if (networkResetBtn) networkResetBtn.addEventListener('click', function() {
     networkFilter = null
-    if (typeof window.clearNetworkDim    === 'function') window.clearNetworkDim()
-    if (typeof window.resetNetworkView   === 'function') window.resetNetworkView()
-    if (typeof window.resetNetworkStatus === 'function') window.resetNetworkStatus()
-    applyMapDim()
+    if (typeof window.clearNetworkDim  === 'function') window.clearNetworkDim()
+    if (typeof window.resetNetworkView === 'function') window.resetNetworkView()
+    applyAllDims()
     renderTable()
+    navPush()
   })
 
   var mapResetBtn = document.getElementById('map-reset-btn')
@@ -884,6 +1099,9 @@ document.addEventListener('DOMContentLoaded', function() {
       initSortArrows()
       renderTable()
       buildMap(allTracks)
+
+      // push initial clean state so back button can always return to zero
+      navPush()
     }
   })
 })

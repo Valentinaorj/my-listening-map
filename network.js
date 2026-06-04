@@ -568,6 +568,15 @@
     if (backBtn) backBtn.disabled = true
     clearDim()
     if (updateNetworkStatus) updateNetworkStatus(null)
+    if (typeof window.clearNetworkFilter === 'function') window.clearNetworkFilter()
+    // re-apply country dim synchronously after everything else is done
+    var activeCountry = typeof window.getMapFilter === 'function' ? window.getMapFilter() : null
+    if (activeCountry) {
+      window.applyNetworkDimByCountry(activeCountry)
+      if (typeof window.updateNetworkStatusForCountry === 'function') {
+        window.updateNetworkStatusForCountry(activeCountry)
+      }
+    }
   }
 
   // ── EDGE TOOLTIP ──
@@ -612,6 +621,9 @@
       setTimeout(function() { if (p.parentNode) p.parentNode.removeChild(p) }, 300)
     }
     clearDim()
+    // re-apply country dim synchronously — no flash
+    var activeCountry = typeof window.getMapFilter === 'function' ? window.getMapFilter() : null
+    if (activeCountry) window.applyNetworkDimByCountry(activeCountry)
   }
 
   function showInfluencePanel(edge, container) {
@@ -720,13 +732,108 @@
     updateNetworkStatus = function(genreId) {
       if (!statusEl) return
       if (!genreId) {
-        statusEl.textContent = allNodes.length + ' genres · ' + validEdges.length + ' connections'
+        // check for decade-only state via app.js
+        if (typeof window.getDecadeRange === 'function') {
+          var dr = window.getDecadeRange()
+          if (dr) {
+            // count genre nodes with songs in this decade range
+            var activeGenres = typeof window.getActiveGenresForDim === 'function'
+              ? window.getActiveGenresForDim() : null
+            if (activeGenres) {
+              var n = Object.keys(activeGenres).length
+              statusEl.textContent = n + ' ' + (n === 1 ? 'genre' : 'genres') + ' with ' + dr + ' songs'
+              return
+            }
+          }
+        }
+        statusEl.textContent = allNodes.length + ' genres'
         return
       }
       var n = nodeById[genreId]
       if (!n) return
       var conns = (adj[genreId] || []).length
-      statusEl.textContent = genreId + ' (' + (n.song_count > 0 ? n.song_count + ' songs' : 'root') + ' · ' + conns + ' connections)'
+      var base = genreId + ' (' + (n.song_count > 0 ? n.song_count + ' songs' : 'root') + ')'
+      var activeCountry = typeof window.getMapFilter === 'function' ? window.getMapFilter() : null
+      var dr = typeof window.getDecadeRange === 'function' ? window.getDecadeRange() : null
+      if (activeCountry) {
+        // use decade-aware pool for intersection
+        var activeGenres = typeof window.getActiveGenresForDim === 'function'
+          ? window.getActiveGenresForDim() : null
+        var intersectionCount = activeGenres && activeGenres[genreId]
+          ? allTracks.filter(function(s) {
+              if (!s['Artist Country']) return false
+              var inCountry = s['Artist Country'].split('; ').map(function(c){return c.trim()}).indexOf(activeCountry) !== -1
+              var inGenre   = (s['Main Genre'] || '').trim().toLowerCase() === genreId.toLowerCase()
+              if (!inCountry || !inGenre) return false
+              if (dr) {
+                var y = parseInt(s['Release Date'])
+                if (isNaN(y)) return false
+                // decade range check delegated to pool — just count songs in pool
+              }
+              return inCountry && inGenre
+            }).length
+          : 0
+        // if decade active, refine intersection through decade pool
+        if (dr && activeGenres && activeGenres[genreId]) {
+          intersectionCount = (typeof window.getDecadeFilteredTracksForStatus === 'function'
+            ? window.getDecadeFilteredTracksForStatus() : allTracks
+          ).filter(function(s) {
+            if (!s['Artist Country']) return false
+            var inCountry = s['Artist Country'].split('; ').map(function(c){return c.trim()}).indexOf(activeCountry) !== -1
+            var inGenre   = (s['Main Genre'] || '').trim().toLowerCase() === genreId.toLowerCase()
+            return inCountry && inGenre
+          }).length
+        }
+        statusEl.textContent = dr
+          ? base + ' · ' + intersectionCount + ' in ' + activeCountry + ' from ' + dr
+          : base + ' · ' + intersectionCount + ' in ' + activeCountry
+      } else if (dr) {
+        // genre + decade only: count songs in this genre within decade range
+        var pool = typeof window.getDecadeFilteredTracksForStatus === 'function'
+          ? window.getDecadeFilteredTracksForStatus() : allTracks
+        var decadeCount = pool.filter(function(s) {
+          return (s['Main Genre'] || '').trim().toLowerCase() === genreId.toLowerCase()
+        }).length
+        statusEl.textContent = base + ' · ' + decadeCount + ' from ' + dr
+      } else {
+        statusEl.textContent = base
+      }
+    }
+
+    // called by app.js when map filter changes and no genre is selected
+    window.updateNetworkStatusForCountry = function(country) {
+      if (!statusEl) return
+      var dr = typeof window.getDecadeRange === 'function' ? window.getDecadeRange() : null
+
+      if (!country) {
+        if (!activeSelection || activeSelection.type !== 'node') {
+          // check decade-only
+          if (dr) {
+            var activeGenres = typeof window.getActiveGenresForDim === 'function'
+              ? window.getActiveGenresForDim() : null
+            if (activeGenres) {
+              var n = Object.keys(activeGenres).length
+              statusEl.textContent = n + ' ' + (n === 1 ? 'genre' : 'genres') + ' with ' + dr + ' songs'
+              return
+            }
+          }
+          statusEl.textContent = allNodes.length + ' genres'
+        }
+        return
+      }
+      // if a genre node is selected, delegate to updateNetworkStatus
+      if (activeSelection && activeSelection.type === 'node') {
+        updateNetworkStatus(activeSelection.nodeId)
+        return
+      }
+      // country (+ optional decade): count genre nodes active in this context
+      var activeGenres = typeof window.getActiveGenresForDim === 'function'
+        ? window.getActiveGenresForDim() : null
+      if (!activeGenres) return
+      var n = Object.keys(activeGenres).length
+      statusEl.textContent = dr
+        ? n + ' ' + (n === 1 ? 'genre' : 'genres') + ' in ' + country + ' from ' + dr
+        : n + ' ' + (n === 1 ? 'genre' : 'genres') + ' in ' + country
     }
     if (!container) return
 
@@ -1055,7 +1162,7 @@
         nodeSelection.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')' })
       })
 
-      if (statusEl) statusEl.textContent = allNodes.length + ' genres · ' + validEdges.length + ' connections'
+      if (statusEl) statusEl.textContent = allNodes.length + ' genres'
 
     }).catch(function(err) {
       console.error('Network error:', err)
@@ -1075,6 +1182,9 @@
   // Pass null to release the dim. Dims genre nodes with zero songs from that country.
   window.applyNetworkDimByCountry = function(country) {
     if (!nodeSelection) return
+
+    // if a genre node is already selected, don't touch the network dim
+    if (activeSelection && activeSelection.type === 'node') return
 
     // null = release
     if (!country) {
@@ -1151,6 +1261,9 @@
   window.applyNetworkDimByDecade = function() {
     if (!nodeSelection) return
 
+    // if a genre node is already selected, don't overwrite it
+    if (activeSelection && activeSelection.type === 'node') return
+
     var activeGenres = typeof window.getActiveGenresForDim === 'function'
       ? window.getActiveGenresForDim()
       : null
@@ -1173,6 +1286,25 @@
         return (activeGenres[l.source.id] && activeGenres[l.target.id]) ? 1 : 0.03
       })
     }
+  }
+
+  // Called by navRestore to re-apply a genre node selection dim
+  window.applyNetworkDimByGenre = function(genreId) {
+    if (!nodeSelection || !genreId) return
+    var n = nodeById[genreId]
+    if (!n) return
+    var conns   = adj[genreId] || []
+    var connIds = new Set([genreId].concat(conns))
+    activeSelection = { type: 'node', nodeId: genreId }
+    nodeSelection.style('opacity', function(d) {
+      return connIds.has(d.id) ? 1 : 0.08
+    })
+    if (linkVisSelection) {
+      linkVisSelection.style('opacity', function(l) {
+        return (l.source.id === genreId || l.target.id === genreId) ? 1 : 0.03
+      })
+    }
+    if (updateNetworkStatus) updateNetworkStatus(genreId)
   }
 
   // Exposed so app.js can force a status reset
