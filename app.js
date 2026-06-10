@@ -234,8 +234,12 @@ function renderTable() {
     var genre     = esc(s['Main Genre']     || '—')
     var influence = esc(s['Influence Genre']|| '—')
     var country   = esc((s['Artist Country']|| '—').split(';')[0].trim())
+    var ytUrl     = s['YouTube URL'] ? s['YouTube URL'].trim() : ''
+    var playBtn   = ytUrl
+      ? '<a class="yt-play-btn" href="' + esc(ytUrl) + '" target="_blank" rel="noopener" title="open on YouTube">▶</a>'
+      : ''
     return '<tr>' +
-      '<td class="col-fixed col-title" title="' + title + '">' + title + '</td>' +
+      '<td class="col-fixed col-title" title="' + title + '">' + title + playBtn + '</td>' +
       '<td class="col-artist" title="' + artist + '">' + artist + '</td>' +
       '<td class="col-year">' + year + '</td>' +
       (showInfluence
@@ -479,8 +483,12 @@ window.filterSongsRaw = function(label, songs, filterType) {
     var year      = (s['Release Date'] || '').slice(0,4) || '—'
     var influence = esc(s['Influence Genre']|| '—')
     var country   = esc((s['Artist Country']|| '—').split(';')[0].trim())
+    var ytUrl     = s['YouTube URL'] ? s['YouTube URL'].trim() : ''
+    var playBtn   = ytUrl
+      ? '<a class="yt-play-btn" href="' + esc(ytUrl) + '" target="_blank" rel="noopener" title="open on YouTube">▶</a>'
+      : ''
     return '<tr>' +
-      '<td class="col-fixed col-title" title="' + title + '">' + title + '</td>' +
+      '<td class="col-fixed col-title" title="' + title + '">' + title + playBtn + '</td>' +
       '<td class="col-artist" title="' + artist + '">' + artist + '</td>' +
       '<td class="col-year">' + year + '</td>' +
       '<td class="col-influence" title="' + influence + '">' + influence + '</td>' +

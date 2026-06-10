@@ -475,6 +475,39 @@ thead .col-fixed { z-index: 10; }
 #songs-table tbody tr:hover td         { background: var(--black); color: var(--bg); }
 #songs-table tbody tr:hover .col-fixed { background: var(--black); color: var(--bg); }
 
+/* ── YOUTUBE PLAY BUTTON ── */
+.col-title { position: relative; }
+
+.yt-play-btn {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  line-height: 1;
+  padding: 1px 4px;
+  background: var(--bg);
+  color: var(--black);
+  border: var(--border-thin);
+  text-decoration: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+#songs-table tbody tr:hover .yt-play-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#songs-table tbody tr:hover .yt-play-btn:hover {
+  background: var(--coral);
+  color: var(--white);
+  border-color: var(--black);
+}
+
 /* ── DECADE FILTER ── */
 #decade-filter {
   flex-shrink: 0;
