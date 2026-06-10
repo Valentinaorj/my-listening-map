@@ -46,14 +46,37 @@ Hover is always temporary. It overrides but never replaces the permanent filter 
 
 ## Titlebars as Live Context
 
-Each panel titlebar shows contextual information that updates with every interaction:
+Each panel titlebar shows contextual information that recomputes on every interaction. Three dimensions feed the titlebars — country (map), genre (network), and decade range (slider) — so each panel has eight possible states depending on which combination is active.
 
-| Panel | At rest | With own filter | With other panel's filter |
-|---|---|---|---|
-| Map | `81 countries` | `Colombia (47 songs)` | `5 countries with folk latino songs` |
-| Network | `319 genres · 490 connections` | `folk latino (175 songs · 8 connections)` | `40 genres in Colombia` |
+**Map titlebar** (`updateMapStatus` in `app.js`):
 
-The counts always reflect the raw selection — not the intersection — so the user always knows what each filter alone contains.
+| Active filters | Text shown |
+|---|---|
+| none | `81 countries` |
+| decade only | `34 countries with 1970s – 1990s songs` |
+| country only | `Colombia (47 songs)` |
+| country + decade | `Colombia (47 songs) · 31 from 1970s – 1990s` |
+| genre only | `5 countries with folk latino songs` |
+| genre + decade | `5 countries with folk latino from 1970s – 1990s` |
+| country + genre | `Colombia (47 songs) · 12 with folk latino` |
+| country + genre + decade | `Colombia (47 songs) · 9 with folk latino from 1970s – 1990s` |
+
+**Network titlebar** (`updateNetworkStatus` and `updateNetworkStatusForCountry` in `network.js`):
+
+| Active filters | Text shown |
+|---|---|
+| none | `319 genres` |
+| decade only | `120 genres with 1970s – 1990s songs` |
+| country only | `40 genres in Colombia` |
+| country + decade | `28 genres in Colombia from 1970s – 1990s` |
+| genre node selected | `folk latino (175 songs)` |
+| genre + decade | `folk latino (175 songs) · 88 from 1970s – 1990s` |
+| genre + country | `folk latino (175 songs) · 12 in Colombia` |
+| genre + country + decade | `folk latino (175 songs) · 9 in Colombia from 1970s – 1990s` |
+
+The own-filter count always reflects the raw selection (e.g. `Colombia (47 songs)` is every Colombian song), while the trailing `·` segment reports the intersection with the other active dimensions — so the user sees both what each filter contains alone and how much survives the combination.
+
+**Update routing.** A genre node selection takes priority: whenever a node is selected, both the country-release path and the decade-change path delegate back to `updateNetworkStatus(selectedNode)` so the node's titlebar recomputes against the current country and decade rather than being left stale. This delegation must exist in *both* the active-country branch and the released-country (`!country`) branch of `updateNetworkStatusForCountry` — omitting it from the release branch causes the titlebar to keep showing a released country (e.g. still reading `· N in UK` after the UK filter was cleared). Any change to the titlebar functions should be checked against all eight rows in each table above.
 
 ---
 
@@ -74,7 +97,11 @@ When a filter is released, the other visual's dim state is preserved or restored
 
 ## Navigation History
 
-Every filter interaction is pushed onto a history stack. The back and forward arrows in the global header walk through this history, restoring both the map and network filter state at each step. Reset all clears the history entirely.
+Every filter interaction is captured as a snapshot of the full filter state (country + genre + decade range) and pushed onto a history stack. The back and forward arrows in the global header walk this stack step by step, restoring the complete filter state at each position — including repeated visits to the same state, which are preserved in visit order.
+
+The history dropdown is a **deduplicated view** of that stack, not the stack itself. It renders each distinct state once, at the position of its most recent occurrence, most-recent first. Revisiting a state therefore moves its entry to the top of the dropdown list without adding a duplicate, while the underlying stack still records every visit so back/forward continue to walk the true sequence. The "current" highlight is matched by state, so the single dropdown entry is marked active even when the current stack position is an older occurrence of that same state.
+
+Releasing all filters via **reset all** is itself a recorded state (the no-filter "all songs" snapshot), pushed and shown like any other. Reset does **not** clear the history — it returns the visuals to a clean state and records that as the latest step. The only constraints are the standard ones: a state identical to the current top of the stack is not pushed again, and each distinct state appears only once in the dropdown.
 
 ---
 

@@ -592,13 +592,26 @@ function updateNavDropdown() {
   var dropdown = document.getElementById('nav-history-dropdown')
   if (!dropdown) return
   dropdown.innerHTML = ''
-  // show most recent first
+  // deduplicated view of the stack: each state appears once,
+  // at the position of its most recent occurrence.
+  // the underlying navHistory keeps the full visit sequence —
+  // back/forward still walk every step.
+  var current = navIndex >= 0 ? navHistory[navIndex] : null
+  var seen = []
   for (var i = navHistory.length - 1; i >= 0; i--) {
+    var state = navHistory[i]
+    var alreadyShown = false
+    for (var j = 0; j < seen.length; j++) {
+      if (navStatesEqual(seen[j], state)) { alreadyShown = true; break }
+    }
+    if (alreadyShown) continue
+    seen.push(state)
     var item  = document.createElement('div')
-    item.className = 'nav-history-item' + (i === navIndex ? ' current' : '')
+    var isCurrent = current && navStatesEqual(state, current)
+    item.className = 'nav-history-item' + (isCurrent ? ' current' : '')
     item.setAttribute('data-idx', i)
     var label = document.createElement('span')
-    label.textContent = navStateLabel(navHistory[i])
+    label.textContent = navStateLabel(state)
     item.appendChild(label)
     dropdown.appendChild(item)
   }

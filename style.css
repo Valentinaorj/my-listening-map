@@ -96,7 +96,7 @@ body {
   flex-shrink: 0;
 }
 .nav-btn:not(:disabled):hover { background: var(--black); color: var(--bg); }
-.nav-btn:disabled { opacity: 0.25; cursor: default; }
+.nav-btn:disabled { cursor: default; color: var(--grey); }
 
 /* ── NAV HISTORY DROPDOWN ── */
 #nav-history-wrap {

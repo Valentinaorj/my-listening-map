@@ -806,19 +806,24 @@
       var dr = typeof window.getDecadeRange === 'function' ? window.getDecadeRange() : null
 
       if (!country) {
-        if (!activeSelection || activeSelection.type !== 'node') {
-          // check decade-only
-          if (dr) {
-            var activeGenres = typeof window.getActiveGenresForDim === 'function'
-              ? window.getActiveGenresForDim() : null
-            if (activeGenres) {
-              var n = Object.keys(activeGenres).length
-              statusEl.textContent = n + ' ' + (n === 1 ? 'genre' : 'genres') + ' with ' + dr + ' songs'
-              return
-            }
-          }
-          statusEl.textContent = allNodes.length + ' genres'
+        // if a genre node is selected, delegate to updateNetworkStatus so its
+        // text recomputes without the released country (and with the current
+        // decade range) — mirrors the delegation in the country branch below
+        if (activeSelection && activeSelection.type === 'node') {
+          updateNetworkStatus(activeSelection.nodeId)
+          return
         }
+        // check decade-only
+        if (dr) {
+          var activeGenres = typeof window.getActiveGenresForDim === 'function'
+            ? window.getActiveGenresForDim() : null
+          if (activeGenres) {
+            var n = Object.keys(activeGenres).length
+            statusEl.textContent = n + ' ' + (n === 1 ? 'genre' : 'genres') + ' with ' + dr + ' songs'
+            return
+          }
+        }
+        statusEl.textContent = allNodes.length + ' genres'
         return
       }
       // if a genre node is selected, delegate to updateNetworkStatus
