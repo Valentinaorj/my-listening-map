@@ -42,6 +42,11 @@
           <span class="win-titlebar-text">map</span>
           <span class="win-titlebar-meta" id="map-status">loading...</span>
           <button class="panel-reset-btn" id="map-reset-btn">reset</button>
+          <div class="win-ctrl-btn-right">
+            <button class="win-ctrl-btn" id="map-btn-min"     title="minimize">−</button>
+            <button class="win-ctrl-btn" id="map-btn-restore" title="restore">❐</button>
+            <button class="win-ctrl-btn" id="map-btn-max"     title="maximize">□</button>
+          </div>
         </div>
         <div id="map"></div>
         <div id="map-tooltip"></div>
@@ -53,6 +58,11 @@
           <span class="win-titlebar-text">genre network</span>
           <span class="win-titlebar-meta" id="network-status">loading...</span>
           <button class="panel-reset-btn" id="network-reset-btn">reset</button>
+          <div class="win-ctrl-btn-right">
+            <button class="win-ctrl-btn" id="network-btn-min"     title="minimize">−</button>
+            <button class="win-ctrl-btn" id="network-btn-restore" title="restore">❐</button>
+            <button class="win-ctrl-btn" id="network-btn-max"     title="maximize">□</button>
+          </div>
         </div>
         <div id="network-container">
           <svg id="network-svg"></svg>
@@ -115,6 +125,9 @@
 
     </div><!-- end viz-column -->
 
+    <!-- COLUMN RESIZER -->
+    <div id="col-resizer"></div>
+
     <!-- RIGHT COLUMN: songs panel only -->
     <div id="songs-column">
 
@@ -161,12 +174,19 @@
         <!-- SONGS COUNT (always visible below table) -->
         <div class="songs-footer" id="songs-footer"></div>
 
+        <!-- COPY TOAST -->
+        <div id="copy-toast">copied to clipboard</div>
+
         <!-- DECADE RANGE FILTER -->
         <div id="decade-filter">
           <div id="decade-filter-header">
             <span class="win-titlebar-text">decades</span>
             <span class="win-titlebar-meta" id="decade-range-label"></span>
             <button id="decade-reset" title="reset decade filter">reset</button>
+            <div class="win-ctrl-btn-right">
+              <button class="win-ctrl-btn" id="decade-btn-min"     title="minimize">−</button>
+              <button class="win-ctrl-btn" id="decade-btn-restore" title="restore">❐</button>
+            </div>
           </div>
           <div id="decade-slider-wrap">
             <div id="decade-track">
@@ -192,5 +212,10 @@
 
   <script src="network.js"></script>
   <script src="app.js"></script>
+
+  <!-- COPY TOAST -->
+  <div id="copy-toast">copied to clipboard</div>
+  <!-- BUTTON TOOLTIP -->
+  <div id="btn-tooltip"></div>
 </body>
 </html>

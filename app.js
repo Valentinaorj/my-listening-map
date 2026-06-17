@@ -2,6 +2,9 @@
 //  my listening map — app.js
 // ============================================
 
+// ── ICONS ──
+var COPY_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><rect x="3.5" y="0.5" width="7" height="7"/><rect x="0.5" y="3.5" width="7" height="7"/></svg>'
+
 // ── STATE ──
 var allTracks     = []
 var mapFilter     = null   // { type: 'country', value: 'Colombia' }
@@ -52,6 +55,42 @@ function esc(str) {
   return String(str)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+}
+
+// ── COPY TOAST ──
+var _toastTimer = null
+function showCopyToast(x, y) {
+  var toast = document.getElementById('copy-toast')
+  if (!toast) return
+  // position near cursor, offset so it doesn't sit under the pointer
+  toast.style.left = (x + 14) + 'px'
+  toast.style.top  = (y - 32) + 'px'
+  toast.classList.add('visible')
+  clearTimeout(_toastTimer)
+  _toastTimer = setTimeout(function() {
+    toast.classList.remove('visible')
+  }, 1500)
+}
+
+// ── BUTTON TOOLTIP ──
+var _tooltipTimer = null
+function showBtnTooltip(text, x, y) {
+  var tip = document.getElementById('btn-tooltip')
+  if (!tip) return
+  tip.textContent = text
+  tip.style.left  = (x + 14) + 'px'
+  tip.style.top   = (y - 32) + 'px'
+  clearTimeout(_tooltipTimer)
+  _tooltipTimer = setTimeout(function() {
+    tip.classList.add('visible')
+  }, 1000)
+}
+
+function hideBtnTooltip() {
+  var tip = document.getElementById('btn-tooltip')
+  if (!tip) return
+  clearTimeout(_tooltipTimer)
+  tip.classList.remove('visible')
 }
 
 // ── SORT ──
@@ -234,12 +273,12 @@ function renderTable() {
     var genre     = esc(s['Main Genre']     || '—')
     var influence = esc(s['Influence Genre']|| '—')
     var country   = esc((s['Artist Country']|| '—').split(';')[0].trim())
-    var ytUrl     = s['YouTube URL'] ? s['YouTube URL'].trim() : ''
-    var playBtn   = ytUrl
-      ? '<a class="yt-play-btn" href="' + esc(ytUrl) + '" target="_blank" rel="noopener" title="open on YouTube">▶</a>'
-      : ''
+    var ytUrl     = s['YouTube URL'] || ''
+    var copyText  = esc((s['Track Name'] || '') + ' — ' + (s['Artist Name(s)'] || ''))
+    var ytBtn     = ytUrl ? '<a class="yt-play-btn" href="' + ytUrl + '" target="_blank" rel="noopener" aria-label="open in youtube" title="" tabindex="-1">▶</a>' : ''
+    var copyBtn   = '<button class="copy-btn" data-copy="' + copyText + '" aria-label="copy song and artist" title="" tabindex="-1">' + COPY_ICON + '</button>'
     return '<tr>' +
-      '<td class="col-fixed col-title" title="' + title + '">' + title + playBtn + '</td>' +
+      '<td class="col-fixed col-title" title="' + title + '">' + title + copyBtn + ytBtn + '</td>' +
       '<td class="col-artist" title="' + artist + '">' + artist + '</td>' +
       '<td class="col-year">' + year + '</td>' +
       (showInfluence
@@ -483,12 +522,12 @@ window.filterSongsRaw = function(label, songs, filterType) {
     var year      = (s['Release Date'] || '').slice(0,4) || '—'
     var influence = esc(s['Influence Genre']|| '—')
     var country   = esc((s['Artist Country']|| '—').split(';')[0].trim())
-    var ytUrl     = s['YouTube URL'] ? s['YouTube URL'].trim() : ''
-    var playBtn   = ytUrl
-      ? '<a class="yt-play-btn" href="' + esc(ytUrl) + '" target="_blank" rel="noopener" title="open on YouTube">▶</a>'
-      : ''
+    var ytUrl     = s['YouTube URL'] || ''
+    var copyText  = esc((s['Track Name'] || '') + ' — ' + (s['Artist Name(s)'] || ''))
+    var ytBtn     = ytUrl ? '<a class="yt-play-btn" href="' + ytUrl + '" target="_blank" rel="noopener" aria-label="open in youtube" title="" tabindex="-1">▶</a>' : ''
+    var copyBtn   = '<button class="copy-btn" data-copy="' + copyText + '" aria-label="copy song and artist" title="" tabindex="-1">' + COPY_ICON + '</button>'
     return '<tr>' +
-      '<td class="col-fixed col-title" title="' + title + '">' + title + playBtn + '</td>' +
+      '<td class="col-fixed col-title" title="' + title + '">' + title + copyBtn + ytBtn + '</td>' +
       '<td class="col-artist" title="' + artist + '">' + artist + '</td>' +
       '<td class="col-year">' + year + '</td>' +
       '<td class="col-influence" title="' + influence + '">' + influence + '</td>' +
@@ -1051,6 +1090,48 @@ document.addEventListener('DOMContentLoaded', function() {
   var resetAllBtn = document.getElementById('reset-all-btn')
   if (resetAllBtn) resetAllBtn.addEventListener('click', resetAll)
 
+  // ── COPY BUTTON (delegated) ──
+  var songsTbody = document.getElementById('songs-tbody')
+  if (songsTbody) {
+    songsTbody.addEventListener('click', function(e) {
+      var btn = e.target.closest('.copy-btn')
+      if (!btn) return
+      e.preventDefault()
+      e.stopPropagation()
+      var text = btn.getAttribute('data-copy') || ''
+      // unescape HTML entities that esc() put in data-copy
+      var tmp = document.createElement('textarea')
+      tmp.innerHTML = text
+      var plain = tmp.value
+      navigator.clipboard.writeText(plain).then(function() {
+        showCopyToast(e.clientX, e.clientY)
+      }).catch(function() {
+        // fallback for older browsers
+        tmp.style.position = 'fixed'
+        tmp.style.opacity  = '0'
+        document.body.appendChild(tmp)
+        tmp.select()
+        document.execCommand('copy')
+        document.body.removeChild(tmp)
+        showCopyToast(e.clientX, e.clientY)
+      })
+    })
+
+    // tooltip on copy/yt button hover (delegated)
+    songsTbody.addEventListener('mouseover', function(e) {
+      var btn = e.target.closest('.copy-btn, .yt-play-btn')
+      if (!btn) return
+      var label = btn.getAttribute('aria-label') || ''
+      showBtnTooltip(label, e.clientX, e.clientY)
+    })
+
+    songsTbody.addEventListener('mouseout', function(e) {
+      var btn = e.target.closest('.copy-btn, .yt-play-btn')
+      if (!btn) return
+      hideBtnTooltip()
+    })
+  }
+
   var navBackBtn = document.getElementById('nav-back')
   if (navBackBtn) navBackBtn.addEventListener('click', navBack)
 
@@ -1075,6 +1156,116 @@ document.addEventListener('DOMContentLoaded', function() {
     applyAllDims()
     renderTable()
     navPush()
+  })
+
+  // ── VIZ PANEL EXPAND / COLLAPSE ──
+  // States: 'normal' | 'map-maximized' | 'network-maximized'
+  var vizState = 'normal'
+
+  function setVizState(newState) {
+    vizState = newState
+    var col = document.getElementById('viz-column')
+    col.classList.remove('map-maximized', 'network-maximized')
+    if (newState === 'map-maximized')     col.classList.add('map-maximized')
+    if (newState === 'network-maximized') col.classList.add('network-maximized')
+
+    // update button disabled states
+    // map buttons
+    document.getElementById('map-btn-min').disabled     = (newState === 'network-maximized') // map already collapsed
+    document.getElementById('map-btn-restore').disabled = (newState === 'normal')
+    document.getElementById('map-btn-max').disabled     = (newState === 'map-maximized')
+    // network buttons
+    document.getElementById('network-btn-min').disabled     = (newState === 'map-maximized') // network already collapsed
+    document.getElementById('network-btn-restore').disabled = (newState === 'normal')
+    document.getElementById('network-btn-max').disabled     = (newState === 'network-maximized')
+
+    // Leaflet and D3 need to know about the resize
+    setTimeout(function() {
+      if (window._leafletMap) window._leafletMap.invalidateSize()
+      if (typeof window.resizeNetworkSvg === 'function') window.resizeNetworkSvg()
+    }, 50)
+  }
+
+  // initialize button states
+  setVizState('normal')
+
+  document.getElementById('map-btn-min').addEventListener('click', function() {
+    // minimizing map → network takes everything
+    setVizState('network-maximized')
+  })
+  document.getElementById('map-btn-restore').addEventListener('click', function() {
+    setVizState('normal')
+  })
+  document.getElementById('map-btn-max').addEventListener('click', function() {
+    setVizState('map-maximized')
+  })
+
+  document.getElementById('network-btn-min').addEventListener('click', function() {
+    // minimizing network → map takes everything
+    setVizState('map-maximized')
+  })
+  document.getElementById('network-btn-restore').addEventListener('click', function() {
+    setVizState('normal')
+  })
+  document.getElementById('network-btn-max').addEventListener('click', function() {
+    setVizState('network-maximized')
+  })
+
+  // ── DECADE MINIMIZE ──
+  var decadeEl      = document.getElementById('decade-filter')
+  var decadeMinBtn  = document.getElementById('decade-btn-min')
+  var decadeRestBtn = document.getElementById('decade-btn-restore')
+
+  function setDecadeState(minimized) {
+    if (minimized) {
+      decadeEl.classList.add('minimized')
+      decadeMinBtn.disabled  = true
+      decadeRestBtn.disabled = false
+    } else {
+      decadeEl.classList.remove('minimized')
+      decadeMinBtn.disabled  = false
+      decadeRestBtn.disabled = true
+    }
+  }
+
+  setDecadeState(false) // initial state: normal (restore disabled)
+  decadeMinBtn.addEventListener('click',  function() { setDecadeState(true)  })
+  decadeRestBtn.addEventListener('click', function() { setDecadeState(false) })
+
+  // ── COLUMN RESIZER ──
+  var resizer    = document.getElementById('col-resizer')
+  var songsCol   = document.getElementById('songs-column')
+  var minSongsW  = 260
+  var maxSongsFr = 0.60  // max 60% of viewport
+
+  resizer.addEventListener('mousedown', function(e) {
+    e.preventDefault()
+    resizer.classList.add('dragging')
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+
+    function onMove(e) {
+      var vw        = document.documentElement.clientWidth
+      var maxW      = Math.floor(vw * maxSongsFr)
+      // songs column is on the right; its width = viewport right edge minus cursor x
+      var newW      = Math.max(minSongsW, Math.min(maxW, vw - e.clientX))
+      songsCol.style.width = newW + 'px'
+      // Leaflet needs invalidateSize after layout change
+      if (window._leafletMap) window._leafletMap.invalidateSize()
+    }
+
+    function onUp() {
+      resizer.classList.remove('dragging')
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup',   onUp)
+      if (window._leafletMap) window._leafletMap.invalidateSize()
+      if (typeof window.resizeNetworkSvg === 'function') window.resizeNetworkSvg()
+    }
+
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup',   onUp)
   })
 
   var mapResetBtn = document.getElementById('map-reset-btn')
