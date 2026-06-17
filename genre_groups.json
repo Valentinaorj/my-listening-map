@@ -1,0 +1,404 @@
+{
+  "african-global-roots > afrobeat": [
+    "afrobeat",
+    "afropop"
+  ],
+  "reggae": [
+    "reggae",
+    "roots reggae",
+    "ragga",
+    "lovers rock",
+    "rocksteady",
+    "libyan reggae",
+    "dub"
+  ],
+  "trova": [
+    "trova",
+    "nueva trova"
+  ],
+  "cumbia": [
+    "cumbia",
+    "cumbia pop",
+    "cumbia sonidera",
+    "cumbia digital",
+    "electrocumbia",
+    "chicha"
+  ],
+  "reggaeton": [
+    "reggaeton",
+    "reggaeton chileno"
+  ],
+  "classical": [
+    "classical",
+    "classical piano",
+    "contemporary classical",
+    "japanese classical",
+    "neo-classical",
+    "neoclassical"
+  ],
+  "experimental": [
+    "experimental",
+    "avant-garde",
+    "acousmatic",
+    "colombian experimental"
+  ],
+  "new age": [
+    "new age",
+    "space music"
+  ],
+  "orchestra": [
+    "orchestra",
+    "chamber music",
+    "choral"
+  ],
+  "electronic": [
+    "hi-nrg",
+    "eurodance",
+    "house",
+    "melodic house",
+    "french house",
+    "dreamy electronic",
+    "electronic",
+    "electronica latina",
+    "lo-fi",
+    "coldwave",
+    "chillwave",
+    "ambient",
+    "breakbeat",
+    "gqom",
+    "indie dance",
+    "jungle",
+    "cosmic disco",
+    "elektronische musik",
+    "techno",
+    "idm",
+    "stutter house",
+    "uk garage"
+  ],
+  "synthpop": [
+    "synthpop",
+    "electropop"
+  ],
+  "trip hop": [
+    "trip hop",
+    "downtempo"
+  ],
+  "country": [
+    "country",
+    "alternative country",
+    "americana"
+  ],
+  "devotional": [
+    "devotional",
+    "qawwali"
+  ],
+  "flamenco": [
+    "flamenco",
+    "flamenco pop",
+    "flamenco urbano",
+    "rumba flamenca"
+  ],
+  "folk": [
+    "folk",
+    "dark folk",
+    "dreamy folk",
+    "alternative folk",
+    "progressive folk",
+    "folk español",
+    "galician folk",
+    "sahelian folk",
+    "eurasian folk",
+    "lebanese folk",
+    "african folk",
+    "psychedelic folk",
+    "acid-folk",
+    "folk latino"
+  ],
+  "hip hop": [
+    "hip hop",
+    "old school hip hop",
+    "east coast hip hop",
+    "west coast hip hop",
+    "alternative hip hop",
+    "experimental hip hop",
+    "rap",
+    "gangster rap",
+    "hardcore hip hop",
+    "german hip hop",
+    "hip hop italiano",
+    "arabic hip hop",
+    "boom bap",
+    "j-rap",
+    "hip hop latino",
+    "brazilian hip hop"
+  ],
+  "instrumental hip hop": [
+    "instrumental hip hop",
+    "jazz hop"
+  ],
+  "big band": [
+    "big band",
+    "swing music"
+  ],
+  "jazz": [
+    "jazz",
+    "nu jazz",
+    "cool jazz",
+    "free jazz",
+    "indie jazz",
+    "latin jazz",
+    "soul jazz",
+    "bebop",
+    "hard bop",
+    "jazz fusion",
+    "jazz funk",
+    "jazz house",
+    "jazz rap",
+    "acid jazz",
+    "jazz latino",
+    "french jazz",
+    "ethiopian jazz",
+    "vocal jazz",
+    "electro swing",
+    "ragtime",
+    "smooth jazz",
+    "motown",
+    "doo-wop",
+    "brazilian jazz"
+  ],
+  "lounge": [
+    "lounge",
+    "exotica"
+  ],
+  "hard rock": [
+    "hard rock",
+    "alternative metal",
+    "drone metal"
+  ],
+  "punk": [
+    "punk",
+    "proto-punk",
+    "post-punk",
+    "punk latino",
+    "ska punk"
+  ],
+  "ska": [
+    "ska latino",
+    "mexican ska",
+    "ska"
+  ],
+  "blues": [
+    "blues",
+    "modern blues",
+    "soul blues",
+    "jazz blues"
+  ],
+  "disco": [
+    "disco",
+    "nu disco"
+  ],
+  "funk": [
+    "funk",
+    "funk rock",
+    "afro funk",
+    "afro soul",
+    "moroccan funk"
+  ],
+  "r&b": [
+    "r&b",
+    "alternative r&b",
+    "uk r&b",
+    "j-r&b",
+    "new jack swing",
+    "quiet storm",
+    "r&b latino"
+  ],
+  "soul": [
+    "soul",
+    "neo-soul",
+    "neo soul",
+    "retro soul",
+    "classic soul",
+    "northern soul",
+    "blue-eyed soul"
+  ],
+  "candombe": [
+    "candombe"
+  ],
+  "bullerengue": [
+    "bullerengue"
+  ],
+  "currulao": [
+    "currulao"
+  ],
+  "andina": [
+    "folclor andino",
+    "native american music",
+    "ranchera",
+    "carranga",
+    "guasca",
+    "villancicos"
+  ],
+  "samba y bossa": [
+    "samba",
+    "bossa nova"
+  ],
+  "mpb": [
+    "mpb",
+    "nova mpb",
+    "brasileira"
+  ],
+  "forró": [
+    "forró"
+  ],
+  "bolero": [
+    "bolero"
+  ],
+  "classical-experimental": [
+    "baroque pop",
+    "opera",
+    "medieval",
+    "minimalism",
+    "musical theater",
+    "requiem"
+  ],
+  "pop": [
+    "alternative pop",
+    "neo-psychedelic",
+    "pop rock",
+    "bedroom pop",
+    "shibuya-kei",
+    "schlager",
+    "french pop",
+    "british pop",
+    "c-pop",
+    "kayokyoku",
+    "nederpop",
+    "city pop",
+    "pop",
+    "indie pop",
+    "art pop",
+    "acoustic pop",
+    "dreamy pop",
+    "dream pop",
+    "pop latino",
+    "pop acustico",
+    "jangle pop",
+    "britpop",
+    "egyptian pop",
+    "maghreb pop"
+  ],
+  "rock": [
+    "alternative rock",
+    "psychedelic rock",
+    "progressive rock",
+    "rock and roll",
+    "darkwave",
+    "indie rock",
+    "classic rock",
+    "garage rock",
+    "art rock",
+    "new wave",
+    "glam rock",
+    "folk rock",
+    "madchester",
+    "blues rock",
+    "grunge",
+    "reggae rock",
+    "rock latino",
+    "rock español",
+    "argentine rock",
+    "indie latino",
+    "mexican rock",
+    "mexican indie",
+    "heavy metal"
+  ],
+  "indigenous": [
+    "indigenous colombian music",
+    "indigenous cuban music"
+  ],
+  "european vocal": [
+    "chanson",
+    "fado",
+    "chanson haïtienne",
+    "canzone italiana"
+  ],
+  "european diaspora": [
+    "balkan",
+    "cajun inspired",
+    "georgian polyphonic",
+    "klezmer",
+    "european immigrant music"
+  ],
+  "west african roots": [
+    "african percussion",
+    "jaliya tradition",
+    "guinean ceremonial music",
+    "shona mbira",
+    "west african pentatonic"
+  ],
+  "spanish music": [
+    "spanish music"
+  ],
+  "soukous": [
+    "soukous"
+  ],
+  "contemporary maloya": [
+    "contemporary maloya"
+  ],
+  "vallenato": [
+    "vallenato"
+  ],
+  "cuarteto": [
+    "cuarteto"
+  ],
+  "porro": [
+    "porro"
+  ],
+  "bambuco": [
+    "bambuco"
+  ],
+  "gnawa": [
+    "gnawa"
+  ],
+  "tuareg": [
+    "tuareg music"
+  ],
+  "dancehall": [
+    "dancehall"
+  ],
+  "champeta": [
+    "champeta"
+  ],
+  "punta": [
+    "punta"
+  ],
+  "tango": [
+    "tango"
+  ],
+  "murga": [
+    "murga"
+  ],
+  "salsa": [
+    "salsa"
+  ],
+  "mambo": [
+    "mambo"
+  ],
+  "bachata": [
+    "bachata"
+  ],
+  "merengue": [
+    "merengue"
+  ],
+  "mizrahi": [
+    "mizrahi"
+  ],
+  "tuvan": [
+    "tuvan"
+  ],
+  "son": [
+    "son jarocho",
+    "son cubano"
+  ]
+}
