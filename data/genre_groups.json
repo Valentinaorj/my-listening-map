@@ -1,5 +1,5 @@
 {
-  "african-global-roots > afrobeat": [
+  "afrobeat": [
     "afrobeat",
     "afropop"
   ],
@@ -313,10 +313,6 @@
     "mexican indie",
     "heavy metal"
   ],
-  "indigenous": [
-    "indigenous colombian music",
-    "indigenous cuban music"
-  ],
   "european vocal": [
     "chanson",
     "fado",
@@ -337,9 +333,6 @@
     "shona mbira",
     "west african pentatonic"
   ],
-  "spanish music": [
-    "spanish music"
-  ],
   "soukous": [
     "soukous"
   ],
@@ -354,9 +347,6 @@
   ],
   "porro": [
     "porro"
-  ],
-  "bambuco": [
-    "bambuco"
   ],
   "gnawa": [
     "gnawa"

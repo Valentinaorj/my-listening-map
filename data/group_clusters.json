@@ -1,0 +1,86 @@
+{
+  "african": [
+    "reggae",
+    "gnawa",
+    "afrobeat",
+    "west african roots",
+    "soukous",
+    "tuareg",
+    "contemporary maloya",
+    "mizrahi"
+  ],
+  "afroamerican": [
+    "candombe",
+    "murga",
+    "bullerengue",
+    "currulao",
+    "tango",
+    "mpb",
+    "samba y bossa",
+    "forró"
+  ],
+  "latin": [
+    "andina",
+    "bolero",
+    "trova",
+    "son"
+  ],
+  "caribean": [
+    "cumbia",
+    "reggaeton",
+    "salsa",
+    "dancehall",
+    "merengue",
+    "vallenato",
+    "champeta",
+    "mambo",
+    "cuarteto",
+    "punta",
+    "bachata",
+    "porro"
+  ],
+  "classical-experimental": [
+    "classical",
+    "classical-experimental",
+    "experimental",
+    "orchestra",
+    "new age"
+  ],
+  "pop and electronic": [
+    "electronic",
+    "trip hop",
+    "synthpop",
+    "pop"
+  ],
+  "folk": [
+    "folk",
+    "european vocal",
+    "flamenco",
+    "country",
+    "devotional",
+    "european diaspora",
+    "tuvan"
+  ],
+  "hip-hop": [
+    "hip hop",
+    "instrumental hip hop"
+  ],
+  "jazz": [
+    "jazz",
+    "big band",
+    "lounge"
+  ],
+  "rock": [
+    "rock",
+    "punk",
+    "hard rock",
+    "ska"
+  ],
+  "soul-rnb-funk": [
+    "soul",
+    "r&b",
+    "blues",
+    "disco",
+    "funk"
+  ]
+}

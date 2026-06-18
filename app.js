@@ -192,12 +192,20 @@ function getFilteredTracks() {
     })
   }
 
-  // network filter (genre)
+  // network filter (genre or genre-group)
   if (networkFilter) {
-    var genre = networkFilter.value
-    tracks = tracks.filter(function(s) {
-      return (s['Main Genre'] || '').trim().toLowerCase() === genre.toLowerCase()
-    })
+    if (networkFilter.type === 'genre-group' && Array.isArray(networkFilter.children)) {
+      var childSet = {}
+      networkFilter.children.forEach(function(c) { childSet[c.toLowerCase()] = true })
+      tracks = tracks.filter(function(s) {
+        return childSet[(s['Main Genre'] || '').trim().toLowerCase()]
+      })
+    } else {
+      var genre = networkFilter.value
+      tracks = tracks.filter(function(s) {
+        return (s['Main Genre'] || '').trim().toLowerCase() === genre.toLowerCase()
+      })
+    }
   }
 
   // decade range — skip if full range selected
@@ -301,9 +309,18 @@ function applyMapDim() {
   // countries active under network filter (within decade range)
   var networkActiveCountries = null
   if (networkFilter) {
-    var nTracks = pool.filter(function(s) {
-      return (s['Main Genre'] || '').trim().toLowerCase() === networkFilter.value.toLowerCase()
-    })
+    var nTracks
+    if (networkFilter.type === 'genre-group' && Array.isArray(networkFilter.children)) {
+      var childSet = {}
+      networkFilter.children.forEach(function(c) { childSet[c.toLowerCase()] = true })
+      nTracks = pool.filter(function(s) {
+        return childSet[(s['Main Genre'] || '').trim().toLowerCase()]
+      })
+    } else {
+      nTracks = pool.filter(function(s) {
+        return (s['Main Genre'] || '').trim().toLowerCase() === networkFilter.value.toLowerCase()
+      })
+    }
     networkActiveCountries = {}
     nTracks.forEach(function(s) {
       if (!s['Artist Country']) return
@@ -401,7 +418,7 @@ function updateMapStatus() {
   var dRange     = formatDecadeRange()
   var hasDecade  = dRange !== 'all'
   var hasCountry = !!mapFilter
-  var hasGenre   = !!(networkFilter && networkFilter.type === 'genre')
+  var hasGenre   = !!(networkFilter && (networkFilter.type === 'genre' || networkFilter.type === 'genre-group'))
 
   // helper: count countries active in a given track pool
   function countActiveCountries(pool) {
@@ -450,8 +467,13 @@ function updateMapStatus() {
     var genre = networkFilter.value
     var pool  = decadeFilteredTracks()
     var activeCountries = {}
+    var isGroup = networkFilter.type === 'genre-group' && Array.isArray(networkFilter.children)
+    var childSet = {}
+    if (isGroup) networkFilter.children.forEach(function(c) { childSet[c.toLowerCase()] = true })
     pool.forEach(function(s) {
-      if ((s['Main Genre'] || '').trim().toLowerCase() !== genre.toLowerCase()) return
+      var sg = (s['Main Genre'] || '').trim().toLowerCase()
+      var match = isGroup ? childSet[sg] : (sg === genre.toLowerCase())
+      if (!match) return
       if (!s['Artist Country']) return
       s['Artist Country'].split('; ').forEach(function(c) { if (c.trim()) activeCountries[c.trim()] = true })
     })
@@ -488,6 +510,16 @@ window.filterSongs = function(type, value) {
   } else {
     networkFilter = { type: type, value: value }
   }
+  applyMapDim()
+  renderTable()
+  updateMapStatus()
+  navPush()
+}
+
+// ── MULTI-GENRE FILTER (called by network.js when a group node is clicked) ──
+window.filterSongsMulti = function(type, groupLabel, childIds) {
+  if (!allTracks.length) return
+  networkFilter = { type: 'genre-group', value: groupLabel, children: childIds }
   applyMapDim()
   renderTable()
   updateMapStatus()
