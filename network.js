@@ -40,7 +40,7 @@
   // subgenre edges are excluded entirely
   var EDGE_STYLES = {
     'origin':    { color: 'rgba(255,255,255,0.55)', dash: null,  width: 1.5 },
-    'influence': { color: 'rgba(255,255,255,0.25)', dash: '2,3', width: 1   },
+    'influence': { color: 'rgba(255,255,255,0.5)', dash: '2,3', width: 1   },
   }
 
   // ── STATE ──
@@ -67,9 +67,7 @@
   var collapsedNodes = []   // groupNodes only
   var collapsedEdges = []   // merged inter-group edges (no subgenre)
 
-  // expanded view datasets for the currently expanded group
-  var expandedChildNodes = []
-  var expandedChildEdges = []
+  // expanded view datasets — now managed as injectedChildNodes/Edges inside expandGroup
 
   // D3 selections
   var nodeSelection    = null
@@ -78,10 +76,10 @@
   var zoomBehavior     = null
   var svgSelection     = null
   var gSelection       = null  // the top-level <g> inside svg
+  var nodeLayerG       = null  // the <g> that contains all group node elements
   var networkContainer = null
   var updateNetworkStatus = null
   var simCollapsed     = null  // force simulation for collapsed view
-  var simExpanded      = null  // force simulation for expanded group
 
   // ── PARSE CSV ──
   function parseCSV(text) {
@@ -162,26 +160,52 @@
     if (!nodeSelection || !activeSelection) return
 
     if (activeSelection.type === 'group') {
-      // dim everything except the expanded group's nodes
       var groupId = activeSelection.groupId
+      var connectedToGroup = activeSelection.connectedToGroup || (function() {
+        var s = new Set()
+        injectedChildEdges.forEach(function(ce) {
+          if (ce._isDiamondEdge) return
+          if (!ce.source.isChildNode && !ce.source.isPeekNode) s.add(ce.source.id)
+          if (!ce.target.isChildNode && !ce.target.isPeekNode) s.add(ce.target.id)
+        })
+        return s
+      })()
       nodeSelection.style('opacity', function(n) {
-        return (n.id === groupId || n.groupParent === groupId) ? 1 : 0.08
+        if (n.id === groupId) return null  // diamond; don't override
+        return connectedToGroup.has(n.id) ? 1 : 0.08
       })
       linkVisSelection.style('opacity', function(l) {
-        var srcIn = l.source.id === groupId || l.source.groupParent === groupId
-        var tgtIn = l.target.id === groupId || l.target.groupParent === groupId
-        return (srcIn || tgtIn) ? 1 : 0.03
+        if (l.source.id === groupId || l.target.id === groupId) return 'none'
+        return 0.03
       })
+      if (childSelection) childSelection.style('opacity', 1)
+      // Re-apply external edge dim
+      var extEdgeSel = gSelection ? gSelection.selectAll('line.external-edge') : null
+      if (extEdgeSel) {
+        extEdgeSel.style('opacity', function(d) {
+          var srcIsGroupNode = !d.source.isChildNode && !d.source.isPeekNode && !d.source.isEponymous
+          var tgtIsGroupNode = !d.target.isChildNode && !d.target.isPeekNode && !d.target.isEponymous
+          if (srcIsGroupNode && !connectedToGroup.has(d.source.id)) return 0.03
+          if (tgtIsGroupNode && !connectedToGroup.has(d.target.id)) return 0.03
+          return null
+        })
+      }
       return
     }
 
     if (activeSelection.type === 'node') {
-      var id      = activeSelection.nodeId
-      var conns   = adj[id] || []
-      var connIds = new Set([id].concat(conns))
-      nodeSelection.style('opacity', function(n) { return connIds.has(n.id) ? 1 : 0.08 })
+      var id = activeSelection.nodeId
+      // Map fine-grained adj neighbors to group labels for collapsed node dimming
+      var fineConns = adj[id] || []
+      var groupLabel = childToGroup[id] || id
+      var connectedGroupLabels = new Set([groupLabel])
+      fineConns.forEach(function(neighborId) {
+        var g = childToGroup[neighborId] || neighborId
+        connectedGroupLabels.add(g)
+      })
+      nodeSelection.style('opacity', function(n) { return connectedGroupLabels.has(n.id) ? 1 : 0.08 })
       linkVisSelection.style('opacity', function(l) {
-        return (l.source.id === id || l.target.id === id) ? 1 : 0.03
+        return (connectedGroupLabels.has(l.source.id) && connectedGroupLabels.has(l.target.id)) ? 1 : 0.03
       })
     }
 
@@ -296,38 +320,6 @@
         target: tg,
         type:   seen[key],
         weight: 1
-      })
-    })
-  }
-
-  function buildExpandedEdgesForGroup(label) {
-    // Returns the fine-grained edges (non-subgenre) between children of this group
-    // plus edges from children to other group nodes (for context)
-    var children = new Set(groupDefs[label] || [])
-    expandedChildEdges = []
-    var seen = {}
-
-    allEdges.forEach(function(e) {
-      if (e.type === 'subgenre') return
-      var srcInGroup = children.has(e.source)
-      var tgtInGroup = children.has(e.target)
-      // only edges where at least one endpoint is a child of this group
-      if (!srcInGroup && !tgtInGroup) return
-
-      var key = e.source + '|||' + e.target
-      if (seen[key]) return
-      seen[key] = true
-
-      // resolve endpoints: children are real nodes; outsiders are group parent nodes
-      var srcNode = srcInGroup ? nodeById[e.source] : groupNodeById[childToGroup[e.source]]
-      var tgtNode = tgtInGroup ? nodeById[e.target] : groupNodeById[childToGroup[e.target]]
-      if (!srcNode || !tgtNode) return
-
-      expandedChildEdges.push({
-        source: srcNode,
-        target: tgtNode,
-        type:   e.type,
-        weight: e.weight
       })
     })
   }
@@ -858,7 +850,37 @@
     panel.appendChild(body)
   }
 
+  // ── EDGE LIST HTML (used in node hover tooltips) ──
+  function edgeListHTML(incoming, outgoing) {
+    if (!incoming.length && !outgoing.length) return ''
+
+    var sections = [
+      { label: 'gave origin to',  items: outgoing.filter(function(c) { return c.type === 'origin' }) },
+      { label: 'originated from', items: incoming.filter(function(c) { return c.type === 'origin' }) },
+      { label: 'influences',      items: outgoing.filter(function(c) { return c.type === 'influence' }) },
+      { label: 'influenced by',   items: incoming.filter(function(c) { return c.type === 'influence' }) },
+    ]
+
+    var html = '<div style="margin-top:6px;border-top:1px solid rgba(255,255,255,0.1);padding-top:5px;font-size:11px;max-width:200px">'
+    sections.forEach(function(s) {
+      if (!s.items.length) return
+      html += '<div style="opacity:0.4;letter-spacing:0.04em;margin-top:5px">' + s.label + '</div>'
+      s.items.forEach(function(c) {
+        html += '<div style="opacity:0.8;padding-left:6px;margin-top:1px">→ ' + c.id + '</div>'
+      })
+    })
+    html += '</div>'
+    return html
+  }
+
   // ── EXPAND / COLLAPSE GROUP ──
+  // expanded child nodes currently injected into simCollapsed
+  var injectedChildNodes = []
+  var injectedChildEdges = []
+  var childSelection     = null  // d3 selection for child node <g> elements
+  var childEdgeSelection = null  // d3 selection for child edge <line> elements
+  var diamondOverlay     = null  // d3 selection for the diamond shape on the group node
+
   function expandGroup(label) {
     if (!gSelection) return
     var gn = groupNodeById[label]
@@ -875,176 +897,528 @@
     var isSolo   = children.length <= 1
 
     if (isSolo) {
-      // solo group: just filter songs, no visual expansion
+      // solo group: filter songs + dim unconnected group nodes
       var childId = children[0] || label
       var cn      = nodeById[childId]
       if (cn && cn.song_count > 0 && typeof window.filterSongs === 'function') {
         window.filterSongs('genre', childId)
       }
       expandedGroup = null
-      if (updateNetworkStatus) updateNetworkStatus(null)
+
+      // Build set of connected group labels via collapsed edges
+      var connectedGroups = new Set([label])
+      collapsedEdges.forEach(function(ce) {
+        if (ce.source.id === label) connectedGroups.add(ce.target.id)
+        if (ce.target.id === label) connectedGroups.add(ce.source.id)
+      })
+
+      activeSelection = { type: 'node', nodeId: childId }
+      nodeSelection.style('opacity', function(d) {
+        return connectedGroups.has(d.id) ? 1 : 0.08
+      })
+      linkVisSelection.style('opacity', function(l) {
+        return (l.source.id === label || l.target.id === label) ? 1 : 0.03
+      })
+
+      if (updateNetworkStatus) updateNetworkStatus(childId)
       return
     }
 
-    // multi-child: filter songs for all children combined
+    // ── MULTI-CHILD EXPAND ──
+
+    // Filter songs for all children combined
     if (typeof window.filterSongsGroup === 'function') {
       window.filterSongsGroup(label, children)
     }
 
-    // build child nodes with positions radiating from group parent
-    expandedChildNodes = children.map(function(cid, i) {
+    // Pin the group node position as anchor reference
+    gn.fx = gn.x
+    gn.fy = gn.y
+
+    // Detect eponymous child (a child whose id matches the group label exactly)
+    var eponymousId   = children.indexOf(label) !== -1 ? label : null
+    var anchorIsChild = eponymousId !== null  // true = use child node as anchor, false = use diamond
+
+    // Hide group node circle and label in both cases
+    var gnSel = nodeSelection.filter(function(d) { return d.id === label })
+    gnSel.selectAll('circle').style('display', 'none')
+    gnSel.select('text').style('display', 'none')
+
+    if (!anchorIsChild) {
+      // No eponymous child — render small diamond on the group node
+      var ds = 8
+      diamondOverlay = gnSel.append('polygon')
+        .attr('class', 'group-diamond')
+        .attr('points', '0,' + (-ds) + ' ' + ds + ',0 0,' + ds + ' ' + (-ds) + ',0')
+        .attr('fill', gn.color)
+        .attr('fill-opacity', 0.4)
+        .attr('stroke', '#475569')
+        .attr('stroke-width', 1)
+        .style('cursor', 'pointer')
+    } else {
+      // Eponymous child exists — fully hide group node (child takes its place)
+      gnSel.style('display', 'none')
+    }
+
+    // Build child nodes
+    injectedChildNodes = children.map(function(cid, i) {
       var base = nodeById[cid]
       if (!base) return null
+      var isEponymous = (cid === eponymousId)
+      // Eponymous child starts at anchor position; others radiate around it
       var angle  = (i / children.length) * 2 * Math.PI
-      var radius = gn.r * 2.5 + 40
+      var radius = gn.r * 2.2 + 35
       return Object.assign({}, base, {
-        x:  gn.x + radius * Math.cos(angle),
-        y:  gn.y + radius * Math.sin(angle),
+        x:  isEponymous ? gn.x : gn.x + radius * Math.cos(angle),
+        y:  isEponymous ? gn.y : gn.y + radius * Math.sin(angle),
         vx: 0, vy: 0,
-        groupParent: label,
-        isChildNode: true
+        fx: null, fy: null,
+        groupParent:  label,
+        isChildNode:  true,
+        isEponymous:  isEponymous,
+        color:        gn.color
       })
     }).filter(Boolean)
 
-    buildExpandedEdgesForGroup(label)
+    // ── BUILD EDGE SET ──
+    injectedChildEdges = []
+    var childSet = new Set(injectedChildNodes.map(function(n) { return n.id }))
+    var injectedById = {}
+    injectedChildNodes.forEach(function(n) { injectedById[n.id] = n })
 
-    // Re-resolve edge endpoints to use expanded child node objects
-    var expandedById = {}
-    expandedChildNodes.forEach(function(n) { expandedById[n.id] = n })
-    expandedChildEdges = expandedChildEdges.map(function(e) {
-      var src = expandedById[e.source.id] || e.source
-      var tgt = expandedById[e.target.id] || e.target
-      return { source: src, target: tgt, type: e.type, weight: e.weight }
+    // Anchor node: either the eponymous child or gn (the diamond)
+    var anchorNode = anchorIsChild ? injectedById[eponymousId] : gn
+
+    // Track which children have an incoming origin edge from another child
+    var hasIntraOriginParent = new Set()
+    // Track peek nodes: fine-grained external nodes to inject { id → nodeObj }
+    var peekNodeMap = {}  // fineId → injected peek node object
+
+    allEdges.forEach(function(e) {
+      if (e.type === 'subgenre') return
+      var srcIn = childSet.has(e.source)
+      var tgtIn = childSet.has(e.target)
+
+      if (srcIn && tgtIn) {
+        // Intra-group edge
+        var srcNode = injectedById[e.source]
+        var tgtNode = injectedById[e.target]
+        if (!srcNode || !tgtNode) return
+        injectedChildEdges.push({ source: srcNode, target: tgtNode, type: e.type, weight: e.weight })
+        if (e.type === 'origin') hasIntraOriginParent.add(e.target)
+
+      } else if (srcIn && !tgtIn) {
+        var srcNode      = injectedById[e.source]
+        var extBase      = nodeById[e.target]
+        var extGroup     = childToGroup[e.target]
+        var extGroupNode = extGroup ? groupNodeById[extGroup] : null
+        if (!srcNode || !extBase || !extGroupNode || extGroup === label) return
+
+        // If the external node IS the eponymous child of its group, the group bubble IS that node
+        var extIsEponymous = (e.target === extGroup)
+        var extIsSolo      = (groupDefs[extGroup] || []).length <= 1
+        if (extIsSolo || extIsEponymous) {
+          injectedChildEdges.push({ source: srcNode, target: extGroupNode, type: e.type, weight: e.weight, _isExternalEdge: true })
+        } else {
+          if (!peekNodeMap[e.target]) {
+            peekNodeMap[e.target] = Object.assign({}, extBase, {
+              x: extGroupNode.x, y: extGroupNode.y,
+              vx: 0, vy: 0, fx: null, fy: null,
+              isPeekNode: true,
+              peekGroupId: extGroup,
+              color: extGroupNode.color
+            })
+          }
+          var peekNode = peekNodeMap[e.target]
+          injectedChildEdges.push({ source: srcNode, target: peekNode, type: e.type, weight: e.weight, _isExternalEdge: true })
+        }
+
+      } else if (!srcIn && tgtIn) {
+        var tgtNode      = injectedById[e.target]
+        var extBase      = nodeById[e.source]
+        var extGroup     = childToGroup[e.source]
+        var extGroupNode = extGroup ? groupNodeById[extGroup] : null
+        if (!tgtNode || !extBase || !extGroupNode || extGroup === label) return
+
+        var extIsEponymous = (e.source === extGroup)
+        var extIsSolo      = (groupDefs[extGroup] || []).length <= 1
+        if (extIsSolo || extIsEponymous) {
+          injectedChildEdges.push({ source: extGroupNode, target: tgtNode, type: e.type, weight: e.weight, _isExternalEdge: true })
+        } else {
+          if (!peekNodeMap[e.source]) {
+            peekNodeMap[e.source] = Object.assign({}, extBase, {
+              x: extGroupNode.x, y: extGroupNode.y,
+              vx: 0, vy: 0, fx: null, fy: null,
+              isPeekNode: true,
+              peekGroupId: extGroup,
+              color: extGroupNode.color
+            })
+          }
+          var peekNode = peekNodeMap[e.source]
+          injectedChildEdges.push({ source: peekNode, target: tgtNode, type: e.type, weight: e.weight, _isExternalEdge: true })
+        }
+      }
     })
 
-    // Dim the group parent node
-    nodeSelection.filter(function(d) { return d.id === label })
-      .style('opacity', 0.2)
-      .select('circle')
-      .attr('r', function(d) { return d.r * 0.5 })
+    var injectedPeekNodes = Object.keys(peekNodeMap).map(function(k) { return peekNodeMap[k] })
 
-    // Add child nodes to the SVG
+    // For each peek node, add its real edges back to its parent group node
+    // (e.g. dub → reggae group bubble) so it's not floating disconnected
+    var peekIds = new Set(injectedPeekNodes.map(function(n) { return n.id }))
+    allEdges.forEach(function(e) {
+      if (e.type === 'subgenre') return
+      var srcIsPeek = peekIds.has(e.source)
+      var tgtIsPeek = peekIds.has(e.target)
+      if (!srcIsPeek && !tgtIsPeek) return
+
+      // Only edges where the OTHER endpoint is a collapsed group node (not a child or another peek)
+      if (srcIsPeek && !tgtIsPeek && !childSet.has(e.target)) {
+        var peekNode  = peekNodeMap[e.source]
+        var extGroup  = childToGroup[e.target]
+        var extGNode  = extGroup ? groupNodeById[extGroup] : null
+        if (!peekNode || !extGNode || extGroup === label) return
+        // avoid duplicate edges already added
+        injectedChildEdges.push({ source: peekNode, target: extGNode, type: e.type, weight: e.weight, _isExternalEdge: true })
+      }
+      if (tgtIsPeek && !srcIsPeek && !childSet.has(e.source)) {
+        var peekNode  = peekNodeMap[e.target]
+        var extGroup  = childToGroup[e.source]
+        var extGNode  = extGroup ? groupNodeById[extGroup] : null
+        if (!peekNode || !extGNode || extGroup === label) return
+        injectedChildEdges.push({ source: extGNode, target: peekNode, type: e.type, weight: e.weight, _isExternalEdge: true })
+      }
+    })
+
+    // Anchor edges: root children (no intra-origin parent, not eponymous) → anchor node
+    injectedChildNodes.forEach(function(cn) {
+      if (cn.isEponymous) return  // anchor doesn't edge to itself
+      if (!hasIntraOriginParent.has(cn.id)) {
+        injectedChildEdges.push({
+          source: cn,
+          target: anchorNode,
+          type: 'origin',
+          _isDiamondEdge: true,
+          weight: 1
+        })
+      }
+    })
+
+    // All injected nodes = children + peek nodes
+    var allInjected = injectedChildNodes.concat(injectedPeekNodes)
+
+    // Inject into sim
+    var allSimNodes = collapsedNodes.concat(allInjected)
+    simCollapsed.nodes(allSimNodes)
+
+    var collapsedEdgesWithoutGroup = collapsedEdges.filter(function(ce) {
+      return ce.source.id !== label && ce.target.id !== label
+    })
+    var allSimEdges = collapsedEdgesWithoutGroup.concat(injectedChildEdges)
+    simCollapsed.force('link').links(allSimEdges)
+
+    // Hide collapsed-view edges touching this group
+    linkVisSelection.style('display', function(l) {
+      return (l.source.id === label || l.target.id === label) ? 'none' : null
+    })
+    linkHitSelection.style('display', function(l) {
+      return (l.source.id === label || l.target.id === label) ? 'none' : null
+    })
+
+    simCollapsed.force('charge', d3.forceManyBody().strength(-600))
+    simCollapsed.alphaTarget(0.4).restart()
+    setTimeout(function() {
+      simCollapsed.alphaTarget(0).force('charge', d3.forceManyBody().strength(-400))
+    }, 1200)
+
+    // ── RENDER CHILD NODES ──
     var childG = gSelection.append('g').attr('class', 'expanded-children')
-
-    var childSel = childG.selectAll('g')
-      .data(expandedChildNodes)
-      .enter().append('g')
-      .style('cursor', 'pointer')
-      .call(d3.drag()
-        .on('start', function(e, d) { if (simExpanded && !e.active) simExpanded.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y })
-        .on('drag',  function(e, d) { d.fx = e.x; d.fy = e.y })
-        .on('end',   function(e, d) { if (simExpanded && !e.active) simExpanded.alphaTarget(0); d.fx = null; d.fy = null })
-      )
-
-    childSel.append('circle')
-      .attr('r', 0)  // start at 0 for animation
-      .attr('fill',         function(d) { return d.color })
-      .attr('fill-opacity', 0.85)
-      .attr('stroke',       function(d) { return d.color })
-      .attr('stroke-width', 0.5)
-      .style('filter', function(d) { return d.song_count > 30 ? 'url(#net-glow)' : null })
-      .transition().duration(300)
-      .attr('r', function(d) { return d.r })
-
-    childSel.append('text')
-      .attr('dy', function(d) { return d.r + 11 })
-      .attr('text-anchor', 'middle')
-      .attr('font-size', function(d) { return d.song_count > 50 ? '12px' : '10px' })
-      .attr('fill', 'rgba(226,232,240,0.75)')
-      .attr('font-family', "'VT323', monospace")
-      .text(function(d) { return d.song_count > 2 ? d.id : '' })
-      .style('pointer-events', 'none')
-
+    if (nodeLayerG) nodeLayerG.raise()
     var hoverTooltip = document.getElementById('network-tooltip')
 
-    childSel
-      .on('mouseover', function(e, d) {
-        if (hoverTooltip) {
-          hoverTooltip.style.opacity = '1'
-          hoverTooltip.innerHTML =
-            '<strong style="color:' + d.color + '">' + d.id + '</strong>' +
-            '<div style="opacity:0.5;font-size:11px;margin-top:2px">' + d.cluster + '</div>' +
-            (d.song_count > 0
-              ? '<div style="margin-top:4px">' + d.song_count + ' songs</div>'
-              : '<div style="opacity:0.4;margin-top:4px">root node</div>')
-        }
-      })
-      .on('mousemove', function(e) {
-        if (!hoverTooltip) return
-        var rect = networkContainer.getBoundingClientRect()
-        hoverTooltip.style.left = (e.clientX - rect.left + 14) + 'px'
-        hoverTooltip.style.top  = (e.clientY - rect.top  - 10) + 'px'
-      })
-      .on('mouseout', function() {
-        if (hoverTooltip) hoverTooltip.style.opacity = '0'
-      })
-      .on('click', function(e, d) {
-        e.stopPropagation()
-        hideEdgeTooltip()
-        overlayHistory = []
-        openOverlay(d.id)
+    // Shared node interaction builder (used for both children and peek nodes)
+    function makeNodeInteraction(sel, isChild) {
+      sel.append('circle')
+        .attr('r', 0)
+        .attr('fill',         function(d) { return d.color })
+        .attr('fill-opacity', function(d) { return d.isEponymous ? 0.85 : 0.4 })
+        .attr('stroke',       function(d) { return d.color })
+        .attr('stroke-width', function(d) { return d.isEponymous ? 0.5 : 1.5 })
+        .style('filter',      function(d) { return d.isEponymous && d.song_count > 30 ? 'url(#net-glow)' : null })
+        .transition().duration(300)
+        .attr('r', function(d) { return d.r })
 
-        activeSelection = { type: 'node', nodeId: d.id }
-        // dim siblings
-        childSel.style('opacity', function(n) { return n.id === d.id ? 1 : 0.3 })
-      })
+      sel.append('text')
+        .attr('dy', function(d) { return d.r + 11 })
+        .attr('text-anchor', 'middle')
+        .attr('font-size', function(d) { return d.song_count > 50 ? '12px' : '10px' })
+        .attr('fill', 'rgba(226,232,240,0.75)')
+        .attr('font-family', "'VT323', monospace")
+        .text(function(d) { return d.song_count > 2 ? d.id : '' })
+        .style('pointer-events', 'none')
 
-    // Add child edges + parent→child connector lines
+      sel
+        .on('mouseover', function(e, d) {
+          if (hoverTooltip) {
+            var outgoing = (adjChildren[d.id] || []).filter(function(c) { return c.type !== 'subgenre' })
+            var incoming = (adjParents[d.id]  || []).filter(function(c) { return c.type !== 'subgenre' })
+            hoverTooltip.style.opacity = '1'
+            hoverTooltip.innerHTML =
+              '<strong style="color:' + d.color + '">' + d.id + '</strong>' +
+              '<div style="opacity:0.5;font-size:11px;margin-top:2px">' + d.cluster + '</div>' +
+              (d.song_count > 0
+                ? '<div style="margin-top:4px">' + d.song_count + ' songs</div>'
+                : '<div style="opacity:0.4;margin-top:4px">root node</div>') +
+              edgeListHTML(incoming, outgoing)
+          }
+        })
+        .on('mousemove', function(e) {
+          if (!hoverTooltip) return
+          var rect = networkContainer.getBoundingClientRect()
+          hoverTooltip.style.left = (e.clientX - rect.left + 14) + 'px'
+          hoverTooltip.style.top  = (e.clientY - rect.top  - 10) + 'px'
+        })
+        .on('mouseout', function() {
+          if (hoverTooltip) hoverTooltip.style.opacity = '0'
+        })
+        .on('click', function(e, d) {
+          e.stopPropagation()
+          hideEdgeTooltip()
+          overlayHistory = []
+          if (d.song_count > 0) openOverlay(d.id)
+
+          // Dim: this node + its fine-grained neighbors (children + peek + group nodes)
+          var fineConns = adj[d.id] || []
+          var connectedIds = new Set([d.id].concat(fineConns))
+          var connectedGroupLabels = new Set()
+          fineConns.forEach(function(nid) {
+            var gl = childToGroup[nid]
+            if (gl && gl !== label) connectedGroupLabels.add(gl)
+          })
+
+          activeSelection = { type: 'node', nodeId: d.id }
+          nodeSelection.style('opacity', function(n) {
+            return connectedGroupLabels.has(n.id) ? 1 : 0.08
+          })
+          linkVisSelection.style('opacity', 0.03)
+          childSelection.style('opacity', function(n) {
+            return connectedIds.has(n.id) ? 1 : 0.08
+          })
+          if (peekSelection) {
+            peekSelection.style('opacity', function(n) {
+              return connectedIds.has(n.id) ? 1 : 0.08
+            })
+          }
+        })
+
+      sel.call(d3.drag()
+        .on('start', function(e, d) { if (!e.active) simCollapsed.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y })
+        .on('drag',  function(e, d) { d.fx = e.x; d.fy = e.y })
+        .on('end',   function(e, d) { if (!e.active) simCollapsed.alphaTarget(0); d.fx = null; d.fy = null })
+      )
+    }
+
+    childSelection = childG.selectAll('g.child-node')
+      .data(injectedChildNodes)
+      .enter().append('g')
+      .attr('class', 'child-node')
+      .style('cursor', 'pointer')
+
+    makeNodeInteraction(childSelection, true)
+
+    // Peek nodes — rendered as regular full nodes in their own cluster color
+    var peekSelection = null
+    if (injectedPeekNodes.length) {
+      peekSelection = childG.selectAll('g.peek-node')
+        .data(injectedPeekNodes)
+        .enter().append('g')
+        .attr('class', 'peek-node')
+        .style('cursor', 'pointer')
+
+      makeNodeInteraction(peekSelection, false)
+    }
+
+    // ── RENDER CHILD EDGES ──
     var edgeG = gSelection.insert('g', '.expanded-children').attr('class', 'expanded-edges')
 
-    // Parent→child connector lines (visual only, not in simulation)
-    var connectorLines = edgeG.selectAll('line.connector')
-      .data(expandedChildNodes)
+    function showExpandedEdgeHover(e, d) {
+      var hoverTooltip = document.getElementById('network-tooltip')
+      if (!hoverTooltip) return
+      var srcId = d.source.id || d.source
+      var tgtId = d.target.id || d.target
+      hoverTooltip.style.opacity = '1'
+      hoverTooltip.innerHTML =
+        '<span style="opacity:0.8">' + srcId + '</span>' +
+        ' <span style="opacity:0.5">→</span> ' +
+        '<span style="opacity:0.8">' + tgtId + '</span>' +
+        '<div style="opacity:0.45;font-size:11px;margin-top:3px;letter-spacing:0.05em">' + d.type + '</div>'
+      var rect = networkContainer.getBoundingClientRect()
+      hoverTooltip.style.left = (e.clientX - rect.left + 14) + 'px'
+      hoverTooltip.style.top  = (e.clientY - rect.top  - 10) + 'px'
+    }
+    function moveExpandedEdgeHover(e) {
+      var hoverTooltip = document.getElementById('network-tooltip')
+      if (!hoverTooltip) return
+      var rect = networkContainer.getBoundingClientRect()
+      hoverTooltip.style.left = (e.clientX - rect.left + 14) + 'px'
+      hoverTooltip.style.top  = (e.clientY - rect.top  - 10) + 'px'
+    }
+    function hideExpandedEdgeHover() {
+      var hoverTooltip = document.getElementById('network-tooltip')
+      if (hoverTooltip) hoverTooltip.style.opacity = '0'
+    }
+
+    // Anchor → root-child lines
+    var diamondLines = edgeG.selectAll('line.diamond-edge')
+      .data(injectedChildEdges.filter(function(e) { return e._isDiamondEdge }))
       .enter().append('line')
-      .attr('class', 'connector')
-      .attr('stroke', function(d) { return gn.color })
+      .attr('class', 'diamond-edge')
+      .attr('stroke', gn.color)
       .attr('stroke-width', 1)
-      .attr('stroke-opacity', 0.25)
-      .attr('stroke-dasharray', '4,3')
+      .attr('stroke-opacity', 0.4)
       .style('pointer-events', 'none')
-      .attr('x1', gn.x).attr('y1', gn.y)
-      .attr('x2', function(d) { return d.x }).attr('y2', function(d) { return d.y })
 
-    // Inter-child edges (origin/influence)
-    edgeG.selectAll('line.child-edge')
-      .data(expandedChildEdges)
-      .enter().append('line')
-      .attr('class', 'child-edge')
-      .attr('stroke',           function(d) { return (EDGE_STYLES[d.type] || EDGE_STYLES.influence).color })
-      .attr('stroke-width',     function(d) { return (EDGE_STYLES[d.type] || EDGE_STYLES.influence).width })
-      .attr('stroke-dasharray', function(d) { return (EDGE_STYLES[d.type] || EDGE_STYLES.influence).dash  })
-      .style('pointer-events', 'none')
-      .attr('x1', function(d) { return d.source.x }).attr('y1', function(d) { return d.source.y })
-      .attr('x2', function(d) { return d.target.x }).attr('y2', function(d) { return d.target.y })
+    // Intra-child edges
+    // Helper: build a hoverable edge pair (wide transparent hit line + visible styled line)
+    function makeExpandedEdgePair(data, cssClass, extraAttrs) {
+      // Wide invisible hit area
+      var hitSel = edgeG.selectAll('line.' + cssClass + '-hit')
+        .data(data).enter().append('line')
+        .attr('class', cssClass + '-hit')
+        .attr('stroke', 'transparent')
+        .attr('stroke-width', 12)
+        .style('cursor', 'default')
 
-    // Run mini simulation for the expanded children
-    simExpanded = d3.forceSimulation(expandedChildNodes)
-      .alphaDecay(0.03)
-      .velocityDecay(0.45)
-      .force('link', d3.forceLink(expandedChildEdges)
-        .id(function(d) { return d.id })
-        .distance(70).strength(0.3)
-      )
-      .force('charge', d3.forceManyBody().strength(-120))
-      .force('center', d3.forceCenter(gn.x, gn.y))
-      .force('collision', d3.forceCollide().radius(function(d) { return d.r + 8 }))
-      .on('tick', function() {
-        childSel.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')' })
-        // update connector lines to follow parent and child positions
-        connectorLines
-          .attr('x1', gn.x).attr('y1', gn.y)
-          .attr('x2', function(d) { return d.x }).attr('y2', function(d) { return d.y })
-        edgeG.selectAll('line.child-edge')
-          .attr('x1', function(d) { return d.source.x }).attr('y1', function(d) { return d.source.y })
-          .attr('x2', function(d) { return d.target.x }).attr('y2', function(d) { return d.target.y })
-      })
+      // Visible line
+      var visSel = edgeG.selectAll('line.' + cssClass)
+        .data(data).enter().append('line')
+        .attr('class', cssClass)
+        .attr('stroke',           function(d) { return (EDGE_STYLES[d.type] || EDGE_STYLES.influence).color })
+        .attr('stroke-width',     function(d) { return (EDGE_STYLES[d.type] || EDGE_STYLES.influence).width })
+        .attr('stroke-dasharray', function(d) { return (EDGE_STYLES[d.type] || EDGE_STYLES.influence).dash  })
+        .style('pointer-events', 'none')
 
-    activeSelection = { type: 'group', groupId: label }
-    // Dim all other collapsed nodes
-    nodeSelection.style('opacity', function(d) { return d.id === label ? 0.2 : 0.15 })
-    linkVisSelection.style('opacity', 0.03)
+      if (extraAttrs) extraAttrs(visSel)
 
-    if (updateNetworkStatus) updateNetworkStatus(null)
+      hitSel
+        .on('mouseover', function(e, d) {
+          visSel.filter(function(l) { return l === d })
+            .attr('stroke', 'rgba(255,255,255,0.8)').attr('stroke-width', 3).attr('stroke-dasharray', null)
+          showExpandedEdgeHover(e, d)
+        })
+        .on('mousemove', moveExpandedEdgeHover)
+        .on('mouseout',  function(e, d) {
+          visSel.filter(function(l) { return l === d })
+            .attr('stroke',           (EDGE_STYLES[d.type] || EDGE_STYLES.influence).color)
+            .attr('stroke-width',     (EDGE_STYLES[d.type] || EDGE_STYLES.influence).width)
+            .attr('stroke-dasharray', (EDGE_STYLES[d.type] || EDGE_STYLES.influence).dash)
+          hideExpandedEdgeHover()
+        })
+
+      return { hit: hitSel, vis: visSel }
+    }
+
+    var interChildPair = makeExpandedEdgePair(
+      injectedChildEdges.filter(function(e) { return !e._isDiamondEdge && !e._isExternalEdge }),
+      'child-edge'
+    )
+    var interChildLines = interChildPair.vis
+
+    var externalPair = makeExpandedEdgePair(
+      injectedChildEdges.filter(function(e) { return e._isExternalEdge }),
+      'external-edge'
+    )
+    var externalLines = externalPair.vis
+
+    var interChildHitLines = interChildPair.hit
+    var externalHitLines   = externalPair.hit
+
+    childEdgeSelection = edgeG
+
+    // Tick: update all node and edge positions
+    simCollapsed.on('tick', function() {
+      linkHitSelection
+        .attr('x1', function(d) { return d.source.x }).attr('y1', function(d) { return d.source.y })
+        .attr('x2', function(d) { return d.target.x }).attr('y2', function(d) { return d.target.y })
+      linkVisSelection
+        .attr('x1', function(d) { return d.source.x }).attr('y1', function(d) { return d.source.y })
+        .attr('x2', function(d) { return d.target.x }).attr('y2', function(d) { return d.target.y })
+      nodeSelection.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')' })
+
+      if (childSelection) {
+        childSelection.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')' })
+      }
+      if (peekSelection) {
+        peekSelection.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')' })
+      }
+      diamondLines
+        .attr('x1', function(d) { return d.source.x }).attr('y1', function(d) { return d.source.y })
+        .attr('x2', function(d) { return d.target.x }).attr('y2', function(d) { return d.target.y })
+      interChildLines
+        .attr('x1', function(d) { return d.source.x }).attr('y1', function(d) { return d.source.y })
+        .attr('x2', function(d) { return d.target.x }).attr('y2', function(d) { return d.target.y })
+      interChildHitLines
+        .attr('x1', function(d) { return d.source.x }).attr('y1', function(d) { return d.source.y })
+        .attr('x2', function(d) { return d.target.x }).attr('y2', function(d) { return d.target.y })
+      externalLines
+        .attr('x1', function(d) { return d.source.x }).attr('y1', function(d) { return d.source.y })
+        .attr('x2', function(d) { return d.target.x }).attr('y2', function(d) { return d.target.y })
+      externalHitLines
+        .attr('x1', function(d) { return d.source.x }).attr('y1', function(d) { return d.source.y })
+        .attr('x2', function(d) { return d.target.x }).attr('y2', function(d) { return d.target.y })
+    })
+
+    // ── DIM & TITLEBAR ──
+    // Build connectedToGroup from actual injected external edges — only groups
+    // that have a real visible edge get lit. This prevents groups with a collapsed
+    // edge to this group (but no matching fine-grained child edge) from appearing lit.
+    var connectedToGroup = new Set()
+    injectedChildEdges.forEach(function(ce) {
+      if (ce._isDiamondEdge) return
+      // If source is a collapsed group node, add it
+      if (!ce.source.isChildNode && !ce.source.isPeekNode) connectedToGroup.add(ce.source.id)
+      // If target is a collapsed group node, add it
+      if (!ce.target.isChildNode && !ce.target.isPeekNode) connectedToGroup.add(ce.target.id)
+    })
+
+    activeSelection = { type: 'group', groupId: label, connectedToGroup: connectedToGroup }
+    nodeSelection.style('opacity', function(d) {
+      return connectedToGroup.has(d.id) ? 1 : 0.08
+    })
+    linkVisSelection.style('opacity', function(l) {
+      if (l.source.id === label || l.target.id === label) return 'none'
+      return 0.03
+    })
+
+    // Dim external and inter-child edges whose collapsed-group endpoint is not connected to this group
+    // (external edge source or target may be a collapsed group node — check connectedToGroup)
+    function externalEdgeOpacity(d) {
+      // find which endpoint is a collapsed group node (not a child or peek node)
+      var srcIsGroupNode = !d.source.isChildNode && !d.source.isPeekNode && !d.source.isEponymous
+      var tgtIsGroupNode = !d.target.isChildNode && !d.target.isPeekNode && !d.target.isEponymous
+      if (srcIsGroupNode && !connectedToGroup.has(d.source.id)) return 0.03
+      if (tgtIsGroupNode && !connectedToGroup.has(d.target.id)) return 0.03
+      return null  // let EDGE_STYLES color handle it
+    }
+    externalLines.style('opacity', externalEdgeOpacity)
+    externalHitLines.style('opacity', 0)  // hit lines always invisible
+
+    var groupSongCount = gn.song_count
+    var subgenreCount  = children.length
+    var base = label + ' (' + groupSongCount + ' songs · ' + subgenreCount + ' subgenres)'
+    var activeCountry = typeof window.getMapFilter === 'function' ? window.getMapFilter() : null
+    var dr = typeof window.getDecadeRange === 'function' ? window.getDecadeRange() : null
+    var statusEl = document.getElementById('network-status')
+    if (statusEl) {
+      if (activeCountry && dr) {
+        statusEl.textContent = base + ' · ' + activeCountry + ' · ' + dr
+      } else if (activeCountry) {
+        statusEl.textContent = base + ' · ' + activeCountry
+      } else if (dr) {
+        statusEl.textContent = base + ' · ' + dr
+      } else {
+        statusEl.textContent = base
+      }
+    }
   }
 
   function collapseGroup(silent) {
@@ -1052,20 +1426,51 @@
     var label = expandedGroup
     expandedGroup = null
 
-    // Stop and kill expanded simulation
-    if (simExpanded) { simExpanded.stop(); simExpanded = null }
+    // Unpin the group node so collapsed sim can move it again
+    var gn = groupNodeById[label]
+    if (gn) { gn.fx = null; gn.fy = null }
+
+    // Remove injected child nodes from sim, restore full collapsedEdges
+    simCollapsed.nodes(collapsedNodes)
+    simCollapsed.force('link').links(collapsedEdges)
+    injectedChildNodes = []
+    injectedChildEdges = []
+
+    // Restore hidden collapsed edges
+    linkVisSelection.style('display', null)
+    linkHitSelection.style('display', null)
 
     // Remove expanded DOM elements
     if (gSelection) {
       gSelection.selectAll('.expanded-children').remove()
       gSelection.selectAll('.expanded-edges').remove()
     }
+    childSelection     = null
+    childEdgeSelection = null
 
-    // Restore group parent node
-    nodeSelection.filter(function(d) { return d.id === label })
-      .style('opacity', null)
-      .select('circle')
-      .attr('r', function(d) { return d.r })
+    // Restore group node appearance (circle back, diamond removed, g visible)
+    if (gn) {
+      var gnSel = nodeSelection.filter(function(d) { return d.id === label })
+      gnSel.style('display', null)
+      gnSel.selectAll('circle').style('display', null)
+      gnSel.select('text').style('display', null)
+      gnSel.selectAll('.group-diamond').remove()
+    }
+    diamondOverlay = null
+
+    // Restore collapsed tick handler
+    simCollapsed.on('tick', function() {
+      linkHitSelection
+        .attr('x1', function(d) { return d.source.x }).attr('y1', function(d) { return d.source.y })
+        .attr('x2', function(d) { return d.target.x }).attr('y2', function(d) { return d.target.y })
+      linkVisSelection
+        .attr('x1', function(d) { return d.source.x }).attr('y1', function(d) { return d.source.y })
+        .attr('x2', function(d) { return d.target.x }).attr('y2', function(d) { return d.target.y })
+      nodeSelection.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')' })
+    })
+
+    // Gentle reheat so nodes drift back naturally
+    simCollapsed.alpha(0.3).restart()
 
     if (!silent) {
       clearDim()
@@ -1280,6 +1685,15 @@
           collapseGroup(false)
           return
         }
+        // if a solo node is selected, background click deselects
+        if (activeSelection && activeSelection.type === 'node') {
+          clearDim()
+          if (updateNetworkStatus) updateNetworkStatus(null)
+          if (typeof window.clearNetworkFilter === 'function') window.clearNetworkFilter()
+          var activeCountry = typeof window.getMapFilter === 'function' ? window.getMapFilter() : null
+          if (activeCountry) window.applyNetworkDimByCountry(activeCountry)
+          return
+        }
         var hasNetworkFilter = typeof window.getNetworkFilterActive === 'function'
           ? window.getNetworkFilterActive() : false
         if (hasNetworkFilter) return
@@ -1330,8 +1744,8 @@
         .velocityDecay(0.4)
         .force('link', d3.forceLink(collapsedEdges)
           .id(function(d) { return d.id })
-          .distance(function(d) { return d.type === 'origin' ? 160 : 200 })  // longer links = more air
-          .strength(function(d) { return d.type === 'origin' ? 0.2 : 0.08 }) // weaker = clusters can breathe
+          .distance(function(d) { return (d._isDiamondEdge || (!d._isExternalEdge && d.type === 'origin')) ? 45 : d.type === 'origin' ? 160 : 200 })
+          .strength(function(d) { return (d._isDiamondEdge || (!d._isExternalEdge && d.type === 'origin')) ? 0.9 : d.type === 'origin' ? 0.2 : 0.08 })
         )
         .force('charge', d3.forceManyBody().strength(-400))  // stronger repulsion
         .force('center', d3.forceCenter(W / 2, H / 2))
@@ -1390,6 +1804,22 @@
           linkVisSelection.filter(function(l) {
             return l.source.id === d.source.id && l.target.id === d.target.id
           }).attr('stroke', 'rgba(255,255,255,0.8)').attr('stroke-width', 3).attr('stroke-dasharray', null)
+          var hoverTooltip = document.getElementById('network-tooltip')
+          if (hoverTooltip) {
+            hoverTooltip.style.opacity = '1'
+            hoverTooltip.innerHTML =
+              '<span style="opacity:0.8">' + d.source.id + '</span>' +
+              ' <span style="opacity:0.5">→</span> ' +
+              '<span style="opacity:0.8">' + d.target.id + '</span>' +
+              '<div style="opacity:0.45;font-size:11px;margin-top:3px;letter-spacing:0.05em">' + d.type + '</div>'
+          }
+        })
+        .on('mousemove', function(e) {
+          var hoverTooltip = document.getElementById('network-tooltip')
+          if (!hoverTooltip) return
+          var rect = container.getBoundingClientRect()
+          hoverTooltip.style.left = (e.clientX - rect.left + 14) + 'px'
+          hoverTooltip.style.top  = (e.clientY - rect.top  - 10) + 'px'
         })
         .on('mouseout', function(e, d) {
           linkVisSelection.filter(function(l) {
@@ -1398,6 +1828,8 @@
           .attr('stroke',           function(l) { return (EDGE_STYLES[l.type] || EDGE_STYLES.influence).color })
           .attr('stroke-width',     function(l) { return (EDGE_STYLES[l.type] || EDGE_STYLES.influence).width })
           .attr('stroke-dasharray', function(l) { return (EDGE_STYLES[l.type] || EDGE_STYLES.influence).dash  })
+          var hoverTooltip = document.getElementById('network-tooltip')
+          if (hoverTooltip) hoverTooltip.style.opacity = '0'
           if (activeSelection) applyDim()
         })
 
@@ -1409,7 +1841,9 @@
         .style('pointer-events', 'none')
 
       // ── NODES (collapsed group nodes) ──
-      nodeSelection = g.append('g').selectAll('g')
+      var nodeLayerGEl = g.append('g')
+      nodeLayerG   = nodeLayerGEl
+      nodeSelection = nodeLayerGEl.selectAll('g')
         .data(collapsedNodes).enter().append('g')
         .style('cursor', 'pointer')
         .call(d3.drag()
@@ -1437,12 +1871,12 @@
         // expand indicator ring for multi-child groups
         if (!d.isAncestor && d.childCount > 1) {
           el.append('circle')
-            .attr('r', d.r + 3)
+            .attr('r', d.r + 4)
             .attr('fill', 'none')
             .attr('stroke', d.color)
-            .attr('stroke-width', 1)
-            .attr('stroke-opacity', 0.4)
-            .attr('stroke-dasharray', '3,3')
+            .attr('stroke-width', 1.8)
+            .attr('stroke-opacity', 0.75)
+            .attr('stroke-dasharray', '4,3')
         }
       })
 
@@ -1461,6 +1895,14 @@
         .on('mouseover', function(e, d) {
           var children = groupDefs[d.id] || []
           if (hoverTooltip) {
+            var edgeHtml = ''
+            if (children.length <= 1) {
+              // solo genre — show edge list from fine-grained adjacency
+              var childId  = children[0] || d.id
+              var outgoing = (adjChildren[childId] || []).filter(function(c) { return c.type !== 'subgenre' })
+              var incoming = (adjParents[childId]  || []).filter(function(c) { return c.type !== 'subgenre' })
+              edgeHtml = edgeListHTML(incoming, outgoing)
+            }
             hoverTooltip.style.opacity = '1'
             hoverTooltip.innerHTML =
               '<strong style="color:' + d.color + '">' + d.id + '</strong>' +
@@ -1469,7 +1911,8 @@
                 ? '<div style="margin-top:4px">' + d.song_count + ' songs' +
                   (children.length > 1 ? ' · ' + children.length + ' subgenres' : '') + '</div>'
                 : '<div style="opacity:0.4;margin-top:4px">root node</div>') +
-              (children.length > 1 ? '<div style="opacity:0.5;font-size:11px;margin-top:2px">click to expand</div>' : '')
+              (children.length > 1 ? '<div style="opacity:0.5;font-size:11px;margin-top:2px">click to expand</div>' : '') +
+              edgeHtml
           }
           if (!expandedGroup) {
             var conns = []
