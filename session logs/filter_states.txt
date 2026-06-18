@@ -1,0 +1,479 @@
+MY LISTENING MAP — COMPLETE FILTER STATE SPECIFICATION
+======================================================
+Last generated from current codebase (post crossfilter adaptation).
+Edit values, copy, or strike through any line. Return for implementation.
+
+CONVENTIONS
+-----------
+- [MAP]     = map panel titlebar (lavender bar, id: map-status)
+- [NETWORK] = network panel titlebar (dark bar, id: network-status)
+- [SONGS]   = songs panel titlebar (mint bar, id: songs-title)
+- [FOOTER]  = songs count strip at bottom of songs panel
+- SONGS TABLE = what rows are shown
+- MAP DIM   = which country bubbles are dimmed vs fully rendered
+- NET DIM   = which nodes/edges are dimmed vs fully rendered in the network
+
+- "dimmed" = 8% opacity (nearly invisible)
+- "lit"    = full opacity
+- "all songs" = all 2196 tracks, default sort year descending
+- decade example used throughout: 1990s–2000s
+- country example used throughout: Colombia
+- solo genre example: folk latino (fine-grained node, single child group)
+- group example: cumbia (multi-child group: cumbia, cumbia pop, cumbia digital, cumbia sonidera, electrocumbia, chicha)
+- child example: electrocumbia (a child node inside the cumbia group, visible only when cumbia is expanded)
+
+======================================================
+SECTION 1 — NO FILTER ACTIVE (baseline)
+======================================================
+
+STATE 1.1 — Nothing selected
+-----------------------------
+What is selected:     nothing
+[MAP]:                N countries  (N = total distinct countries in the dataset, e.g. 81)
+[NETWORK]:            62 groups · 255 genres
+[SONGS]:              songs
+[FOOTER]:             2196 songs
+SONGS TABLE:          all 2196 tracks, genre column visible, country column visible
+MAP DIM:              all bubbles fully lit
+NET DIM:              all 62 collapsed group nodes fully lit, all edges at default opacity
+
+
+======================================================
+SECTION 2 — DECADE FILTER ONLY
+======================================================
+
+STATE 2.1 — Decade only
+------------------------
+What is selected:     decade slider set to 1990s–2000s (no country, no genre)
+[MAP]:                N countries with 1990s–2000s songs
+[NETWORK]:            N genres with 1990s–2000s songs
+[SONGS]:              songs · 1990s–2000s
+[FOOTER]:             N songs
+SONGS TABLE:          tracks whose decade falls in range, all columns visible
+MAP DIM:              bubbles with no songs in that decade range → dimmed; others → lit
+NET DIM:              collapsed group nodes with no songs in that decade range → dimmed; others → lit
+                      edges between two dimmed nodes → dimmed
+
+
+======================================================
+SECTION 3 — COUNTRY FILTER ONLY
+======================================================
+
+STATE 3.1 — Country only
+-------------------------
+What is selected:     Colombia clicked on map
+[MAP]:                Colombia (N songs)  [N = all Colombian songs regardless of decade/genre]
+[NETWORK]:            N genres in Colombia
+[SONGS]:              songs · Colombia
+[FOOTER]:             N songs
+SONGS TABLE:          all tracks from Colombia, country column hidden, genre column visible
+MAP DIM:              Colombia bubble → lit with white stroke (selected);
+                      all other bubbles → dimmed
+NET DIM:              group nodes with ≥1 Colombian song → lit;
+                      group nodes with 0 Colombian songs → dimmed;
+                      edges between two dimmed nodes → dimmed
+
+
+======================================================
+SECTION 4 — GENRE FILTER ONLY (solo node)
+======================================================
+
+STATE 4.1 — Solo genre selected (no country, no decade)
+--------------------------------------------------------
+What is selected:     folk latino clicked in network (solo group = single fine-grained child)
+[MAP]:                N countries with folk latino songs
+[NETWORK]:            folk latino (N songs)
+[SONGS]:              songs · folk latino
+[FOOTER]:             N songs
+SONGS TABLE:          tracks where Main Genre = folk latino, influence column visible (genre column hidden), country column visible
+MAP DIM:              bubbles with ≥1 folk latino song → lit;
+                      bubbles with 0 folk latino songs → dimmed
+NET DIM:              folk latino node → lit;
+                      nodes directly connected to folk latino (via collapsed edges) → lit;
+                      all other nodes → dimmed;
+                      edges connected to folk latino → lit;
+                      all other edges → dimmed
+
+
+======================================================
+SECTION 5 — GROUP FILTER ONLY (multi-child group, expanded)
+======================================================
+
+STATE 5.1 — Group expanded, no country, no decade
+--------------------------------------------------
+What is selected:     cumbia group clicked → expanded, children visible
+[MAP]:                N countries with cumbia songs
+[NETWORK]:            cumbia (N songs · M subgenres)   [N = all songs across all children, M = child count]
+[SONGS]:              songs · cumbia
+[FOOTER]:             N songs
+SONGS TABLE:          tracks where Main Genre ∈ {cumbia, cumbia pop, cumbia digital, cumbia sonidera, electrocumbia, chicha},
+                      influence column visible (genre column hidden), country column visible
+MAP DIM:              bubbles with ≥1 song in any cumbia child genre → lit;
+                      bubbles with 0 songs in any cumbia child genre → dimmed
+NET DIM (collapsed):  group nodes with a real edge to cumbia group → lit;
+                      all other group nodes → dimmed;
+                      collapsed edges touching cumbia → hidden (replaced by expanded view);
+                      all other collapsed edges → dimmed
+NET DIM (expanded):   cumbia group node → dimmed/shrunk (parent anchor, diamond or eponymous child);
+                      all child nodes → fully lit;
+                      dashed connector lines (anchor → root children) → visible;
+                      intra-child edges → visible;
+                      external edges to connected group nodes → lit;
+                      external edges to disconnected group nodes → dimmed;
+                      peek nodes → fully lit
+
+
+======================================================
+SECTION 6 — CHILD NODE SELECTED (inside expanded group)
+======================================================
+
+STATE 6.1 — Child node selected inside expanded group, no country, no decade
+-----------------------------------------------------------------------------
+What is selected:     cumbia group expanded, then electrocumbia (child) clicked
+[MAP]:                N countries with electrocumbia songs
+[NETWORK]:            electrocumbia (N songs)
+[SONGS]:              songs · electrocumbia
+[FOOTER]:             N songs
+SONGS TABLE:          tracks where Main Genre = electrocumbia,
+                      influence column visible, country column visible
+MAP DIM:              bubbles with ≥1 electrocumbia song → lit;
+                      all others → dimmed
+NET DIM (collapsed):  group nodes connected to cumbia → lit;
+                      all other group nodes → dimmed
+NET DIM (expanded):   electrocumbia child node → lit;
+                      child nodes directly connected to electrocumbia (via intra-child edges) → lit;
+                      sibling child nodes with no connection to electrocumbia → dimmed (30%);
+                      external edges and peek nodes connected to electrocumbia → lit;
+                      others → dimmed;
+                      genre overlay panel opens showing electrocumbia relationships
+
+
+======================================================
+SECTION 7 — COUNTRY + DECADE
+======================================================
+
+STATE 7.1 — Country + decade (no genre)
+----------------------------------------
+What is selected:     Colombia + 1990s–2000s
+[MAP]:                Colombia (N songs) · M from 1990s–2000s   [N = all Colombian, M = Colombian in decade range]
+[NETWORK]:            N genres in Colombia from 1990s–2000s
+[SONGS]:              songs · Colombia · 1990s–2000s
+[FOOTER]:             N songs
+SONGS TABLE:          tracks from Colombia AND in decade range, country column hidden, genre column visible
+MAP DIM:              Colombia → lit (selected);
+                      all others → dimmed
+NET DIM:              group nodes with ≥1 song in Colombia AND in decade range → lit;
+                      all others → dimmed;
+                      edges between two dimmed nodes → dimmed
+
+
+======================================================
+SECTION 8 — COUNTRY + SOLO GENRE
+======================================================
+
+STATE 8.1 — Country + solo genre (no decade)
+---------------------------------------------
+What is selected:     Colombia + folk latino
+[MAP]:                Colombia (N songs) · M with folk latino   [N = all Colombian, M = Colombian + folk latino intersection]
+[NETWORK]:            folk latino (N songs) · M in Colombia   [N = all folk latino songs, M = folk latino + Colombian intersection]
+[SONGS]:              songs · Colombia · folk latino
+[FOOTER]:             N songs
+SONGS TABLE:          tracks from Colombia AND Main Genre = folk latino,
+                      influence column visible, country column hidden
+MAP DIM:              Colombia → lit (selected);
+                      all others → dimmed
+NET DIM:              folk latino → lit;
+                      nodes connected to folk latino → lit;
+                      all others → dimmed;
+                      edges connected to folk latino → lit;
+                      all others → dimmed
+NOTE:                 country dim does NOT override the genre node dim — genre dim takes visual priority
+
+
+======================================================
+SECTION 9 — COUNTRY + GROUP (expanded)
+======================================================
+
+STATE 9.1 — Country + group expanded (no decade)
+-------------------------------------------------
+What is selected:     Colombia + cumbia group expanded
+[MAP]:                Colombia (N songs) · M with cumbia   [M = Colombian songs in any cumbia child genre]
+[NETWORK]:            cumbia (N songs · M subgenres) · Colombia
+[SONGS]:              songs · Colombia · cumbia
+[FOOTER]:             N songs
+SONGS TABLE:          tracks from Colombia AND Main Genre ∈ cumbia children,
+                      influence column visible, country column hidden
+MAP DIM:              Colombia → lit (selected);
+                      all others → dimmed
+NET DIM (collapsed):  group nodes with a real edge to cumbia → lit;
+                      all others → dimmed
+NET DIM (expanded):   child nodes with ≥1 Colombian song → fully lit;
+                      child nodes with 0 Colombian songs → dimmed;
+                      intra-child edges where both endpoints are lit → lit;
+                      intra-child edges where either endpoint is dimmed → dimmed;
+                      external edges to lit group nodes → lit;
+                      external edges to dimmed group nodes → dimmed
+
+
+======================================================
+SECTION 10 — DECADE + SOLO GENRE
+======================================================
+
+STATE 10.1 — Decade + solo genre (no country)
+----------------------------------------------
+What is selected:     1990s–2000s + folk latino
+[MAP]:                N countries with folk latino from 1990s–2000s
+[NETWORK]:            folk latino (N songs) · M from 1990s–2000s   [N = all folk latino, M = folk latino in decade range]
+[SONGS]:              songs · folk latino · 1990s–2000s
+[FOOTER]:             N songs
+SONGS TABLE:          tracks where Main Genre = folk latino AND in decade range,
+                      influence column visible, country column visible
+MAP DIM:              bubbles with ≥1 folk latino song in decade range → lit;
+                      all others → dimmed
+NET DIM:              folk latino → lit;
+                      connected nodes → lit;
+                      all others → dimmed;
+                      genre node dim takes priority over decade dim
+
+
+======================================================
+SECTION 11 — DECADE + GROUP (expanded)
+======================================================
+
+STATE 11.1 — Decade + group expanded (no country)
+--------------------------------------------------
+What is selected:     1990s–2000s + cumbia group expanded
+[MAP]:                N countries with cumbia from 1990s–2000s
+[NETWORK]:            cumbia (N songs · M subgenres) · 1990s–2000s
+[SONGS]:              songs · cumbia · 1990s–2000s
+[FOOTER]:             N songs
+SONGS TABLE:          tracks where Main Genre ∈ cumbia children AND in decade range,
+                      influence column visible, country column visible
+MAP DIM:              bubbles with ≥1 cumbia song in decade range → lit;
+                      all others → dimmed
+NET DIM (collapsed):  group nodes with a real edge to cumbia → lit;
+                      all others → dimmed
+NET DIM (expanded):   child nodes with ≥1 song in decade range → fully lit;
+                      child nodes with 0 songs in decade range → dimmed;
+                      intra-child edges where both endpoints are lit → lit;
+                      intra-child edges where either endpoint is dimmed → dimmed;
+                      external edges to lit group nodes → lit;
+                      external edges to dimmed group nodes → dimmed
+
+
+======================================================
+SECTION 12 — COUNTRY + DECADE + SOLO GENRE (triple)
+======================================================
+
+STATE 12.1 — Country + decade + solo genre
+-------------------------------------------
+What is selected:     Colombia + 1990s–2000s + folk latino
+[MAP]:                Colombia (N songs) · M with folk latino from 1990s–2000s
+[NETWORK]:            folk latino (N songs) · M in Colombia from 1990s–2000s
+[SONGS]:              songs · Colombia · folk latino · 1990s–2000s
+[FOOTER]:             N songs
+SONGS TABLE:          tracks from Colombia AND Main Genre = folk latino AND in decade range,
+                      influence column visible, country column hidden
+MAP DIM:              Colombia → lit (selected);
+                      all others → dimmed
+NET DIM:              folk latino → lit;
+                      connected nodes → lit;
+                      all others → dimmed;
+                      genre node dim takes visual priority over both country and decade dims
+
+
+======================================================
+SECTION 13 — COUNTRY + DECADE + GROUP (triple, expanded)
+======================================================
+
+STATE 13.1 — Country + decade + group expanded
+-----------------------------------------------
+What is selected:     Colombia + 1990s–2000s + cumbia group expanded
+[MAP]:                Colombia (N songs) · M with cumbia from 1990s–2000s
+[NETWORK]:            cumbia (N songs · M subgenres) · Colombia · 1990s–2000s
+[SONGS]:              songs · cumbia · Colombia · 1990s–2000s
+[FOOTER]:             N songs
+SONGS TABLE:          tracks from Colombia AND Main Genre ∈ cumbia children AND in decade range,
+                      influence column visible, country column hidden
+MAP DIM:              Colombia → lit (selected);
+                      all others → dimmed
+NET DIM (collapsed):  group nodes with a real edge to cumbia → lit;
+                      all others → dimmed
+NET DIM (expanded):   child nodes with ≥1 song from Colombia in decade range → fully lit;
+                      child nodes with 0 such songs → dimmed;
+                      intra-child edges where both endpoints are lit → lit;
+                      intra-child edges where either endpoint is dimmed → dimmed;
+                      external edges to lit group nodes → lit;
+                      external edges to dimmed group nodes → dimmed
+
+
+======================================================
+SECTION 14 — INFLUENCE EDGE SELECTED
+======================================================
+
+STATE 14.1 — Influence edge clicked (no country, no decade)
+------------------------------------------------------------
+What is selected:     influence edge between two nodes (e.g. jazz → bossa nova) clicked in network
+[MAP]:                N countries with jazz songs   [or whichever genre is the source of the influence]
+                      NOTE: current code uses the source genre node filter for map dim
+[NETWORK]:            jazz (N songs)   [source node shown in titlebar]
+[SONGS]:              songs · jazz → bossa nova   [influence panel label format]
+[FOOTER]:             N songs   [only the songs that have Main Genre=jazz AND Influence Genre=bossa nova]
+SONGS TABLE:          only the specific songs behind this influence edge (filtered by both Main Genre and Influence Genre),
+                      influence column visible, country column visible;
+                      displayed via filterSongsRaw (bypasses normal renderTable)
+MAP DIM:              bubbles with ≥1 jazz song → lit;
+                      all others → dimmed
+NET DIM:              source and target nodes → lit;
+                      all other nodes → dimmed;
+                      the clicked edge → lit;
+                      all other edges → dimmed;
+                      influence panel slides up from bottom of network panel
+
+
+======================================================
+SECTION 15 — TEXT SEARCH ONLY
+======================================================
+
+STATE 15.1 — Text search only (no other filters)
+-------------------------------------------------
+What is selected:     search query typed in songs search bar (e.g. "silvio")
+[MAP]:                N countries   [unchanged — search does not affect map titlebar]
+[NETWORK]:            62 groups · 255 genres   [unchanged — search does not affect network titlebar]
+[SONGS]:              songs · "silvio"
+[FOOTER]:             N songs
+SONGS TABLE:          tracks matching search query (against Track Name, Artist Name, Main Genre),
+                      all columns visible
+MAP DIM:              no change — search does not dim the map
+NET DIM:              no change — search does not dim the network
+
+
+======================================================
+SECTION 16 — TEXT SEARCH + COUNTRY
+======================================================
+
+STATE 16.1 — Text search + country
+------------------------------------
+What is selected:     Colombia + search query "silvio"
+[MAP]:                Colombia (N songs)   [country count is raw Colombian total, not search-filtered]
+[NETWORK]:            N genres in Colombia
+[SONGS]:              songs · Colombia · "silvio"
+[FOOTER]:             N songs
+SONGS TABLE:          tracks from Colombia AND matching search query,
+                      country column hidden
+MAP DIM:              Colombia → lit; all others → dimmed
+NET DIM:              group nodes with ≥1 Colombian song → lit; others → dimmed
+
+
+======================================================
+SECTION 17 — RELEASING FILTERS
+======================================================
+
+STATE 17.1 — Map background click (country release)
+----------------------------------------------------
+What changes:         mapFilter → null; networkFilter untouched; decade untouched
+Result:               → goes to whichever state matches remaining active filters
+
+STATE 17.2 — Network overlay close button (genre release, solo node)
+---------------------------------------------------------------------
+What changes:         networkFilter → null; mapFilter untouched; decade untouched
+Result:               → goes to whichever state matches remaining active filters;
+                      country dim restored if mapFilter was active
+
+STATE 17.3 — Network background click (group collapse)
+------------------------------------------------------
+What changes:         expandedGroup collapses → networkFilter → null; mapFilter untouched; decade untouched
+Result:               → goes to whichever state matches remaining active filters;
+                      country dim restored if mapFilter was active
+
+STATE 17.4 — Reset all filters button
+--------------------------------------
+What changes:         mapFilter → null; networkFilter → null; decadeMin/Max → full range; searchQuery → ''
+Result:               → STATE 1.1 (no filter baseline);
+                      history entry pushed for this state;
+                      both visuals recentered
+
+
+======================================================
+SECTION 18 — EDGE CASES AND SPECIAL BEHAVIORS
+======================================================
+
+18.1 — Hover over map bubble (temporary, not a filter)
+-------------------------------------------------------
+What changes:         temporary dim of all other bubbles; tooltip shows country name + song count
+On mouseout:          previous permanent state fully restored (no permanent dim change)
+
+18.2 — Hover over collapsed group node (temporary)
+---------------------------------------------------
+What changes:         temporary dim of all unconnected group nodes and edges;
+                      tooltip shows: name, cluster, song count, subgenre count, "click to expand"
+On mouseout:          previous permanent state fully restored
+
+18.3 — Hover over solo group node (temporary)
+----------------------------------------------
+What changes:         temporary dim of unconnected nodes;
+                      tooltip shows: name, cluster, song count, edge list (came from / leads to)
+On mouseout:          previous permanent state fully restored
+
+18.4 — Hover over child node inside expanded group (temporary)
+--------------------------------------------------------------
+What changes:         temporary dim of unconnected child nodes + external nodes;
+                      tooltip shows: name, cluster, song count, edge list
+On mouseout:          previous permanent state fully restored
+
+18.5 — Hover over edge (temporary)
+------------------------------------
+What changes:         hit line brightens the visible edge; tooltip shows source → target / type
+On mouseout:          edge restored to EDGE_STYLES defaults; tooltip hides
+
+18.6 — Songs column: genre column swap
+----------------------------------------
+When active:          when networkFilter is set (genre or genre-group), genre column → hidden, influence column → shown
+When inactive:        genre column shown, influence column hidden
+
+18.7 — Songs column: country column hide
+-----------------------------------------
+When active:          when mapFilter is set, country column → hidden
+When inactive:        country column shown
+
+18.8 — Navigation history — back/forward
+-----------------------------------------
+What restores:        full filter state snapshot (mapFilter, networkFilter, decadeMin, decadeMax);
+                      for genre-group: group is re-expanded in network;
+                      for genre (solo): network dim restored via applyNetworkDimByGenre;
+                      table re-renders; titlebars recompute; decade slider UI updates
+
+18.9 — Eponymous child (e.g. cumbia inside cumbia group)
+----------------------------------------------------------
+On expand:            the eponymous child (whose id = group label) becomes the anchor node;
+                      group node <g> hidden entirely;
+                      eponymous child renders at full opacity (0.85 fill, glow if >30 songs);
+                      all other root children attach to it via anchor edges;
+                      on collapse: group <g> visibility restored
+
+18.10 — Peek nodes
+--------------------
+When shown:           when an expanded child connects to a fine-grained genre inside another multi-child group,
+                      that specific fine-grained node appears as a peek node;
+                      color = parent group's color (not its own cluster color);
+                      fully interactive: hover shows edge list, click opens overlay and filters songs
+
+18.11 — Solo group click behavior
+-----------------------------------
+What happens:         songs filtered to that single child genre;
+                      no expansion animation;
+                      group bubble stays at full size but dims unconnected group nodes;
+                      expandedGroup is NOT set (remains null);
+                      activeSelection = { type: 'node', nodeId: childId }
+
+18.12 — Genre search finding a child node
+-------------------------------------------
+What happens:         parent group expands;
+                      child node highlighted (lower opacity siblings);
+                      search input holds the child id;
+                      parent expansion triggers filterSongsGroup for all children first,
+                      then highlight dims siblings to show only the matched child
+
+======================================================
+END OF SPECIFICATION
+======================================================

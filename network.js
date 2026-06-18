@@ -156,11 +156,35 @@
     )
   }
 
+  function updateGroupTitlebar(label) {
+    var statusEl = document.getElementById('network-status')
+    if (!statusEl) return
+    var gn = groupNodeById[label]
+    if (!gn) return
+    var children       = groupDefs[label] || []
+    var groupSongCount = gn.song_count
+    var subgenreCount  = children.length
+    var base = label + ' (' + groupSongCount + ' songs · ' + subgenreCount + ' subgenres)'
+    var activeCountry = typeof window.getMapFilter === 'function' ? window.getMapFilter() : null
+    var dr = typeof window.getDecadeRange === 'function' ? window.getDecadeRange() : null
+    if (activeCountry && dr) {
+      statusEl.textContent = base + ' · ' + activeCountry + ' · ' + dr
+    } else if (activeCountry) {
+      statusEl.textContent = base + ' · ' + activeCountry
+    } else if (dr) {
+      statusEl.textContent = base + ' · ' + dr
+    } else {
+      statusEl.textContent = base
+    }
+  }
+
   function applyDim() {
     if (!nodeSelection || !activeSelection) return
 
     if (activeSelection.type === 'group') {
-      var groupId = activeSelection.groupId
+      var groupId      = activeSelection.groupId
+      var activeGenres = activeSelection.activeGenres || null
+
       var connectedToGroup = activeSelection.connectedToGroup || (function() {
         var s = new Set()
         injectedChildEdges.forEach(function(ce) {
@@ -170,24 +194,45 @@
         })
         return s
       })()
+
+      function collapsedBubbleLit(bubbleId) {
+        if (!connectedToGroup.has(bubbleId)) return false
+        if (!activeGenres) return true
+        var kids = groupDefs[bubbleId] || []
+        return kids.some(function(c) { return activeGenres[c] })
+      }
+
+      function childNodeLit(childId) {
+        if (!activeGenres) return true
+        return !!activeGenres[childId]
+      }
+
       nodeSelection.style('opacity', function(n) {
-        if (n.id === groupId) return null  // diamond; don't override
-        return connectedToGroup.has(n.id) ? 1 : 0.08
+        if (n.id === groupId) return null
+        return collapsedBubbleLit(n.id) ? 1 : 0.08
       })
       linkVisSelection.style('opacity', function(l) {
         if (l.source.id === groupId || l.target.id === groupId) return 'none'
         return 0.03
       })
-      if (childSelection) childSelection.style('opacity', 1)
-      // Re-apply external edge dim
-      var extEdgeSel = gSelection ? gSelection.selectAll('line.external-edge') : null
-      if (extEdgeSel) {
-        extEdgeSel.style('opacity', function(d) {
-          var srcIsGroupNode = !d.source.isChildNode && !d.source.isPeekNode && !d.source.isEponymous
-          var tgtIsGroupNode = !d.target.isChildNode && !d.target.isPeekNode && !d.target.isEponymous
-          if (srcIsGroupNode && !connectedToGroup.has(d.source.id)) return 0.03
-          if (tgtIsGroupNode && !connectedToGroup.has(d.target.id)) return 0.03
-          return null
+      if (childSelection) {
+        childSelection.style('opacity', function(n) {
+          return childNodeLit(n.id) ? 1 : 0.08
+        })
+      }
+      // Only target visible edge lines — not the transparent hit lines
+      var expandedEdgeG = gSelection ? gSelection.select('.expanded-edges') : null
+      if (expandedEdgeG && !expandedEdgeG.empty()) {
+        expandedEdgeG.selectAll('line.diamond-edge, line.child-edge, line.external-edge').style('opacity', function(d) {
+          if (!d || !d.source || !d.target) return null
+          if (d._isDiamondEdge) return childNodeLit(d.source.id) ? null : 0.03
+          var srcId = d.source.id
+          var tgtId = d.target.id
+          var srcIsCollapsed = !d.source.isChildNode && !d.source.isPeekNode && !d.source.isEponymous
+          var tgtIsCollapsed = !d.target.isChildNode && !d.target.isPeekNode && !d.target.isEponymous
+          var srcLit = srcIsCollapsed ? collapsedBubbleLit(srcId) : childNodeLit(srcId)
+          var tgtLit = tgtIsCollapsed ? collapsedBubbleLit(tgtId) : childNodeLit(tgtId)
+          return (srcLit && tgtLit) ? null : 0.03
         })
       }
       return
@@ -207,6 +252,59 @@
       linkVisSelection.style('opacity', function(l) {
         return (connectedGroupLabels.has(l.source.id) && connectedGroupLabels.has(l.target.id)) ? 1 : 0.03
       })
+    }
+
+    if (activeSelection.type === 'child-node') {
+      var id          = activeSelection.nodeId
+      var parentLabel = activeSelection.parentLabel
+      var fineConns   = adj[id] || []
+      var connectedIds = new Set([id].concat(fineConns))
+
+      // External collapsed group bubbles connected to this child
+      var connectedGroupLabels = new Set()
+      fineConns.forEach(function(nid) {
+        var gl = childToGroup[nid]
+        if (gl && gl !== parentLabel) connectedGroupLabels.add(gl)
+      })
+
+      // Collapsed bubbles: lit only if connected to selected child; parent always dimmed
+      nodeSelection.style('opacity', function(n) {
+        if (n.id === parentLabel) return 0.08
+        return connectedGroupLabels.has(n.id) ? 1 : 0.08
+      })
+
+      // All collapsed edges dimmed
+      linkVisSelection.style('opacity', 0.03)
+
+      // Sibling children and peek nodes
+      if (childSelection) {
+        childSelection.style('opacity', function(n) {
+          return connectedIds.has(n.id) ? 1 : 0.08
+        })
+      }
+      var peekSel = gSelection ? gSelection.selectAll('g.peek-node') : null
+      if (peekSel && !peekSel.empty()) {
+        peekSel.style('opacity', function(n) {
+          return connectedIds.has(n.id) ? 1 : 0.08
+        })
+      }
+
+      // Only target visible edge lines — not the transparent hit lines
+      var expandedEdgeG = gSelection ? gSelection.select('.expanded-edges') : null
+      if (expandedEdgeG && !expandedEdgeG.empty()) {
+        expandedEdgeG.selectAll('line.diamond-edge, line.child-edge, line.external-edge').style('opacity', function(d) {
+          if (!d || !d.source || !d.target) return null
+          var srcId = d.source.id
+          var tgtId = d.target.id
+          // anchor lines connect to parentLabel — always dimmed
+          if (srcId === parentLabel || tgtId === parentLabel) return 0.03
+          var srcIsCollapsed = !d.source.isChildNode && !d.source.isPeekNode && !d.source.isEponymous
+          var tgtIsCollapsed = !d.target.isChildNode && !d.target.isPeekNode && !d.target.isEponymous
+          var srcLit = srcIsCollapsed ? connectedGroupLabels.has(srcId) : connectedIds.has(srcId)
+          var tgtLit = tgtIsCollapsed ? connectedGroupLabels.has(tgtId) : connectedIds.has(tgtId)
+          return (srcLit && tgtLit) ? null : 0.03
+        })
+      }
     }
 
     if (activeSelection.type === 'edge') {
@@ -1186,28 +1284,8 @@
           overlayHistory = []
           if (d.song_count > 0) openOverlay(d.id)
 
-          // Dim: this node + its fine-grained neighbors (children + peek + group nodes)
-          var fineConns = adj[d.id] || []
-          var connectedIds = new Set([d.id].concat(fineConns))
-          var connectedGroupLabels = new Set()
-          fineConns.forEach(function(nid) {
-            var gl = childToGroup[nid]
-            if (gl && gl !== label) connectedGroupLabels.add(gl)
-          })
-
-          activeSelection = { type: 'node', nodeId: d.id }
-          nodeSelection.style('opacity', function(n) {
-            return connectedGroupLabels.has(n.id) ? 1 : 0.08
-          })
-          linkVisSelection.style('opacity', 0.03)
-          childSelection.style('opacity', function(n) {
-            return connectedIds.has(n.id) ? 1 : 0.08
-          })
-          if (peekSelection) {
-            peekSelection.style('opacity', function(n) {
-              return connectedIds.has(n.id) ? 1 : 0.08
-            })
-          }
+          activeSelection = { type: 'child-node', nodeId: d.id, parentLabel: label }
+          applyDim()
         })
 
       sel.call(d3.drag()
@@ -1380,45 +1458,21 @@
       if (!ce.target.isChildNode && !ce.target.isPeekNode) connectedToGroup.add(ce.target.id)
     })
 
-    activeSelection = { type: 'group', groupId: label, connectedToGroup: connectedToGroup }
-    nodeSelection.style('opacity', function(d) {
-      return connectedToGroup.has(d.id) ? 1 : 0.08
-    })
-    linkVisSelection.style('opacity', function(l) {
-      if (l.source.id === label || l.target.id === label) return 'none'
-      return 0.03
-    })
+    var expandActiveGenres = typeof window.getActiveGenresForDim === 'function'
+      ? window.getActiveGenresForDim() : null
 
-    // Dim external and inter-child edges whose collapsed-group endpoint is not connected to this group
-    // (external edge source or target may be a collapsed group node — check connectedToGroup)
-    function externalEdgeOpacity(d) {
-      // find which endpoint is a collapsed group node (not a child or peek node)
-      var srcIsGroupNode = !d.source.isChildNode && !d.source.isPeekNode && !d.source.isEponymous
-      var tgtIsGroupNode = !d.target.isChildNode && !d.target.isPeekNode && !d.target.isEponymous
-      if (srcIsGroupNode && !connectedToGroup.has(d.source.id)) return 0.03
-      if (tgtIsGroupNode && !connectedToGroup.has(d.target.id)) return 0.03
-      return null  // let EDGE_STYLES color handle it
+    activeSelection = {
+      type:             'group',
+      groupId:          label,
+      connectedToGroup: connectedToGroup,
+      activeGenres:     expandActiveGenres
     }
-    externalLines.style('opacity', externalEdgeOpacity)
+
+    applyDim()
+
     externalHitLines.style('opacity', 0)  // hit lines always invisible
 
-    var groupSongCount = gn.song_count
-    var subgenreCount  = children.length
-    var base = label + ' (' + groupSongCount + ' songs · ' + subgenreCount + ' subgenres)'
-    var activeCountry = typeof window.getMapFilter === 'function' ? window.getMapFilter() : null
-    var dr = typeof window.getDecadeRange === 'function' ? window.getDecadeRange() : null
-    var statusEl = document.getElementById('network-status')
-    if (statusEl) {
-      if (activeCountry && dr) {
-        statusEl.textContent = base + ' · ' + activeCountry + ' · ' + dr
-      } else if (activeCountry) {
-        statusEl.textContent = base + ' · ' + activeCountry
-      } else if (dr) {
-        statusEl.textContent = base + ' · ' + dr
-      } else {
-        statusEl.textContent = base
-      }
-    }
+    updateGroupTitlebar(label)
   }
 
   function collapseGroup(silent) {
@@ -1501,7 +1555,7 @@
             }
           }
         }
-        statusEl.textContent = groupNodes.length + ' genres'
+        statusEl.textContent = groupNodes.length + ' ' + (groupNodes.length === 1 ? 'group' : 'groups') + ' · ' + allNodes.length + ' ' + (allNodes.length === 1 ? 'genre' : 'genres')
         return
       }
       var n = nodeById[genreId]
@@ -1562,7 +1616,7 @@
             return
           }
         }
-        statusEl.textContent = groupNodes.length + ' genres'
+        statusEl.textContent = groupNodes.length + ' ' + (groupNodes.length === 1 ? 'group' : 'groups') + ' · ' + allNodes.length + ' ' + (allNodes.length === 1 ? 'genre' : 'genres')
         return
       }
       if (activeSelection && activeSelection.type === 'node') {
@@ -1960,7 +2014,7 @@
         nodeSelection.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')' })
       })
 
-      if (statusEl) statusEl.textContent = collapsedNodes.length + ' genres'
+      if (statusEl) statusEl.textContent = groupNodes.length + ' ' + (groupNodes.length === 1 ? 'group' : 'groups') + ' · ' + allNodes.length + ' ' + (allNodes.length === 1 ? 'genre' : 'genres')
 
     }).catch(function(err) {
       console.error('Network error:', err)
@@ -1978,19 +2032,38 @@
 
   window.applyNetworkDimByCountry = function(country) {
     if (!nodeSelection) return
-    if (activeSelection && activeSelection.type === 'node') return
+    if (activeSelection && (activeSelection.type === 'node' || activeSelection.type === 'child-node')) return
+
+    var activeGenres = typeof window.getActiveGenresForDim === 'function'
+      ? window.getActiveGenresForDim() : null
+
     if (!country) {
+      if (activeSelection && activeSelection.type === 'group') {
+        activeSelection.activeGenres = null
+        applyDim()
+        updateGroupTitlebar(activeSelection.groupId)
+        return
+      }
       activeSelection = null
       nodeSelection.style('opacity', null)
       if (linkVisSelection) linkVisSelection.style('opacity', null)
+      if (updateNetworkStatus) updateNetworkStatus(null)
       return
     }
-    var activeGenres = typeof window.getActiveGenresForDim === 'function'
-      ? window.getActiveGenresForDim() : null
+
+    if (activeSelection && activeSelection.type === 'group') {
+      activeSelection.activeGenres = activeGenres
+      applyDim()
+      updateGroupTitlebar(activeSelection.groupId)
+      recentreNetwork()
+      return
+    }
+
     if (!activeGenres) {
       activeSelection = null
       nodeSelection.style('opacity', null)
       if (linkVisSelection) linkVisSelection.style('opacity', null)
+      if (updateNetworkStatus) updateNetworkStatus(null)
       return
     }
     activeSelection = { type: 'country', country: country, activeGenres: activeGenres }
@@ -2026,9 +2099,18 @@
 
   window.applyNetworkDimByDecade = function() {
     if (!nodeSelection) return
-    if (activeSelection && activeSelection.type === 'node') return
+    if (activeSelection && (activeSelection.type === 'node' || activeSelection.type === 'child-node')) return
+
     var activeGenres = typeof window.getActiveGenresForDim === 'function'
       ? window.getActiveGenresForDim() : null
+
+    if (activeSelection && activeSelection.type === 'group') {
+      activeSelection.activeGenres = activeGenres
+      applyDim()
+      updateGroupTitlebar(activeSelection.groupId)
+      return
+    }
+
     if (!activeGenres) {
       activeSelection = null
       nodeSelection.style('opacity', null)

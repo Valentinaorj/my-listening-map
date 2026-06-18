@@ -440,12 +440,16 @@ function updateMapStatus() {
 
     if (hasGenre) {
       var genre = networkFilter.value
-      // triple intersection: country + genre + decade
+      var isGroupFilter = networkFilter.type === 'genre-group' && Array.isArray(networkFilter.children)
+      var groupChildSet = {}
+      if (isGroupFilter) networkFilter.children.forEach(function(c) { groupChildSet[c.toLowerCase()] = true })
+      // triple intersection: country + genre(s) + decade
       var pool = decadeFilteredTracks()
       var n = pool.filter(function(s) {
         if (!s['Artist Country']) return false
         var inCountry = s['Artist Country'].split('; ').map(function(c){return c.trim()}).indexOf(country) !== -1
-        var inGenre   = (s['Main Genre'] || '').trim().toLowerCase() === genre.toLowerCase()
+        var sg = (s['Main Genre'] || '').trim().toLowerCase()
+        var inGenre = isGroupFilter ? groupChildSet[sg] : (sg === genre.toLowerCase())
         return inCountry && inGenre
       }).length
       el.textContent = hasDecade
