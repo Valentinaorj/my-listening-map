@@ -299,6 +299,57 @@ function renderTable() {
   if (footer) footer.textContent = tracks.length + ' songs'
 }
 
+// ── EXPORT CSV ──
+function buildExportFilename() {
+  var parts = []
+  if (mapFilter) parts.push(mapFilter.value)
+  var allMin = DECADE_DECADES.length ? DECADE_DECADES[0] : null
+  var allMax = DECADE_DECADES.length ? DECADE_DECADES[DECADE_DECADES.length - 1] : null
+  if (decadeMin !== null && decadeMax !== null && (decadeMin !== allMin || decadeMax !== allMax)) {
+    parts.push(decadeMin + '-' + decadeMax)
+  }
+  if (networkFilter) parts.push(networkFilter.value)
+
+  var slug = parts.map(function(p) {
+    return String(p).toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+  }).filter(Boolean)
+
+  return 'mylisteningmap_export' + (slug.length ? '_' + slug.join('_') : '_all') + '.csv'
+}
+
+function exportCSV() {
+  var tracks = sortTracks(getFilteredTracks(), currentSort.key, currentSort.dir)
+  var rows = [['title', 'artist', 'album', 'year']]
+  tracks.forEach(function(s) {
+    rows.push([
+      s['Track Name'] || '',
+      s['Artist Name(s)'] || '',
+      s['Album Name'] || '',
+      (s['Release Date'] || '').slice(0, 4) || ''
+    ])
+  })
+  var csv = rows.map(function(r) {
+    return r.map(function(v) {
+      v = String(v).replace(/"/g, '""')
+      return /[",\n]/.test(v) ? '"' + v + '"' : v
+    }).join(',')
+  }).join('\n')
+
+  var BOM = '\uFEFF'
+  var blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' })
+  var url  = URL.createObjectURL(blob)
+  var a    = document.createElement('a')
+  a.href = url
+  a.download = buildExportFilename()
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
 // ── CROSS-FILTER: dim map bubbles based on map selection + network filter ──
 function applyMapDim() {
   if (!mapMarkers.length) return
@@ -1125,6 +1176,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var resetAllBtn = document.getElementById('reset-all-btn')
   if (resetAllBtn) resetAllBtn.addEventListener('click', resetAll)
+
+  var exportBtn = document.getElementById('export-csv-btn')
+  if (exportBtn) exportBtn.addEventListener('click', exportCSV)
 
   // ── COPY BUTTON (delegated) ──
   var songsTbody = document.getElementById('songs-tbody')

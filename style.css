@@ -386,13 +386,30 @@ body {
 /* ── SONGS CONTROLS (search only now) ── */
 #songs-controls {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 6px;
   padding: 6px 8px;
   border-bottom: var(--border-thin);
   flex-shrink: 0;
   background: var(--bg);
 }
+
+#songs-search { flex: 1; }
+
+#export-csv-btn {
+  font-family: var(--font);
+  font-size: var(--font-size-sm);
+  background: var(--bg);
+  border: var(--border-thin);
+  padding: 3px 10px;
+  cursor: pointer;
+  color: var(--black);
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+#export-csv-btn:hover { background: var(--black); color: var(--bg); }
 
 #songs-search {
   width: 100%;
