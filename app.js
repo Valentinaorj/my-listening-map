@@ -1078,9 +1078,8 @@ function buildMap(tracks) {
   var map = L.map('map').setView([20, 0], 2)
   window._leafletMap = map
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
-    attribution: '© OpenStreetMap © CARTO',
-    subdomains: 'abcd'
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
   }).addTo(map)
 
   var maxCount = Math.max.apply(null, Object.values(countries))
